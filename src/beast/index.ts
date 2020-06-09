@@ -1,7 +1,9 @@
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaJson from 'koa-json';
+
 import config from './config';
+import logger from './logger';
 
 import productsRouter from '../endpoints/products/routes';
 
@@ -12,8 +14,14 @@ app.use(koaBody());
 
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 
+app.on('error', (err) => {
+  logger.error('Beast Server error', err);
+});
+
 export const liftServer = () => {
-  app.listen(config.get('BEAST_PORT'));
+  const port = config.getNumber('BEAST_PORT', 3000);
+  app.listen(port);
+  logger.info(`Starting Beast Server in port ${port}`);
 };
 
 export default app;
