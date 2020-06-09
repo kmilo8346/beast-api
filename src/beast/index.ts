@@ -15,7 +15,7 @@ app.use(koaBody());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 
 app.on('error', (err) => {
-  logger.error('Beast Server error', err);
+  logger.error(err);
 });
 
 export const liftServer = () => {

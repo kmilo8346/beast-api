@@ -20,7 +20,6 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
     ctx.request.body = value;
     await next();
   } catch (error) {
-    console.log('asdfasdf');
     ctx.throw(400, error);
   }
 };

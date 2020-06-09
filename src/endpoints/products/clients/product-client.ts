@@ -1,4 +1,6 @@
-import elastic from 'beast/clients/elastic';
+import Error from 'verror';
+
+import elastic from '../../../beast/clients/elastic';
 
 const INDEX = 'products';
 
@@ -15,18 +17,6 @@ interface SearchParams {
 class ProductClient {
   async search(params: SearchParams) {
     try {
-      const filter = {
-        geo_shape: {
-          'store.delivery_area': {
-            shape: {
-              type: 'Point',
-              coordinates: params.filters.shopper_position,
-            },
-            relation: 'intersects',
-          },
-        },
-      };
-
       const response = await elastic.search({
         index: INDEX,
         body: {
@@ -44,7 +34,17 @@ class ProductClient {
                   ],
                 },
               },
-              filter,
+              filter: {
+                geo_shape: {
+                  'store.delivery_area': {
+                    shape: {
+                      type: 'Point',
+                      coordinates: params.filters.shopper_position,
+                    },
+                    relation: 'intersects',
+                  },
+                },
+              },
             },
           },
           from: params.from,
@@ -61,7 +61,10 @@ class ProductClient {
         })),
       };
     } catch (error) {
-      throw new Error('Error searching in elastic');
+      throw new Error(
+        { cause: error, info: params },
+        'Error searching over products index',
+      );
     }
   }
 }
