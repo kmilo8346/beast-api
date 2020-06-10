@@ -3,11 +3,11 @@ import Error from 'verror';
 import elastic from '../../../beast/clients/elastic';
 import { SearchParams, SearchResponse } from '../../../types';
 
-const INDEX = 'products-*';
+const INDEX = 'stores';
 
-class ProductClient {
+class StoreClient {
   /**
-   * Search over products index
+   * Search over stores index
    * @param params
    */
   async search(params: SearchParams): Promise<SearchResponse> {
@@ -17,13 +17,7 @@ class ProductClient {
         bool.must = {
           multi_match: {
             query: params.query,
-            fields: [
-              'name^2',
-              'description',
-              'categories',
-              'tags',
-              'store.name',
-            ],
+            fields: ['name'],
           },
         };
       }
@@ -31,7 +25,7 @@ class ProductClient {
         if (params.filters.position) {
           bool.filter = bool.filter || {};
           bool.filter.geo_shape = {
-            'store.delivery_area': {
+            delivery_area: {
               shape: {
                 type: 'Point',
                 coordinates: params.filters.position,
@@ -51,7 +45,7 @@ class ProductClient {
           from: params.from,
           size: params.size,
           _source: params.source,
-          sort: [{ 'store.name.keyword': { order: 'asc' } }],
+          sort: [{ 'name.keyword': { order: 'asc' } }],
         },
       });
       return {
@@ -64,10 +58,10 @@ class ProductClient {
     } catch (error) {
       throw new Error(
         { cause: error, info: params },
-        'Error searching over products index',
+        'Error searching over stores index',
       );
     }
   }
 }
 
-export default new ProductClient();
+export default new StoreClient();

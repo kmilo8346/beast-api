@@ -6,6 +6,7 @@ import config from './config';
 import logger from './logger';
 
 import productsRouter from '../endpoints/products/routes';
+import storesRouter from '../endpoints/stores/routes';
 
 const app = new Koa();
 
@@ -13,6 +14,7 @@ app.use(koaJson());
 app.use(koaBody());
 
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
+app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error(err);

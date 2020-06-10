@@ -1,7 +1,7 @@
 import Router, { IMiddleware } from 'koa-router';
 import Joi from '@hapi/joi';
 
-import productClient from '../clients/product-client';
+import storeClient from '../clients/store-client';
 
 const inputSchema = Joi.object({
   query: Joi.string(),
@@ -27,7 +27,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.post('/search', validate, async (ctx) => {
     try {
-      const response = await productClient.search(ctx.request.body);
+      const response = await storeClient.search(ctx.request.body);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);
