@@ -4,7 +4,7 @@ import Joi from '@hapi/joi';
 import storeClient from '../clients/store-client';
 
 const inputSchema = Joi.object({
-  query: Joi.string(),
+  query: Joi.string().allow(''),
   filters: Joi.object().keys({
     position: Joi.array().items(Joi.number()).length(2),
   }),

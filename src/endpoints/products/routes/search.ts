@@ -4,10 +4,10 @@ import Joi from '@hapi/joi';
 import productClient from '../clients/product-client';
 
 const inputSchema = Joi.object({
-  query: Joi.string(),
+  query: Joi.string().allow(''),
   filters: Joi.object().keys({
     position: Joi.array().items(Joi.number()).length(2),
-    store: Joi.string(),
+    store: Joi.string().allow(''),
   }),
   from: Joi.number().integer().min(0).default(0),
   size: Joi.number().min(0).max(100).default(10),
