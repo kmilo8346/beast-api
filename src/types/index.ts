@@ -1,8 +1,6 @@
 export interface SearchParams {
   query?: string;
-  filters?: {
-    position?: number[];
-  };
+  filters?: { [key: string]: any };
   from: number;
   size: number;
   source?: string[];

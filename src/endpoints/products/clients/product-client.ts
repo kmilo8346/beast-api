@@ -28,17 +28,26 @@ class ProductClient {
         };
       }
       if (params.filters) {
+        bool.filter = [];
         if (params.filters.position) {
-          bool.filter = bool.filter || {};
-          bool.filter.geo_shape = {
-            'store.delivery_area': {
-              shape: {
-                type: 'Point',
-                coordinates: params.filters.position,
+          bool.filter.push({
+            geo_shape: {
+              'store.delivery_area': {
+                shape: {
+                  type: 'Point',
+                  coordinates: params.filters.position,
+                },
+                relation: 'intersects',
               },
-              relation: 'intersects',
             },
-          };
+          });
+        }
+        if (params.filters.store) {
+          bool.filter.push({
+            term: {
+              'store.name.keyword': params.filters.store,
+            },
+          });
         }
       }
 

@@ -7,6 +7,7 @@ const inputSchema = Joi.object({
   query: Joi.string(),
   filters: Joi.object().keys({
     position: Joi.array().items(Joi.number()).length(2),
+    store: Joi.string(),
   }),
   from: Joi.number().integer().min(0).default(0),
   size: Joi.number().min(0).max(100).default(10),
