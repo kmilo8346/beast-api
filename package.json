@@ -4,8 +4,9 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "build": "rm -rf build && tsc",
-    "dev": "nodemon --watch 'src' --ignore 'src/**/*.spec.ts' --exec 'ts-node  -r dotenv-safe/config' src/index.ts"
+    "build": "rm -rf build && npx tsc",
+    "dev": "npx nodemon --watch 'src' --ignore 'src/**/*.spec.ts' --exec 'npx ts-node  -r dotenv-safe/config' src/index.ts",
+    "start": "node -r dotenv-safe/config src/index.js"
   },
   "repository": {
     "type": "git",
