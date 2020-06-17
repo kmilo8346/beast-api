@@ -7,6 +7,7 @@ import logger from './logger';
 
 import productsRouter from '../endpoints/products/routes';
 import storesRouter from '../endpoints/stores/routes';
+import googlePlacesRouter from '../endpoints/google/places/routes';
 
 const app = new Koa();
 
@@ -15,6 +16,7 @@ app.use(koaBody());
 
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
+app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error(err);
