@@ -1,10 +1,13 @@
  #!/bin/sh
 
 echo "creating namespace"
-# kubekubectl create -f namespace.yaml
+# kubekubectl apply -f namespace.yaml
 echo "creating deployment"
-# kubectl create -f deployment.yaml
+# kubectl apply -f deployment.yaml
 echo "creating service"    
-# kubectl create -f service.yaml
+# kubectl apply -f service.yaml
 
 #kubectl get services --watch
+
+# docker build --tag kmilo8346/beast-api:staging-2 .
+# docker push kmilo8346/beast-api:staging-2
