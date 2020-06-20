@@ -17,6 +17,7 @@ module.exports = {
     'no-unused-vars': 0,
     'class-methods-use-this': 0,
     'prefer-destructuring': 0,
+    'no-underscore-dangle': 0,
     camelcase: 0,
   },
 };

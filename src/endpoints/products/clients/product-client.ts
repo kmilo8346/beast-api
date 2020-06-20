@@ -3,7 +3,7 @@ import Error from 'verror';
 import elastic from '../../../beast/clients/elastic';
 import { SearchParams, SearchResponse } from '../../../types';
 
-const INDEX = 'products-*';
+const index = 'products-*';
 
 class ProductClient {
   /**
@@ -52,7 +52,7 @@ class ProductClient {
       }
 
       const response = await elastic.search({
-        index: INDEX,
+        index: index,
         body: {
           query: {
             bool,

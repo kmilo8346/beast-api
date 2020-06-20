@@ -5,6 +5,7 @@ import koaJson from 'koa-json';
 import config from './config';
 import logger from './logger';
 
+import customersRouter from '../endpoints/customers/routes';
 import productsRouter from '../endpoints/products/routes';
 import storesRouter from '../endpoints/stores/routes';
 import paymentMethodsRouter from '../endpoints/payment-methods/routes';
@@ -16,6 +17,7 @@ const app = new Koa();
 app.use(koaJson());
 app.use(koaBody());
 
+app.use(customersRouter.routes()).use(customersRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app
