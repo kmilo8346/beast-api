@@ -5,12 +5,14 @@ import koaJson from 'koa-json';
 import config from './config';
 import logger from './logger';
 
+// TODO: dynamic load
 import customersRouter from '../endpoints/customers/routes';
 import cardsRouter from '../endpoints/cards/routes';
 import productsRouter from '../endpoints/products/routes';
 import storesRouter from '../endpoints/stores/routes';
 import paymentMethodsRouter from '../endpoints/payment-methods/routes';
 import installmentsRouter from '../endpoints/installments/routes';
+import cardTokensRouter from '../endpoints/card-tokens/routes';
 import googlePlacesRouter from '../endpoints/google/places/routes';
 
 const app = new Koa();
@@ -26,6 +28,7 @@ app
   .use(paymentMethodsRouter.routes())
   .use(paymentMethodsRouter.allowedMethods());
 app.use(installmentsRouter.routes()).use(installmentsRouter.allowedMethods());
+app.use(cardTokensRouter.routes()).use(cardTokensRouter.allowedMethods());
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 
 app.on('error', (err) => {

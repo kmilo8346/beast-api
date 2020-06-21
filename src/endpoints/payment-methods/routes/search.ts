@@ -4,7 +4,13 @@ import Joi from '@hapi/joi';
 import paymentMethodClient from '../clients/payment-method-client';
 
 const inputSchema = Joi.object({
-  bins: Joi.string().required(),
+  query: Joi.string().allow(''),
+  filters: Joi.object().keys({
+    bins: Joi.string().required(),
+  }),
+  from: Joi.number().integer().min(0).default(0),
+  size: Joi.number().min(0).max(100).default(10),
+  source: Joi.array().items(Joi.string()),
 });
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
