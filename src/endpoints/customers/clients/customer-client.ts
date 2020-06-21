@@ -30,7 +30,7 @@ class CustomerClient {
    */
   async create(customer: Customer): Promise<Customer> {
     try {
-      // create or search by email if exist
+      // create or get a already created mercado pago customer
       let mercadoPagoCustomer;
       try {
         const mpCustomerCreateResponse = await mercadopago.customers.create({
@@ -53,6 +53,7 @@ class CustomerClient {
         mercadoPagoCustomer = mpCustomerSearchResponse.body.results[0];
       }
 
+      // index customer in db
       const body = {
         ...customer,
         mercadopago_customer_id: mercadoPagoCustomer.id,
@@ -61,6 +62,7 @@ class CustomerClient {
       };
       const response = await elastic.index({
         index,
+        id: body.id,
         refresh: 'true',
         body,
       });

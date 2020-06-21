@@ -6,6 +6,7 @@ import config from './config';
 import logger from './logger';
 
 import customersRouter from '../endpoints/customers/routes';
+import cardsRouter from '../endpoints/cards/routes';
 import productsRouter from '../endpoints/products/routes';
 import storesRouter from '../endpoints/stores/routes';
 import paymentMethodsRouter from '../endpoints/payment-methods/routes';
@@ -18,6 +19,7 @@ app.use(koaJson());
 app.use(koaBody());
 
 app.use(customersRouter.routes()).use(customersRouter.allowedMethods());
+app.use(cardsRouter.routes()).use(cardsRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app

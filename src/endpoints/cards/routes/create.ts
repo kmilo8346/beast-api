@@ -1,18 +1,11 @@
 import Router, { IMiddleware } from 'koa-router';
 import Joi from '@hapi/joi';
 
-import customerClient from '../clients/customer-client';
+import cardClient from '../clients/card-client';
 
 const inputSchema = Joi.object({
-  id: Joi.string().optional(),
-  phone: Joi.string().required(),
-  email: Joi.string().email().required(),
-  first_name: Joi.string().required(),
-  last_name: Joi.string().required(),
-  identification_type: Joi.string().required(),
-  indentification_number: Joi.string().required(),
-  default_address: Joi.string().allow(''),
-  default_card: Joi.string().allow(''),
+  mercadopago_customer_id: Joi.string().required(),
+  token: Joi.string().required(),
 });
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
@@ -29,7 +22,10 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.post('/', validate, async (ctx) => {
     try {
-      const response = await customerClient.create(ctx.request.body);
+      const response = await cardClient.create(
+        ctx.params.customer_id,
+        ctx.request.body,
+      );
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);
