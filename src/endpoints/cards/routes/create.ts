@@ -4,8 +4,11 @@ import Joi from '@hapi/joi';
 import cardClient from '../clients/card-client';
 
 const inputSchema = Joi.object({
-  mercadopago_customer_id: Joi.string().required(),
-  token: Joi.string().required(),
+  body: Joi.object({
+    mercadopago_customer_id: Joi.string().required(),
+    token: Joi.string().required(),
+  }),
+  source: Joi.array().items(Joi.string()).optional(),
 });
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {

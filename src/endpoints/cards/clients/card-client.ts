@@ -1,8 +1,9 @@
 import Error from 'verror';
-import lodash from 'lodash';
 
 import mercadopago from '../../../beast/clients/mercadopago';
 import elastic from '../../../beast/clients/elastic';
+import { CreateParams } from '../../../types';
+import utils from '../../../beast/utils';
 
 const index = 'cards';
 const prefix = '[card client]';
@@ -45,13 +46,13 @@ interface Card {
 class CardClient {
   async create(
     customerId: string,
-    data: { mercadopago_customer_id: string; token: string },
+    params: CreateParams<{ mercadopago_customer_id: string; token: string }>,
   ): Promise<Card> {
     try {
       // add card to customer in mercado pago
       const response = await mercadopago.customers.cards.create({
-        id: data.mercadopago_customer_id,
-        token: data.token,
+        id: params.body.mercadopago_customer_id,
+        token: params.body.token,
       });
 
       // index card in db
@@ -61,6 +62,7 @@ class CardClient {
         customer_id,
         ...card
       } = response.body;
+      // change some values
       card.customer_id = customerId;
       card.mercadopago_customer_id = customer_id;
       card.created_at = new Date(date_created).toISOString();
@@ -71,10 +73,11 @@ class CardClient {
         refresh: 'true',
         body: card,
       });
-      return card;
+
+      return utils.mapObject(card, params.source);
     } catch (error) {
       throw new Error(
-        { cause: error, info: { customerId, data } },
+        { cause: error, info: { customerId, params } },
         `${prefix} Error creating card`,
       );
     }
