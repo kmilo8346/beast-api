@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: beast-api
-          image: kmilo8346/beast-api:staging-2
+          image: kmilo8346/beast-api:staging-3
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
