@@ -6,6 +6,7 @@ import Error from 'verror';
 import config from '../../config';
 
 mercadopago.configure({
+  sandbox: config.getBoolean('MERCADO_PAGO_SANDBOX'),
   access_token: config.get('MERCADO_PAGO_ACCESS_TOKEN'),
 });
 
