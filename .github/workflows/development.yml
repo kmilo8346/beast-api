@@ -22,7 +22,6 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Build and Push Docker Image
-      
         env:
           NODE_ENV: development
           BEAST_PORT: ${{secrets.BEAST_PORT_DEV}}
@@ -35,5 +34,4 @@ jobs:
           MERCADO_PAGO_URL: ${{secrets.DEV_MERCADO_PAGO_URL}}
           MERCADO_PAGO_REQUEST_TIMEOUT: ${{secrets.MERCADO_PAGO_REQUEST_TIMEOUT}}
           MERCADO_PAGO_ACCESS_TOKEN: ${{secrets.DEV_MERCADO_PAGO_ACCESS_TOKEN}}
-       run: |
-        echo Set DEVELOPMENT env variables...
+        run: echo Set DEVELOPMENT env variables
