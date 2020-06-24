@@ -77,7 +77,7 @@ jobs:
           chmod u+x ./kustomize
 
       # Deploy the Docker image to the GKE cluster
-      - name: Deploy
+      - name: Deploy to GKE
         run: |
           gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GKE_PROJECT
           ./kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
