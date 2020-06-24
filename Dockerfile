@@ -13,7 +13,7 @@ RUN npm install --quiet && \
     npm run build
 
 WORKDIR /home/app/build
-COPY .env.staging .env
+# COPY .env.staging .env
 COPY package.json \
     package-lock.json \
     .env.example ./
