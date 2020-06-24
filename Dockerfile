@@ -3,7 +3,7 @@ FROM node:alpine AS builder
 WORKDIR /home/app
 
 COPY src/ src/
-COPY .env.staging .env
+#COPY .env.staging .env
 COPY package.json \
     package-lock.json \
     tsconfig.json \
