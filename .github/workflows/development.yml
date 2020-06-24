@@ -44,10 +44,9 @@ jobs:
         run: |
           docker push firedevs/beast-api:1.0.0
           echo build and published done!!
-      - name: Deploy to GKE
 
-      # Setup gcloud CLI
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      - name: Deploy to GKE
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: '270.0.0'
           service_account_email: ${{ secrets.GKE_EMAIL }}
