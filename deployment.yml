@@ -1,0 +1,14 @@
+apiVersion: beast/v1
+kind: Deployment
+metadata:
+  name: Beast Api Deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: beast-api
+    spec:
+      containers:
+        - name: beast-api
+          image: firedevs/beast-api:1.0.0

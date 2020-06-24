@@ -8,7 +8,7 @@ on:
     branches: [master]
 
 jobs:
-  setup-build-publish:
+  setup-build-publish-deply:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,3 +44,34 @@ jobs:
         run: |
           docker push firedevs/beast-api:1.0.0
           echo build and published done!!
+      - name: Deploy to GKE
+
+      # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '270.0.0'
+          service_account_email: ${{ secrets.GKE_EMAIL }}
+          service_account_key: ${{ secrets.GKE_KEY }}
+
+      # Configure docker to use the gcloud command-line tool as a credential helper
+      - run: |
+          # Set up docker to authenticate
+          # via gcloud command-line tool.
+          gcloud auth configure-docker
+
+      # Set up kustomize
+      - name: Set up Kustomize
+        run: |
+          curl -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
+
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy
+        env:
+          GKE_CLUSTER: ${{secrets.GKE_CLUSTER}}
+          GKE_ZONE: ${{secrets.GKE_ZONE}}
+          GKE_PROJECT: ${{secrets.GKE_PROJECT}}
+        run: |
+          gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GKE_PROJECT
+          ./kustomize edit set image firedevs/beast-api:1.0.0
+          ./kustomize build . | kubectl apply -f ./deployment.yml
