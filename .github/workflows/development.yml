@@ -39,8 +39,6 @@ jobs:
           version: '270.0.0'
           service_account_email: ${{ secrets.GKE_EMAIL }}
           service_account_key: ${{ secrets.GKE_KEY }}
-
-      - name: Set env
         env:
           NODE_ENV: development
           BEAST_PORT: ${{secrets.BEAST_PORT_DEV}}
