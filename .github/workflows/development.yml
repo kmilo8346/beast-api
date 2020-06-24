@@ -52,8 +52,8 @@ jobs:
           MERCADO_PAGO_REQUEST_TIMEOUT: ${{secrets.MERCADO_PAGO_REQUEST_TIMEOUT}}
           MERCADO_PAGO_ACCESS_TOKEN: ${{secrets.DEV_MERCADO_PAGO_ACCESS_TOKEN}}
 
-      # Configure docker to use the gcloud command-line tool as a credential helper
-      - run: |
+        # Configure docker to use the gcloud command-line tool as a credential helper
+        run: |
           # Set up docker to authenticate
           # via gcloud command-line tool.
           gcloud auth configure-docker
