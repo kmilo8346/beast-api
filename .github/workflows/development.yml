@@ -19,11 +19,11 @@ env:
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
   GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
   GITHUB_SHA: ${{ github.sha }}
-  GKE_ZONE: us-west1-a
-  GKE_CLUSTER: example-gke-cluster
-  IMAGE: gke-test
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  IMAGE: beast-api
   REGISTRY_HOSTNAME: gcr.io
-  DEPLOYMENT_NAME: gke-test
+  DEPLOYMENT_NAME: beast-api
 
 jobs:
   setup-build-publish-deploy:
