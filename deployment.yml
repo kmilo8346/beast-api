@@ -1,9 +1,13 @@
-apiVersion: beast/v1
-kind: Deployment
+apiVersion: api/v1
+kind: 'Deployment'
 metadata:
   name: Beast Api Deployment
+  labels: beast-api
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: beast-api
   template:
     metadata:
       labels:
