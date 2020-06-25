@@ -1,7 +1,7 @@
 apiVersion: api/v1
 kind: 'Deployment'
 metadata:
-  name: Beast Api Deployment
+  name: beast-api
   labels: beast-api
 spec:
   replicas: 1
