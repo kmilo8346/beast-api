@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: beast-api
-  labels: beast-api
 spec:
   selector:
     matchLabels:
@@ -14,7 +13,7 @@ spec:
         app: beast-api
     spec:
       containers:
-        - name: beast-api
-          image: REGISTRY_HOSTNAME/GKE_PROJECT/IMAGE:GITHUB_SHA
-          ports:
-            - containerPort: 3000
+      - name: beast-api
+        image: REGISTRY_HOSTNAME/GKE_PROJECT/IMAGE:GITHUB_SHA
+        ports:
+          - containerPort: 3000
