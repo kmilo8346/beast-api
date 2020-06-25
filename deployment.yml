@@ -11,4 +11,6 @@ spec:
     spec:
       containers:
         - name: beast-api
-          image: firedevs/beast-api:1.0.0
+          image: REGISTRY_HOSTNAME/GKE_PROJECT/IMAGE:GITHUB_SHA
+          ports:
+            - containerPort: DEV_BEAST_PORT
