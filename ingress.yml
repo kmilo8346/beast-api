@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: beast-api
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: beast-api
+              servicePort: 80
