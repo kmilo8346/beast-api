@@ -1,15 +1,12 @@
-apiVersion: api/v1
-kind: 'Service'
+kind: Service
+apiVersion: v1
 metadata:
-  name: 'beast-api'
-  namespace: 'default'
-  labels:
-    app: 'beast-api'
+  name: beast-api
 spec:
-  ports:
-    - protocol: 'TCP'
-      port: 3005
-      targetPort: 3000
   selector:
-    app: 'beast-api'
-  type: 'LoadBalancer'
+    app: beast-api
+  type: LoadBalancer
+  ports:
+    - name: beast-api
+      port: 80
+      targetPort: 3000
