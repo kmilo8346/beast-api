@@ -17,4 +17,4 @@ spec:
         - name: beast-api
           image: REGISTRY_HOSTNAME/GKE_PROJECT/IMAGE:GITHUB_SHA
           ports:
-            containerPort: DEV_BEAST_PORT
+            - containerPort: 3000

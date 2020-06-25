@@ -81,7 +81,6 @@ jobs:
           gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GKE_PROJECT
           sed -i -e 's/REGISTRY_HOSTNAME/'"$REGISTRY_HOSTNAME"'/' deployment.yml
           sed -i -e 's/GKE_PROJECT/'"$GKE_PROJECT"'/' deployment.yml
-          sed -i -e 's/DEV_BEAST_PORT/'"$DEV_BEAST_PORT"'/' deployment.yml
           sed -i -e 's/IMAGE/'"$IMAGE"'/' deployment.yml
           sed -i -e 's/GITHUB_SHA/'"$GITHUB_SHA"'/' deployment.yml
           ./kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
