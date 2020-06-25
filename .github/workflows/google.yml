@@ -23,7 +23,7 @@ env:
   GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
   IMAGE: beast-api
   REGISTRY_HOSTNAME: gcr.io
-  DEPLOYMENT_NAME: beast-api-deploy
+  DEPLOYMENT_NAME: beast-api
   NODE_ENV: development
   BEAST_PORT: ${{secrets.BEAST_PORT_DEV}}
   ELASTIC_NODE: ${{secrets.ELASTIC_NODE_DEV}}
