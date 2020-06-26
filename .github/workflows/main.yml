@@ -60,7 +60,6 @@ jobs:
         run: |
           gcloud container clusters get-credentials ${GKE_CLUSTER} --zone ${GKE_ZONE} --project ${GKE_PROJECT}
           sed -i -e 's/TAG/'"${GITHUB_SHA}"'/' ./k8s/deployment.yaml
-          ./kustomize edit set image gcr.io/firedevs/beast-api:${GITHUB_SHA}
           ./kustomize build ./k8s | kubectl apply -f -
           kubectl rollout status deployment/beast-api
           kubectl get services -o wide
