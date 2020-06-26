@@ -1,0 +1,9 @@
+apiVersion: 'extensions/v1beta1'
+kind: 'Ingress'
+metadata:
+  name: 'best-api-ingress'
+  namespace: 'default'
+spec:
+  backend:
+    serviceName: 'beast-api'
+    servicePort: 80

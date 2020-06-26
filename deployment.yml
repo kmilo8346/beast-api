@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beast-api
+spec:
+  selector:
+    matchLabels:
+      app: beast-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: beast-api
+    spec:
+      containers:
+      - name: beast-api
+        image: REGISTRY_HOSTNAME/GKE_PROJECT/IMAGE:GITHUB_SHA
+        ports:
+          - containerPort: 3000

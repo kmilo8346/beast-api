@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: beast-api
+spec:
+  selector:
+    app: beast-api
+  type: LoadBalancer
+  ports:
+    - name: beast-api
+      port: 80
+      targetPort: 3000
