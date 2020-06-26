@@ -61,7 +61,6 @@ jobs:
           gcloud container clusters get-credentials ${GKE_CLUSTER} --zone ${GKE_ZONE} --project ${GKE_PROJECT}
           sed -i -e 's/TAG/'"${GITHUB_SHA}"'/' ./k8s/deployment.yaml
           ./kustomize build ./k8s | kubectl apply -f -
-          kubectl rollout status deployment/beast-api
           kubectl get services -o wide
         env:
           GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
