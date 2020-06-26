@@ -15,8 +15,6 @@ on:
     branches: [master]
 
 # Environment variables available to all jobs and steps in this workflow
-env:
-  GITHUB_SHA: ${{ github.sha }}
 jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
@@ -39,15 +37,18 @@ jobs:
 
       # Build the Docker image
       - name: Build
+        run: echo "${ENV}" > .env
         run: |
-          docker build -t "gcr.io/firedevs/beast-api:${GITHUB_SHA}" \
+          docker build -t "gcr.io/firedevs/beast-api:${GITHUB_RUN_NUMBER}" \
             --build-arg GITHUB_SHA="${GITHUB_SHA}" \
             --build-arg GITHUB_REF="${GITHUB_REF}" .
+        env:
+          ENV: ${{ secrets.ENV }}   
 
       # Push the Docker image to Google Container Registry
       - name: Publish
         run: |
-          docker push "gcr.io/firedevs/beast-api:${GITHUB_SHA}"
+          docker push "gcr.io/firedevs/beast-api:${GITHUB_RUN_NUMBER}"
 
       # Set up kustomize
       - name: Set up Kustomize
@@ -59,7 +60,7 @@ jobs:
       - name: Deploy
         run: |
           gcloud container clusters get-credentials ${GKE_CLUSTER} --zone ${GKE_ZONE} --project ${GKE_PROJECT}
-          sed -i -e 's/TAG/'"${GITHUB_SHA}"'/' ./k8s/deployment.yaml
+          sed -i -e 's/TAG/'"${GITHUB_RUN_NUMBER}"'/' ./k8s/deployment.yaml
           ./kustomize build ./k8s | kubectl apply -f -
           kubectl get services -o wide
         env:
