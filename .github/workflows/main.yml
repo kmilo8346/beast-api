@@ -37,13 +37,13 @@ jobs:
 
       # Build the Docker image
       - name: Build
-        run: echo "${ENV}" > .env
         run: |
+          echo "${ENV}" > .env
           docker build -t "gcr.io/firedevs/beast-api:${GITHUB_RUN_NUMBER}" \
             --build-arg GITHUB_SHA="${GITHUB_SHA}" \
             --build-arg GITHUB_REF="${GITHUB_REF}" .
         env:
-          ENV: ${{ secrets.ENV }}   
+          ENV: ${{ secrets.ENV }}
 
       # Push the Docker image to Google Container Registry
       - name: Publish
