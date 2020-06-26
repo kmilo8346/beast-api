@@ -1,12 +1,9 @@
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: 'extensions/v1beta1'
+kind: 'Ingress'
 metadata:
-  name: beast-api
+  name: 'best-api-ingress'
+  namespace: 'default'
 spec:
-  rules:
-    - http:
-        paths:
-          - path: /
-            backend:
-              serviceName: beast-api
-              servicePort: 80
+  backend:
+    serviceName: 'beast-api'
+    servicePort: 80
