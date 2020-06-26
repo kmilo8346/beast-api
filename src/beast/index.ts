@@ -4,6 +4,8 @@ import koaJson from 'koa-json';
 
 import config from './config';
 import logger from './logger';
+import JwtVerification from './middlewares/jwt-verfication';
+import health from './middlewares/health';
 
 // TODO: dynamic load
 import customersRouter from '../endpoints/customers/routes';
@@ -19,6 +21,13 @@ const app = new Koa();
 
 app.use(koaJson());
 app.use(koaBody());
+app.use(health());
+app.use(JwtVerification());
+
+app.use(async (ctx, next) => {
+  console.log(ctx.headers);
+  await next();
+});
 
 app.use(customersRouter.routes()).use(customersRouter.allowedMethods());
 app.use(cardsRouter.routes()).use(cardsRouter.allowedMethods());

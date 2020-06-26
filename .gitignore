@@ -105,3 +105,5 @@ dist
 .tern-port
 
 build
+src/beast/clients/firebase/service-account.json
+
