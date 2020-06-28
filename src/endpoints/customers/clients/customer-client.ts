@@ -2,39 +2,29 @@ import Error from 'verror';
 import lodash from 'lodash';
 
 import mercadopago from '../../../beast/clients/mercadopago';
-import elastic from '../../../beast/clients/elastic';
-import { date } from '@hapi/joi';
+import { CreateParams } from '../../../types';
+import utils from '../../../beast/utils';
 
 const index = 'customers';
 const prefix = '[customer client]';
 
 interface Customer {
   id: string;
-  phone: string;
   email: string;
-  first_name: string;
-  last_name: string;
-  identification_type: string;
-  indentification_number: string;
-  default_address: string;
-  default_card: string;
-  mercadopago_customer_id: string;
-  created_at: string;
-  updated_at: string;
 }
 
 class CustomerClient {
   /**
-   *
+   * Create or get a already created mercado pago customer
    * @param customer
    */
-  async create(customer: Customer): Promise<Customer> {
+  async create(params: CreateParams<{ email: string }>): Promise<Customer> {
     try {
-      // create or get a already created mercado pago customer
       let mercadoPagoCustomer;
       try {
+        // TODO: add support to retry with idempotency
         const mpCustomerCreateResponse = await mercadopago.customers.create({
-          email: customer.email,
+          email: params.body.email,
         });
         mercadoPagoCustomer = mpCustomerCreateResponse.body;
       } catch (error) {
@@ -43,60 +33,22 @@ class CustomerClient {
           throw error;
         }
         const mpCustomerSearchResponse = await mercadopago.customers.search({
-          qs: { email: customer.email },
+          qs: { email: params.body.email },
         });
         if (!mpCustomerSearchResponse.body.results) {
           throw new Error(
-            `${prefix} Error searching for and already created customer`,
+            `${prefix} Error searching for an already created customer`,
           );
         }
         mercadoPagoCustomer = mpCustomerSearchResponse.body.results[0];
       }
 
-      // index customer in db
-      const body = {
-        ...customer,
-        mercadopago_customer_id: mercadoPagoCustomer.id,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      const response = await elastic.index({
-        index,
-        id: body.id,
-        refresh: 'true',
-        body,
-      });
-      return {
-        ...body,
-        id: response.body._id,
-      };
+      return utils.mapObject(mercadoPagoCustomer, params.source);
     } catch (error) {
       throw new Error(
-        { cause: error, info: { customer } },
+        { cause: error, info: { params } },
         `${prefix} Error creating customer`,
       );
-    }
-  }
-
-  /**
-   *
-   * @param customerId
-   * @param customer
-   */
-  async update(customerId: string, customer: Partial<Customer>): Promise<any> {
-    try {
-      const doc = { ...customer, updated_at: new Date().toISOString() };
-      const response = await elastic.update({
-        id: customerId,
-        index,
-        refresh: 'true',
-        body: {
-          doc,
-        },
-      });
-      return response;
-    } catch (error) {
-      throw new Error({ cause: error, info: {} }, 'Error updating customer');
     }
   }
 }

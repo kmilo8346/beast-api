@@ -24,11 +24,6 @@ app.use(koaBody());
 app.use(health());
 app.use(JwtVerification());
 
-app.use(async (ctx, next) => {
-  console.log(ctx.headers);
-  await next();
-});
-
 app.use(customersRouter.routes()).use(customersRouter.allowedMethods());
 app.use(cardsRouter.routes()).use(cardsRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());

@@ -4,15 +4,10 @@ import Joi from '@hapi/joi';
 import customerClient from '../clients/customer-client';
 
 const inputSchema = Joi.object({
-  id: Joi.string().optional(),
-  phone: Joi.string().required(),
-  email: Joi.string().email().required(),
-  first_name: Joi.string().required(),
-  last_name: Joi.string().required(),
-  identification_type: Joi.string().required(),
-  indentification_number: Joi.string().required(),
-  default_address: Joi.string().allow(''),
-  default_card: Joi.string().allow(''),
+  body: Joi.object({
+    email: Joi.string().email().required(),
+  }),
+  source: Joi.array().items(Joi.string()).optional(),
 });
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {

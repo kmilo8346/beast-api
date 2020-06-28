@@ -5,7 +5,7 @@ import cardClient from '../clients/card-client';
 
 const inputSchema = Joi.object({
   body: Joi.object({
-    mercadopago_customer_id: Joi.string().required(),
+    customer_id: Joi.string().required(),
     token: Joi.string().required(),
   }),
   source: Joi.array().items(Joi.string()).optional(),
@@ -25,10 +25,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.post('/', validate, async (ctx) => {
     try {
-      const response = await cardClient.create(
-        ctx.params.customer_id,
-        ctx.request.body,
-      );
+      const response = await cardClient.create(ctx.request.body);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);
