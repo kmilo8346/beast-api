@@ -39,11 +39,13 @@ jobs:
       - name: Build
         run: |
           echo "${ENV}" > .env
+          echo "${SERVICE_ACCOUNT}" > service-account.json
           docker build -t "gcr.io/firedevs/beast-api:${GITHUB_RUN_NUMBER}" \
             --build-arg GITHUB_SHA="${GITHUB_SHA}" \
             --build-arg GITHUB_REF="${GITHUB_REF}" .
         env:
           ENV: ${{ secrets.ENV }}
+          SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
 
       # Push the Docker image to Google Container Registry
       - name: Publish

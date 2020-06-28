@@ -6,6 +6,7 @@ COPY src/ src/
 COPY package.json \
     package-lock.json \
     tsconfig.json \
+    service-account.json \
     .env \
     .env.example ./
 
@@ -16,6 +17,7 @@ WORKDIR /home/app/build
 
 COPY package.json \
     package-lock.json \
+    service-account.json \
     .env \
     .env.example ./
 RUN npm install --production    
