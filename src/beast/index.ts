@@ -16,6 +16,7 @@ import paymentMethodsRouter from '../endpoints/payment-methods/routes';
 import installmentsRouter from '../endpoints/installments/routes';
 import cardTokensRouter from '../endpoints/card-tokens/routes';
 import googlePlacesRouter from '../endpoints/google/places/routes';
+import phonesRouter from '../endpoints/phones/routes';
 
 const app = new Koa();
 
@@ -34,6 +35,7 @@ app
 app.use(installmentsRouter.routes()).use(installmentsRouter.allowedMethods());
 app.use(cardTokensRouter.routes()).use(cardTokensRouter.allowedMethods());
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
+app.use(phonesRouter.routes()).use(phonesRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error(err);
