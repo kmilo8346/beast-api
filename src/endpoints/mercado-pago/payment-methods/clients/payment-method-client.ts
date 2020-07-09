@@ -1,8 +1,8 @@
 import Error from 'verror';
 
-import mercadopago from '../../../beast/clients/mercadopago';
-import { SearchParams } from '../../../types';
-import utils from '../../../beast/utils';
+import mercadopago from '../../../../beast/clients/mercadopago';
+import { SearchParams } from '../../../../types';
+import utils from '../../../../beast/utils';
 
 const prefix = '[payment method client]';
 

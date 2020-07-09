@@ -1,9 +1,9 @@
 import Error from 'verror';
 import lodash from 'lodash';
 
-import mercadopago from '../../../beast/clients/mercadopago';
-import { CreateParams } from '../../../types';
-import utils from '../../../beast/utils';
+import mercadopago from '../../../../beast/clients/mercadopago';
+import { CreateParams } from '../../../../types';
+import utils from '../../../../beast/utils';
 
 const index = 'customers';
 const prefix = '[customer client]';

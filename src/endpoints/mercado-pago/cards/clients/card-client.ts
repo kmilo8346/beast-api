@@ -1,9 +1,8 @@
 import Error from 'verror';
 
-import mercadopago from '../../../beast/clients/mercadopago';
-import elastic from '../../../beast/clients/elastic';
-import { CreateParams } from '../../../types';
-import utils from '../../../beast/utils';
+import mercadopago from '../../../../beast/clients/mercadopago';
+import { CreateParams } from '../../../../types';
+import utils from '../../../../beast/utils';
 
 const index = 'cards';
 const prefix = '[card client]';

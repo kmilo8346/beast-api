@@ -1,11 +1,10 @@
 import Error from 'verror';
 
-import mercadopago from '../../../beast/clients/mercadopago';
-import { CreateParams } from '../../../types';
-import utils from '../../../beast/utils';
+import mercadopago from '../../../../beast/clients/mercadopago';
+import { CreateParams } from '../../../../types';
+import utils from '../../../../beast/utils';
 
 const prefix = '[card token client]';
-
 interface CardInfo {
   card_number: string;
   security_code: string;

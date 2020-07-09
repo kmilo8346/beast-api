@@ -8,14 +8,19 @@ import JwtVerification from './middlewares/jwt-verfication';
 import health from './middlewares/health';
 
 // TODO: dynamic load
-import customersRouter from '../endpoints/customers/routes';
-import cardsRouter from '../endpoints/cards/routes';
+
+// mercado pago
+import customersRouter from '../endpoints/mercado-pago/customers/routes';
+import cardsRouter from '../endpoints/mercado-pago/cards/routes';
+import paymentMethsRouter from '../endpoints/mercado-pago/payment-methods/routes';
+import installmentsRouter from '../endpoints/mercado-pago/installments/routes';
+import cardTokensRouter from '../endpoints/mercado-pago/card-tokens/routes';
+import authRouter from '../endpoints/mercado-pago/authorization/routes';
+// google
+import googlePlacesRouter from '../endpoints/google/places/routes';
+// beast
 import productsRouter from '../endpoints/products/routes';
 import storesRouter from '../endpoints/stores/routes';
-import paymentMethodsRouter from '../endpoints/payment-methods/routes';
-import installmentsRouter from '../endpoints/installments/routes';
-import cardTokensRouter from '../endpoints/card-tokens/routes';
-import googlePlacesRouter from '../endpoints/google/places/routes';
 import phonesRouter from '../endpoints/phones/routes';
 
 const app = new Koa();
@@ -25,16 +30,18 @@ app.use(koaBody());
 app.use(health());
 app.use(JwtVerification());
 
+// mercado pago
 app.use(customersRouter.routes()).use(customersRouter.allowedMethods());
 app.use(cardsRouter.routes()).use(cardsRouter.allowedMethods());
-app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
-app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
-app
-  .use(paymentMethodsRouter.routes())
-  .use(paymentMethodsRouter.allowedMethods());
+app.use(paymentMethsRouter.routes()).use(paymentMethsRouter.allowedMethods());
 app.use(installmentsRouter.routes()).use(installmentsRouter.allowedMethods());
 app.use(cardTokensRouter.routes()).use(cardTokensRouter.allowedMethods());
+app.use(authRouter.routes()).use(authRouter.allowedMethods());
+// google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
+// beast
+app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
+app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app.use(phonesRouter.routes()).use(phonesRouter.allowedMethods());
 
 app.on('error', (err) => {

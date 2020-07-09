@@ -1,6 +1,6 @@
 import Error from 'verror';
 
-import mercadopago from '../../../beast/clients/mercadopago';
+import mercadopago from '../../../../beast/clients/mercadopago';
 
 class InstallmentClient {
   /**

@@ -2,7 +2,7 @@ import Router from 'koa-router';
 
 import createRoute from './create';
 
-const router = new Router({ prefix: '/customers/:customerId/cards' });
+const router = new Router({ prefix: '/mercadopago/customers' });
 
 // register routes
 createRoute(router);

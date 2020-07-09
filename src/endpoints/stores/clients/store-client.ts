@@ -37,7 +37,7 @@ class StoreClient {
       }
 
       const response = await elastic.search({
-        index: index,
+        index,
         body: {
           query: {
             bool,
