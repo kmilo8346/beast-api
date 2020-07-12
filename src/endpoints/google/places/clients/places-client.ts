@@ -102,7 +102,8 @@ class PlacesClient {
           sessiontoken,
           key: config.get('GOOGLE_PLACES_API_KEY'),
           language: 'es',
-          fields: 'place_id,url,formatted_address,address_components,geometry',
+          fields:
+            'place_id,url,formatted_address,address_components,geometry,opening_hours',
         },
       });
       if (validStatus.indexOf(response.data.status) === -1) {

@@ -1,11 +1,11 @@
 import Router, { IMiddleware } from 'koa-router';
 import Joi from '@hapi/joi';
 
-import authorizationClient from '../clients/authorization-client';
+import oauthClient from '../clients/oauth-client';
 
 const inputSchema = Joi.object({
   body: Joi.object({
-    user_id: Joi.string().required(),
+    code: Joi.string().required(),
   }),
   source: Joi.array().items(Joi.string()).optional(),
 });
@@ -22,11 +22,9 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 };
 
 export default (router: Router) => {
-  router.post('/safe-url', validate, async (ctx) => {
+  router.post('/token', validate, async (ctx) => {
     try {
-      const response = await authorizationClient.generateSafeURL(
-        ctx.request.body,
-      );
+      const response = await oauthClient.token(ctx.request.body);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);

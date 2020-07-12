@@ -15,7 +15,7 @@ import cardsRouter from '../endpoints/mercado-pago/cards/routes';
 import paymentMethsRouter from '../endpoints/mercado-pago/payment-methods/routes';
 import installmentsRouter from '../endpoints/mercado-pago/installments/routes';
 import cardTokensRouter from '../endpoints/mercado-pago/card-tokens/routes';
-import authRouter from '../endpoints/mercado-pago/authorization/routes';
+import oauthRouter from '../endpoints/mercado-pago/oauth/routes';
 // google
 import googlePlacesRouter from '../endpoints/google/places/routes';
 // beast
@@ -36,7 +36,7 @@ app.use(cardsRouter.routes()).use(cardsRouter.allowedMethods());
 app.use(paymentMethsRouter.routes()).use(paymentMethsRouter.allowedMethods());
 app.use(installmentsRouter.routes()).use(installmentsRouter.allowedMethods());
 app.use(cardTokensRouter.routes()).use(cardTokensRouter.allowedMethods());
-app.use(authRouter.routes()).use(authRouter.allowedMethods());
+app.use(oauthRouter.routes()).use(oauthRouter.allowedMethods());
 // google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 // beast

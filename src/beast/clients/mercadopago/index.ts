@@ -13,7 +13,7 @@ mercadopago.configure({
 // extending mercado pago library
 const prefix = '[mercado pago extension]';
 const request = axios.create({
-  baseURL: config.get('MERCADO_PAGO_URL'),
+  baseURL: `${config.get('MERCADO_PAGO_URL')}/v1`,
   timeout: config.getNumber('MERCADO_PAGO_REQUEST_TIMEOUT'),
 });
 
