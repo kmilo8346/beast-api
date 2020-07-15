@@ -1,7 +1,15 @@
 import Error from 'verror';
 
 import elastic from '../../../beast/clients/elastic';
-import { SearchParams, SearchResponse } from '../../../types';
+import {
+  SearchParams,
+  UpdateParams,
+  SearchResponse,
+  Product,
+  CreateResponse,
+  UpdateResponse,
+  CreateParams,
+} from '../../../types';
 
 const index = 'products-*';
 
@@ -75,6 +83,64 @@ class ProductClient {
         { cause: error, info: params },
         'Error searching over products index',
       );
+    }
+  }
+
+  /**
+   * Create a product
+   * @param params
+   */
+  async create(params: CreateParams<Product>): Promise<CreateResponse> {
+    try {
+      const { body, statusCode } = await elastic.index({
+        index: `products-${params.body.store.id}`,
+        body: {
+          ...params.body,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+
+      return {
+        id: body._id,
+        result: body.result,
+        statusCode,
+      };
+    } catch (error) {
+      throw new Error({ cause: error, info: params }, 'Error creating product');
+    }
+  }
+
+  /**
+   * Update a product
+   * @param params
+   */
+  async update(params: UpdateParams<Product>): Promise<UpdateResponse> {
+    try {
+      const { body, statusCode } = await elastic.update({
+        index: `products-${params.body.store?.id}`,
+        id: params.id,
+        body: {
+          doc: params.body,
+        },
+      });
+      return {
+        id: body._id,
+        result: body.result,
+        statusCode,
+      };
+    } catch (error) {
+      if (error.meta.statusCode === 404) {
+        throw new Error(
+          { cause: error, name: 'Not Found', info: params },
+          'Product Not Found',
+        );
+      } else {
+        throw new Error(
+          { cause: error, info: params },
+          'Error updating product',
+        );
+      }
     }
   }
 }
