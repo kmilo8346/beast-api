@@ -19,5 +19,7 @@ module.exports = {
     'prefer-destructuring': 0,
     'no-underscore-dangle': 0,
     camelcase: 0,
+    'implicit-arrow-linebreak': 0,
+    'function-paren-newline': 0,
   },
 };

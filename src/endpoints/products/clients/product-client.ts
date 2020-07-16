@@ -3,22 +3,22 @@ import Error from 'verror';
 import elastic from '../../../beast/clients/elastic';
 import {
   SearchParams,
-  UpdateParams,
   SearchResponse,
   Product,
-  CreateResponse,
-  UpdateResponse,
   CreateParams,
+  Service,
 } from '../../../types';
+import utils from '../../../beast/utils';
 
 const index = 'products-*';
+const prefix = '[product client]';
 
 class ProductClient {
   /**
    * Search over products index
    * @param params
    */
-  async search(params: SearchParams): Promise<SearchResponse> {
+  async search(storeId: string, params: SearchParams): Promise<SearchResponse> {
     try {
       const bool: { [key: string]: any } = {};
       if (params.query) {
@@ -35,25 +35,26 @@ class ProductClient {
           },
         };
       }
+
+      bool.filter = [];
+      if (storeId !== '-') {
+        bool.filter.push({
+          term: {
+            'store.id': storeId,
+          },
+        });
+      }
       if (params.filters) {
-        bool.filter = [];
         if (params.filters.position) {
           bool.filter.push({
             geo_shape: {
-              'store.delivery_area': {
+              'store.delivery_area.geometry': {
                 shape: {
                   type: 'Point',
                   coordinates: params.filters.position,
                 },
                 relation: 'intersects',
               },
-            },
-          });
-        }
-        if (params.filters.store) {
-          bool.filter.push({
-            term: {
-              'store.name.keyword': params.filters.store,
             },
           });
         }
@@ -71,6 +72,7 @@ class ProductClient {
           sort: [{ 'store.name.keyword': { order: 'asc' } }],
         },
       });
+
       return {
         total: response.body.hits.total.value,
         hits: response.body.hits.hits.map(({ _id, _source }: any) => ({
@@ -81,7 +83,7 @@ class ProductClient {
     } catch (error) {
       throw new Error(
         { cause: error, info: params },
-        'Error searching over products index',
+        `${prefix} Error searching over products index`,
       );
     }
   }
@@ -90,24 +92,33 @@ class ProductClient {
    * Create a product
    * @param params
    */
-  async create(params: CreateParams<Product>): Promise<CreateResponse> {
+  async create(
+    storeId: string,
+    params: CreateParams<Product | Service>,
+  ): Promise<any> {
     try {
-      const { body, statusCode } = await elastic.index({
-        index: `products-${params.body.store.id}`,
-        body: {
-          ...params.body,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      });
-
-      return {
-        id: body._id,
-        result: body.result,
-        statusCode,
+      const newProduct = {
+        ...params.body,
+        created_at: new Date(),
+        updated_at: new Date(),
       };
+      const response = await elastic.index({
+        index: `products-${storeId}`,
+        refresh: 'true',
+        body: newProduct,
+      });
+      return utils.mapObject(
+        {
+          ...newProduct,
+          id: response.body._id,
+        },
+        params.source,
+      );
     } catch (error) {
-      throw new Error({ cause: error, info: params }, 'Error creating product');
+      throw new Error(
+        { cause: error, info: { params } },
+        'Error creating product',
+      );
     }
   }
 
@@ -115,32 +126,27 @@ class ProductClient {
    * Update a product
    * @param params
    */
-  async update(params: UpdateParams<Product>): Promise<UpdateResponse> {
+  async update(
+    storeId: string,
+    productId: string,
+    product: Product | Service,
+  ): Promise<void> {
     try {
-      const { body, statusCode } = await elastic.update({
-        index: `products-${params.body.store?.id}`,
-        id: params.id,
+      await elastic.update({
+        index: `products-${storeId}`,
+        id: productId,
         body: {
-          doc: params.body,
+          doc: {
+            ...product,
+            updated_at: new Date(),
+          },
         },
       });
-      return {
-        id: body._id,
-        result: body.result,
-        statusCode,
-      };
     } catch (error) {
-      if (error.meta.statusCode === 404) {
-        throw new Error(
-          { cause: error, name: 'Not Found', info: params },
-          'Product Not Found',
-        );
-      } else {
-        throw new Error(
-          { cause: error, info: params },
-          'Error updating product',
-        );
-      }
+      throw new Error(
+        { cause: error, info: { storeId, productId, product } },
+        'Error updating product',
+      );
     }
   }
 }

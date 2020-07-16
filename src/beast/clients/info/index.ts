@@ -1,5 +1,6 @@
-import { required } from '@hapi/joi';
+import path from 'path';
 
-const packageJSON = require('../../../../package.json');
+// eslint-disable-next-line import/no-dynamic-require
+const packageJSON = require(path.join(process.cwd(), 'package.json'));
 
 export default packageJSON;

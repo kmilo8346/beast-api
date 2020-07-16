@@ -25,7 +25,7 @@ class StoreClient {
         if (params.filters.position) {
           bool.filter = bool.filter || {};
           bool.filter.geo_shape = {
-            delivery_area: {
+            'delivery_area.geometry': {
               shape: {
                 type: 'Point',
                 coordinates: params.filters.position,

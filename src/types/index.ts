@@ -3,12 +3,6 @@ export interface CreateParams<T> {
   source?: string[];
 }
 
-export interface UpdateParams<T> {
-  id: string;
-  body: Partial<T>;
-  source?: string[];
-}
-
 export interface GetParams {
   id: string;
   source?: string[];
@@ -33,45 +27,6 @@ export interface SearchResponse {
   hits: any[];
 }
 
-export interface CreateResponse {
-  id: string;
-  result: any;
-  statusCode: number | null;
-}
-
-export interface UpdateResponse {
-  id: string;
-  result: any;
-  statusCode: number | null;
-}
-
-export interface Product {
-  id: string;
-  type: 'product' | 'service';
-  name: string;
-  description?: string;
-  images: string[];
-  price: number | null;
-  brand?: string;
-  format?: string;
-  tags: string[];
-  categories: string[];
-  store: Store;
-  qty: number;
-}
-
-export interface Store {
-  id: string;
-  version: number;
-  name: string | undefined;
-  phone: string | undefined;
-  images: string[] | undefined;
-  deliveryTime: IntegerRange | undefined;
-  deliveryArea: Circle | undefined;
-  openingHours: OpeningHours | undefined;
-  sellerCredentials: SellerCredentials | undefined;
-}
-
 export interface SellerCredentials {
   accessToken: string;
   expiresIn: number;
@@ -84,13 +39,14 @@ export interface SellerCredentials {
 }
 
 export interface IntegerRange {
-  lte: number;
   gte: number;
+  lte: number;
 }
 
 export interface Circle {
-  center: Place;
+  type: 'circle';
   radius: string;
+  coordinates: number[];
 }
 
 export type OpeningHours = {
@@ -102,12 +58,12 @@ export type OpeningHours = {
 export interface Place {
   id: string;
   url: string;
-  streetNumber: AddressProp;
+  street_number: AddressProp;
   route: AddressProp;
   locality: AddressProp;
-  administrativeAreaLevel3: AddressProp;
-  administrativeAreaLevel2: AddressProp;
-  administrativeAreaLevel1: AddressProp;
+  administrative_area_level_3: AddressProp;
+  administrative_area_level_2: AddressProp;
+  administrative_area_level_1: AddressProp;
   apartment: string;
   geometry: {
     location: {
@@ -128,6 +84,43 @@ export interface Place {
 }
 
 export interface AddressProp {
-  shortName: string;
-  longName: string;
+  short_name: string;
+  long_name: string;
+}
+
+export interface Store {
+  id: string;
+  version: number;
+  name: string | undefined;
+  phone: string | undefined;
+  images: string[] | undefined;
+  delivery_time: IntegerRange | undefined;
+  delivery_area: Circle | undefined;
+  opening_hours: OpeningHours | undefined;
+  seller_credentials: SellerCredentials | undefined;
+}
+
+export interface Product {
+  id: string;
+  type: 'product';
+  name: string;
+  description: string;
+  images: string[];
+  price: number;
+  brand?: string;
+  category: string;
+  tags?: string[];
+  store: Store;
+}
+
+export interface Service {
+  id: string;
+  type: 'service';
+  name: string;
+  description: string;
+  images: string[];
+  price: number | null;
+  category: string;
+  tags?: string[];
+  store: Store;
 }

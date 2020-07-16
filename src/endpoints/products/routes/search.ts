@@ -28,7 +28,10 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.post('/search', validate, async (ctx) => {
     try {
-      const response = await productClient.search(ctx.request.body);
+      const response = await productClient.search(
+        ctx.params.storeId,
+        ctx.request.body,
+      );
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);
