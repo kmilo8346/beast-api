@@ -69,7 +69,7 @@ class ProductClient {
           from: params.from,
           size: params.size,
           _source: params.source,
-          sort: [{ 'store.name.keyword': { order: 'asc' } }],
+          sort: [{ 'store.id': { order: 'asc' } }],
         },
       });
 
