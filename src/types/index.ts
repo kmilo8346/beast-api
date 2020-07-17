@@ -19,10 +19,13 @@ export interface SearchParams {
   filters?: { [key: string]: any };
   from: number;
   size: number;
+  sort?: { field: string; order: 'asc' | 'desc' }[];
   source?: string[];
 }
 
 export interface SearchResponse {
+  from: number;
+  size: number;
   total: number;
   hits: any[];
 }

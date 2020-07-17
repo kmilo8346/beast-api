@@ -7,10 +7,17 @@ const inputSchema = Joi.object({
   query: Joi.string().allow(''),
   filters: Joi.object().keys({
     position: Joi.array().items(Joi.number()).length(2),
+    type: Joi.string(),
     store: Joi.string().allow(''),
   }),
   from: Joi.number().integer().min(0).default(0),
   size: Joi.number().min(0).max(100).default(10),
+  sort: Joi.array().items(
+    Joi.object({
+      field: Joi.string().required(),
+      order: Joi.string().allow('desc', 'asc').required(),
+    }),
+  ),
   source: Joi.array().items(Joi.string()),
 });
 

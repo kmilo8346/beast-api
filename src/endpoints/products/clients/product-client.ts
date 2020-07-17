@@ -58,6 +58,19 @@ class ProductClient {
             },
           });
         }
+        if (params.filters.type) {
+          bool.filter.push({
+            term: {
+              type: params.filters.type,
+            },
+          });
+        }
+      }
+      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] = [
+        { updated_at: { order: 'desc' } },
+      ];
+      if (params.sort) {
+        sort = params.sort.map((s) => ({ [s.field]: { order: s.order } }));
       }
 
       const response = await elastic.search({
@@ -69,11 +82,13 @@ class ProductClient {
           from: params.from,
           size: params.size,
           _source: params.source,
-          sort: [{ 'store.id': { order: 'asc' } }],
+          sort,
         },
       });
 
       return {
+        from: params.from,
+        size: params.size,
         total: response.body.hits.total.value,
         hits: response.body.hits.hits.map(({ _id, _source }: any) => ({
           id: _id,

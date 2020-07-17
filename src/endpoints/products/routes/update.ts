@@ -7,7 +7,9 @@ const productSchema = createProductSchema(true);
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const body = await productSchema.validateAsync(ctx.request.body);
+    const body = await productSchema.validateAsync(ctx.request.body, {
+      stripUnknown: true,
+    });
     // set formatted body
     ctx.request.body = body;
     await next();

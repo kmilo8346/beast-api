@@ -49,6 +49,8 @@ class StoreClient {
         },
       });
       return {
+        from: params.from,
+        size: params.size,
         total: response.body.hits.total.value,
         hits: response.body.hits.hits.map(({ _id, _source }: any) => ({
           id: _id,
