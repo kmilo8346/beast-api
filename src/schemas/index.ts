@@ -187,6 +187,7 @@ export const createProductSchema = (optional = false) => {
     brand: Joi.string().optional().allow(''),
     category: Joi.string().required(),
     tags: Joi.array().items(Joi.string()).optional(),
+    enabled: Joi.boolean().required(),
     store: createStoreSchema(optional).required(),
   });
   if (!optional) {

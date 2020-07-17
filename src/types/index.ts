@@ -110,6 +110,7 @@ export interface Product {
   brand?: string;
   category: string;
   tags?: string[];
+  enabled: boolean;
   store: Store;
 }
 
@@ -122,5 +123,6 @@ export interface Service {
   price: number | null;
   category: string;
   tags?: string[];
+  enabled: boolean;
   store: Store;
 }
