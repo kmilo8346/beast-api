@@ -15,7 +15,7 @@ const prefix = '[product client]';
 
 class ProductClient {
   /**
-   * Search over products index
+   * Search products
    * @param params
    */
   async search(storeId: string, params: SearchParams): Promise<SearchResponse> {
@@ -25,13 +25,7 @@ class ProductClient {
         bool.must = {
           multi_match: {
             query: params.query,
-            fields: [
-              'name^2',
-              'description',
-              'categories',
-              'tags',
-              'store.name',
-            ],
+            fields: ['name^2', 'description', 'category', 'tags', 'store.name'],
           },
         };
       }
@@ -161,6 +155,25 @@ class ProductClient {
       throw new Error(
         { cause: error, info: { storeId, productId, product } },
         'Error updating product',
+      );
+    }
+  }
+
+  /**
+   * Update a product
+   * @param params
+   */
+  async delete(storeId: string, productId: string): Promise<void> {
+    try {
+      await elastic.delete({
+        index: `products-${storeId}`,
+        id: productId,
+        refresh: 'true',
+      });
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { storeId, productId } },
+        'Error deleting product',
       );
     }
   }
