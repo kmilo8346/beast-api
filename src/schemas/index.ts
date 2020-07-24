@@ -1,6 +1,7 @@
 import Joi from '@hapi/joi';
+import { ProductFactory } from '../endpoints/products/schemas';
 
-const createPlaceGeometryLocationSchema = (optional = false) => {
+const PlaceGeometryLocationFactory = (optional = false) => {
   const schema = Joi.object({
     lat: Joi.number().required(),
     lng: Joi.number().required(),
@@ -11,9 +12,9 @@ const createPlaceGeometryLocationSchema = (optional = false) => {
   return schema.fork(['lat', 'lng'], (mySchema) => mySchema.optional());
 };
 
-const createPlaceGeometrySchema = (optional = false) => {
+const PlaceGeometryFactory = (optional = false) => {
   const schema = Joi.object({
-    location: createPlaceGeometryLocationSchema(optional).required(),
+    location: PlaceGeometryLocationFactory(optional).required(),
   });
   if (!optional) {
     return schema;
@@ -21,7 +22,7 @@ const createPlaceGeometrySchema = (optional = false) => {
   return schema.fork(['location'], (mySchema) => mySchema.optional());
 };
 
-const createAddressPropSchema = (optional = false) => {
+const AddressPropFactory = (optional = false) => {
   const schema = Joi.object({
     short_name: Joi.string().required(),
     long_name: Joi.string().required(),
@@ -34,18 +35,18 @@ const createAddressPropSchema = (optional = false) => {
   );
 };
 
-const createPlaceSchema = (optional = false) => {
+export const PlaceFactory = (optional = false) => {
   const schema = Joi.object({
     id: Joi.string().required(),
     url: Joi.string().uri().required(),
-    street_number: createAddressPropSchema(optional).required(),
-    route: createAddressPropSchema(optional).required(),
-    locality: createAddressPropSchema(optional).required(),
-    administrative_area_level3: createAddressPropSchema(optional).required(),
-    administrative_area_level2: createAddressPropSchema(optional).required(),
-    administrative_area_level1: createAddressPropSchema(optional).required(),
+    street_number: AddressPropFactory(optional).required(),
+    route: AddressPropFactory(optional).required(),
+    locality: AddressPropFactory(optional).required(),
+    administrative_area_level3: AddressPropFactory(optional).required(),
+    administrative_area_level2: AddressPropFactory(optional).required(),
+    administrative_area_level1: AddressPropFactory(optional).required(),
     apartment: Joi.string().allow(''),
-    geometry: createPlaceGeometrySchema(optional).required(),
+    geometry: PlaceGeometryFactory(optional).required(),
   });
   if (!optional) {
     return schema;
@@ -67,7 +68,7 @@ const createPlaceSchema = (optional = false) => {
   );
 };
 
-const createCircleSchema = (optional = false) => {
+const CircleFactory = (optional = false) => {
   const schema = Joi.object().keys({
     type: Joi.string().required(),
     radius: Joi.string().required(),
@@ -81,7 +82,7 @@ const createCircleSchema = (optional = false) => {
   );
 };
 
-const createIntegerRangeSchema = (optional = false) => {
+const IntegerRangeFactory = (optional = false) => {
   const schema = Joi.object({
     lte: Joi.number(),
     gte: Joi.number(),
@@ -92,11 +93,11 @@ const createIntegerRangeSchema = (optional = false) => {
   return schema.fork(['lte', 'gte'], (mySchema) => mySchema.optional());
 };
 
-const createDeliveryAreaSchema = (optional = false) => {
+const DeliveryAreaFactory = (optional = false) => {
   const schema = Joi.object().keys({
-    center: createPlaceSchema(optional).required(),
+    center: PlaceFactory(optional).required(),
     radius: Joi.string().required(),
-    geometry: createCircleSchema(optional).required(),
+    geometry: CircleFactory(optional).required(),
   });
   if (!optional) {
     return schema;
@@ -106,7 +107,7 @@ const createDeliveryAreaSchema = (optional = false) => {
   );
 };
 
-const createOpeningHoursSchema = (optional = false) => {
+const OpeningHoursFactory = (optional = false) => {
   const schema = Joi.array().items(
     Joi.object({
       day: Joi.string().required(), // TODO: 1 - 7
@@ -117,7 +118,7 @@ const createOpeningHoursSchema = (optional = false) => {
   return schema;
 };
 
-const createSellerCredentialsSchema = (optional = false) => {
+const SellerCredentialsFactory = (optional = false) => {
   const schema = Joi.object({
     access_token: Joi.string().required(),
     expires_in: Joi.number().required(),
@@ -146,17 +147,121 @@ const createSellerCredentialsSchema = (optional = false) => {
   );
 };
 
-export const createStoreSchema = (optional = false) => {
+const CardPaymentMethodFactory = (optional = false) => {
+  const schema = Joi.object({
+    id: Joi.string().required(),
+    name: Joi.string().required(),
+    payment_type_id: Joi.string().required(),
+    thumbnail: Joi.string().required(),
+    secure_thumbnail: Joi.string().required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(
+    ['id', 'name', 'payment_type_id', 'thumbnail', 'secure_thumbnail'],
+    (mySchema) => mySchema.optional(),
+  );
+};
+
+const CardSecurityCodeFactory = (optional = false) => {
+  const schema = Joi.object({
+    length: Joi.number().required(),
+    card_location: Joi.string().required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['length', 'card_location'], (mySchema) =>
+    mySchema.optional(),
+  );
+};
+
+const CardIssuerFactory = (optional = false) => {
+  const schema = Joi.object({
+    id: Joi.number().required(),
+    name: Joi.string().required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['id', 'name'], (mySchema) => mySchema.optional());
+};
+
+const CardIdentificationFactory = (optional = false) => {
+  const schema = Joi.object({
+    number: Joi.string().required(),
+    type: Joi.string().required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['number', 'type'], (mySchema) => mySchema.optional());
+};
+
+const CardholderFactory = (optional = false) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    identification: CardIdentificationFactory(optional).required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['name', 'identification'], (mySchema) =>
+    mySchema.optional(),
+  );
+};
+
+export const CardFactory = (optional = false) => {
+  const schema = Joi.object({
+    id: Joi.string().required(),
+    customer_id: Joi.string().required(),
+    expiration_month: Joi.number().required(),
+    expiration_year: Joi.number().required(),
+    first_six_digits: Joi.string().required(),
+    last_four_digits: Joi.string().required(),
+    payment_method: CardPaymentMethodFactory(optional).required(),
+    security_code: CardSecurityCodeFactory(optional).required(),
+    issuer: CardIssuerFactory(optional).required(),
+    cardholder: CardholderFactory(optional).required(),
+    live_mode: Joi.bool().required(),
+    date_created: Joi.string().required(),
+    date_last_updated: Joi.string().required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(
+    [
+      'id',
+      'customer_id',
+      'expiration_month',
+      'expiration_year',
+      'first_six_digits',
+      'last_four_digits',
+      'payment_method',
+      'security_code',
+      'issuer',
+      'cardholder',
+      'live_mode',
+      'date_created',
+      'date_last_updated',
+    ],
+    (mySchema) => mySchema.optional(),
+  );
+};
+
+export const StoreFactory = (optional = false) => {
   const schema = Joi.object().keys({
     id: Joi.string().required(),
     version: Joi.number().required(),
     name: Joi.string().required(),
     phone: Joi.string().required(),
     images: Joi.array().items(Joi.string()),
-    delivery_time: createIntegerRangeSchema(optional).required(),
-    delivery_area: createDeliveryAreaSchema(optional).required(),
-    opening_hours: createOpeningHoursSchema(optional).required(),
-    seller_credentials: createSellerCredentialsSchema(optional).required(),
+    delivery_time: IntegerRangeFactory(optional).required(),
+    delivery_area: DeliveryAreaFactory(optional).required(),
+    opening_hours: OpeningHoursFactory(optional).required(),
+    seller_credentials: SellerCredentialsFactory(optional).required(),
   });
   if (!optional) {
     return schema;
@@ -177,40 +282,59 @@ export const createStoreSchema = (optional = false) => {
   );
 };
 
-export const createProductSchema = (optional = false) => {
+export const CustomerFactory = (optional = false) => {
   const schema = Joi.object({
-    type: Joi.string().allow('product', 'service').required(),
-    name: Joi.string().required(),
-    description: Joi.string().required(),
-    images: Joi.array().items(Joi.string()).required(),
-    price: Joi.number().optional().allow(null), // for product is required
-    brand: Joi.string().optional().allow(''),
-    category: Joi.string().required(),
-    tags: Joi.array().items(Joi.string()).optional(),
-    enabled: Joi.boolean().required(),
-    store: createStoreSchema(optional).required(),
+    id: Joi.string().required(),
+    email: Joi.string().email().required(),
+    first_name: Joi.string().required(),
+    last_name: Joi.string().optional(),
+    photo_url: Joi.string().optional(),
+    mercado_pago_customer_id: Joi.string().required(),
+    phone: Joi.string().required(),
   });
   if (!optional) {
     return schema;
   }
   return schema.fork(
     [
-      'type',
-      'name',
-      'description',
-      'images',
-      'price',
-      'brand',
-      'category',
-      'tags',
-      'store',
+      'id',
+      'email',
+      'identification_type',
+      'identification_number',
+      'first_name',
+      'last_name',
+      'photo_url',
+      'mercado_pago_customer_id',
+      'phone',
+      'address',
+      'payment_method',
     ],
     (mySchema) => mySchema.optional(),
   );
 };
 
-export const createCreateParamsSchema = (body: any) =>
+export const ShoppingCartItemFactory = (optional = false) => {
+  const schema = Joi.object({
+    store: StoreFactory(optional).required(),
+    data: Joi.array().items(ProductFactory(optional).required()),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['store', 'data'], (mySchema) => mySchema.optional());
+};
+
+export const ShoppingCartFactory = (optional = false) => {
+  // TODO: fix, not working
+  const schema = Joi.array().items(
+    ShoppingCartItemFactory(optional).required(),
+  );
+  return schema;
+};
+
+export const CreateParamsFactory = (body: any) =>
   Joi.object({
     body,
     source: Joi.array().items(Joi.string()).optional(),
+    idempotency: Joi.string().optional(),
   });

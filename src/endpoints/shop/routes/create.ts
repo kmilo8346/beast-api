@@ -1,10 +1,10 @@
 import Router, { IMiddleware } from 'koa-router';
 
-import productClient from '../clients/product-client';
 import { CreateParamsFactory } from '../../../schemas';
-import { CreateProductFactory } from '../schemas';
+import { CreateShopIntentFactory } from '../schemas';
+import shopIntentClient from '../clients/shop-client';
 
-const schema = CreateParamsFactory(CreateProductFactory().required());
+const schema = CreateParamsFactory(CreateShopIntentFactory().required());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
@@ -22,10 +22,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.post('/', validate, async (ctx) => {
     try {
-      const response = await productClient.create(
-        ctx.params.storeId,
-        ctx.request.body,
-      );
+      const response = await shopIntentClient.create(ctx.request.body);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);

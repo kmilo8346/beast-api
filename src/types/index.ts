@@ -1,6 +1,7 @@
 export interface CreateParams<T> {
   body: T;
   source?: string[];
+  idempotency?: string;
 }
 
 export interface GetParams {
@@ -23,22 +24,11 @@ export interface SearchParams {
   source?: string[];
 }
 
-export interface SearchResponse {
+export interface SearchResponse<T> {
   from: number;
   size: number;
   total: number;
-  hits: any[];
-}
-
-export interface SellerCredentials {
-  accessToken: string;
-  expiresIn: number;
-  liveMode: boolean;
-  publicKey: string;
-  refreshToken: string;
-  scope: string;
-  tokenType: string;
-  userId: number;
+  hits: Partial<T>[];
 }
 
 export interface IntegerRange {
@@ -52,11 +42,62 @@ export interface Circle {
   coordinates: number[];
 }
 
+export interface SellerCredentials {
+  access_token: string;
+  expires_in: number;
+  live_mode: boolean;
+  public_key: string;
+  refresh_token: string;
+  scope: string;
+  token_type: string;
+  user_id: number;
+}
+
+export interface DeliveryArea {
+  center: Place;
+  radius: string;
+  geometry: Circle;
+}
+
 export type OpeningHours = {
   day: '1' | '2' | '3' | '4' | '5' | '6' | '7';
   open: number;
   close: number;
 }[];
+
+export interface Card {
+  id: string;
+  customer_id: string;
+  expiration_month: number;
+  expiration_year: number;
+  first_six_digits: string;
+  last_four_digits: string;
+  payment_method: {
+    id: string;
+    name: string;
+    payment_type_id: string;
+    thumbnail: string;
+    secure_thumbnail: string;
+  };
+  security_code: {
+    length: number;
+    card_location: string;
+  };
+  issuer: {
+    id: number;
+    name: string;
+  };
+  cardholder: {
+    name: string;
+    identification: {
+      number: string;
+      type: string;
+    };
+  };
+  live_mode: boolean;
+  date_created: string;
+  date_last_updated: string;
+}
 
 export interface Place {
   id: string;
@@ -94,13 +135,13 @@ export interface AddressProp {
 export interface Store {
   id: string;
   version: number;
-  name: string | undefined;
-  phone: string | undefined;
-  images: string[] | undefined;
-  delivery_time: IntegerRange | undefined;
-  delivery_area: Circle | undefined;
-  opening_hours: OpeningHours | undefined;
-  seller_credentials: SellerCredentials | undefined;
+  name: string;
+  phone: string;
+  images: string[];
+  delivery_time: IntegerRange;
+  delivery_area: DeliveryArea;
+  opening_hours: OpeningHours;
+  seller_credentials: SellerCredentials;
 }
 
 export interface Product {
@@ -128,4 +169,81 @@ export interface Service {
   tags?: string[];
   enabled: boolean;
   store: Store;
+}
+
+export interface Customer {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name?: string;
+  photo_url?: string;
+  phone: string;
+  mercado_pago_customer_id: string;
+}
+
+export interface Item extends Product {
+  qty: number;
+}
+
+export type ShoppingCart = { store: Store; data: Item[] }[];
+
+export type PaymentMethod = 'CREDIT_CARD' | 'TO_AGREE';
+
+export interface CreateShop {
+  customer: Customer;
+  transaction: {
+    country: string;
+    currency: string;
+    language: string;
+    delivery_address: Place;
+    shopping_cart: ShoppingCart;
+    payment_method: PaymentMethod;
+    payment_info?: {
+      card: Card;
+      security_code: string;
+      installments: number;
+    };
+  };
+}
+
+export interface Shop extends CreateShop {
+  id: string;
+  index: string;
+  idempotency: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface Stats {
+  total: number;
+  ammount: number;
+}
+
+export interface CreatePayment {
+  status: string;
+  shop_id: string;
+  customer: Customer;
+  transaction: {
+    country: string;
+    currency: string;
+    language: string;
+    delivery_address: Place;
+    shopping_cart: Item[];
+    payment_method: string;
+    payment_info: {
+      card: Card;
+      security_code: string;
+      installments: number;
+    };
+    store: Store;
+    stats: Stats;
+  };
+}
+
+export interface Payment {
+  id: string;
+  index: string;
+  idempotency: string;
+  created_at: Date;
+  updated_at: Date;
 }

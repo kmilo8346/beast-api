@@ -18,7 +18,10 @@ class ProductClient {
    * Search products
    * @param params
    */
-  async search(storeId: string, params: SearchParams): Promise<SearchResponse> {
+  async search(
+    storeId: string,
+    params: SearchParams,
+  ): Promise<SearchResponse<Product>> {
     try {
       const bool: { [key: string]: any } = {};
       if (params.query) {
@@ -106,6 +109,32 @@ class ProductClient {
     params: CreateParams<Product | Service>,
   ): Promise<any> {
     try {
+      // creating index if not exist
+      await utils.createIndexIfNotExist(`products-${storeId}`, {
+        mappings: {
+          properties: {
+            type: { type: 'keyword' },
+            description: { type: 'text' },
+            format: { type: 'text' },
+            store: {
+              properties: {
+                id: { type: 'keyword' },
+                delivery_time: { type: 'integer_range' },
+                delivery_area: {
+                  properties: {
+                    geometry: {
+                      type: 'geo_shape',
+                      strategy: 'recursive',
+                    },
+                  },
+                },
+                opening_hours: { type: 'nested' },
+              },
+            },
+          },
+        },
+      });
+
       const newProduct = {
         ...params.body,
         created_at: new Date(),

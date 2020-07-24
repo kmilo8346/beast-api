@@ -21,5 +21,7 @@ module.exports = {
     camelcase: 0,
     'implicit-arrow-linebreak': 0,
     'function-paren-newline': 0,
+    'no-plusplus': 0,
+    'no-await-in-loop': 0,
   },
 };

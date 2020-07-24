@@ -1,13 +1,13 @@
 import Router, { IMiddleware } from 'koa-router';
 
 import productClient from '../clients/product-client';
-import { createProductSchema } from '../../../schemas';
+import { ProductFactory } from '../schemas';
 
-const productSchema = createProductSchema(true);
+const schema = ProductFactory(true);
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const body = await productSchema.validateAsync(ctx.request.body, {
+    const body = await schema.validateAsync(ctx.request.body, {
       stripUnknown: true,
     });
     // set formatted body

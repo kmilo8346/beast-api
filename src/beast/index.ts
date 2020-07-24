@@ -7,8 +7,6 @@ import logger from './logger';
 import JwtVerification from './middlewares/jwt-verfication';
 import health from './middlewares/health';
 
-// TODO: dynamic load
-
 // mercado pago
 import customersRouter from '../endpoints/mercado-pago/customers/routes';
 import cardsRouter from '../endpoints/mercado-pago/cards/routes';
@@ -19,9 +17,10 @@ import oauthRouter from '../endpoints/mercado-pago/oauth/routes';
 // google
 import googlePlacesRouter from '../endpoints/google/places/routes';
 // beast
-import productsRouter from '../endpoints/products/routes';
-import storesRouter from '../endpoints/stores/routes';
 import phonesRouter from '../endpoints/phones/routes';
+import storesRouter from '../endpoints/stores/routes';
+import productsRouter from '../endpoints/products/routes';
+import shopRouter from '../endpoints/shop/routes';
 
 const app = new Koa();
 
@@ -40,9 +39,10 @@ app.use(oauthRouter.routes()).use(oauthRouter.allowedMethods());
 // google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 // beast
-app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
-app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app.use(phonesRouter.routes()).use(phonesRouter.allowedMethods());
+app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
+app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
+app.use(shopRouter.routes()).use(shopRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error(err);

@@ -1,7 +1,7 @@
 import Error from 'verror';
 
 import elastic from '../../../beast/clients/elastic';
-import { SearchParams, SearchResponse } from '../../../types';
+import { SearchParams, SearchResponse, Store } from '../../../types';
 
 const index = 'stores';
 
@@ -10,7 +10,7 @@ class StoreClient {
    * Search over stores index
    * @param params
    */
-  async search(params: SearchParams): Promise<SearchResponse> {
+  async search(params: SearchParams): Promise<SearchResponse<Store>> {
     try {
       const bool: { [key: string]: any } = {};
       if (params.query) {
