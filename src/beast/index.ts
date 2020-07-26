@@ -45,11 +45,11 @@ app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 app.use(shopRouter.routes()).use(shopRouter.allowedMethods());
 
 app.on('error', (err) => {
-  logger.error(err);
+  logger.error({ err });
 });
 
 export const liftServer = () => {
-  const port = config.getNumber('BEAST_PORT', 3000);
+  const port = config.getNumber('PORT', 8080);
   app.listen(port);
   logger.info(`Starting Beast Server in port ${port}`);
 };

@@ -2,6 +2,8 @@ import { Client, ClientOptions } from '@elastic/elasticsearch';
 import config from '../../config';
 import logger from '../../logger';
 
+const log = logger.child({ module: 'elastic-client' });
+
 const clientOptions: ClientOptions = {
   node: config.get('ELASTIC_NODE'),
 };
@@ -12,11 +14,11 @@ if (withBasiAuth) {
   clientOptions.auth = { username, password };
 }
 
-logger.info('Creating elastic client');
-logger.info(`Elastic Node: ${clientOptions.node}`);
+log.info('Creating elastic client');
+log.info(`Elastic Node: ${clientOptions.node}`);
 if (withBasiAuth) {
-  logger.info(`Elastic Basic Auth: ${username} *******`);
+  log.info(`Elastic Basic Auth: ${username} *******`);
 }
-logger.info('');
+log.info('');
 
 export default new Client(clientOptions);

@@ -22,14 +22,13 @@ export default (options?: {
     await next();
     return;
   }
-
   const labels = {
     ...options?.labels,
   };
   const response = {
     name: info.name,
     version: info.version,
-    environment: config.get('BEAST_ENVIRONMENT'),
+    environment: config.get('ENVIRONMENT'),
     up_time: formatTime(process.uptime()),
     labels,
   };
