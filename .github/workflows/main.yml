@@ -15,11 +15,12 @@ jobs:
       - name: Export variables
         if: github.ref == 'refs/heads/develop'
         run: |
-          print("::set-env name=APP_NAME::{}".format("foo"))
-          ::set-env ENV=${{ secrets.DEVELOPMENT_ENV }}
+          export APK_NAME="lalla"
+          echo "::set-env name=NEW_APK_NAME::$APK_NAME"
 
       - name: Tests
         run: |
+          echo ${{NEW_APK_NAME}}
           echo ${{ENV}}
           echo ${{APP_NAME}}
           echo ${{github.ref}}
