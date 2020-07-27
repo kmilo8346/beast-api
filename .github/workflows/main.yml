@@ -4,38 +4,38 @@ on:
   push:
     branches: [develop]
 
-  jobs:
-    initalize-publish:
-      name: Initialize and Publish
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
+jobs:
+  initalize-publish:
+    name: Initialize and Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-        - name: Export variables
-          if: github.ref == 'refs/heads/develop'
-          run: |
-            ::set-env ENV=${{ secrets.DEVELOPMENT_ENV }}
+      - name: Export variables
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          ::set-env ENV=${{ secrets.DEVELOPMENT_ENV }}
 
-        - name: Tests
-          run: |
-            echo ${{ENV}}
-            echo ${{github.ref}}
-            echo ${{github}}
-        # - name: Create .env
-        #   run: |
-        #     echo "${DEVELOPMENT_ENV}" > .env
-        #   env:
-        #     ENV: ${{ secrets.ENV }}
-        # - name: Initialize Google Cloud SDK
-        #   uses: zxyle/publish-gae-action@master
-        #   with:
-        #     service_account_email: ${{ secrets.DEVELOPMENT_GCP_SA_EMAIL }}
-        #     service_account_key: ${{ secrets.DEVELOPMENT_GCP_SA_KEY }}
-        #     project_id: ${{ secrets.DEVELOPMENT_PROJECT_ID }}
-        # - name: Publish app to Google App Engine
-        #   run: |
-        #     # This client-secret.json is converted by GCP_SA_KEY.
-        #     gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=client-secret.json
-        #     gcloud config set project ${{ secrets.PROJECT_ID }}
-        #     gcloud -q app deploy app.yaml --promote
+      - name: Tests
+        run: |
+          echo ${{ENV}}
+          echo ${{github.ref}}
+          echo ${{github}}
+      # - name: Create .env
+      #   run: |
+      #     echo "${DEVELOPMENT_ENV}" > .env
+      #   env:
+      #     ENV: ${{ secrets.ENV }}
+      # - name: Initialize Google Cloud SDK
+      #   uses: zxyle/publish-gae-action@master
+      #   with:
+      #     service_account_email: ${{ secrets.DEVELOPMENT_GCP_SA_EMAIL }}
+      #     service_account_key: ${{ secrets.DEVELOPMENT_GCP_SA_KEY }}
+      #     project_id: ${{ secrets.DEVELOPMENT_PROJECT_ID }}
+      # - name: Publish app to Google App Engine
+      #   run: |
+      #     # This client-secret.json is converted by GCP_SA_KEY.
+      #     gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=client-secret.json
+      #     gcloud config set project ${{ secrets.PROJECT_ID }}
+      #     gcloud -q app deploy app.yaml --promote
