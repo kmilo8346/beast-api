@@ -25,11 +25,11 @@ jobs:
 
       - name: Tests
         run: |
-          echo ${{NEW_APK_NAME}}
-          echo ${{ENV}}
-          echo ${{APP_NAME}}
-          echo ${{github.ref}}
-          echo ${{github}}
+          echo ${{env.NEW_APK_NAME}}
+      # echo ${{ENV}}
+      # echo ${{APP_NAME}}
+      # echo ${{github.ref}}
+      # echo ${{github}}
       # - name: Create .env
       #   run: |
       #     echo "${DEVELOPMENT_ENV}" > .env
