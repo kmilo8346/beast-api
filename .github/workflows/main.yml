@@ -24,8 +24,8 @@ jobs:
       - name: Create .env
         run: |
           echo "${{ env.ENV_VARS }}" > .env
-          echo "COMPILATION=${{GITHUB_RUN_NUMBER}}" >> .env
-          echo "GIT_SHA=${{GITHUB_SHA}}" >> .env
+          echo "COMPILATION=${GITHUB_RUN_NUMBER}" >> .env
+          echo "GIT_SHA=${GITHUB_SHA}" >> .env
 
       - name: Initialize Google Cloud SDK
         uses: zxyle/publish-gae-action@master
