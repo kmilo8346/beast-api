@@ -15,7 +15,7 @@ jobs:
       - name: Export variables
         if: github.ref == 'refs/heads/develop'
         run: |
-          echo "::set-env name=APP_YML::app-development.yml"
+          echo "::set-env name=APP_YML::app-development.yaml"
           echo "::set-env name=ENV_VARS::${{ secrets.DEVELOPMENT_ENV_VARS }}"
           echo "::set-env name=GCP_SA_EMAIL::${{ secrets.DEVELOPMENT_GCP_SA_EMAIL }}"
           echo "::set-env name=GCP_SA_KEY::${{ secrets.DEVELOPMENT_GCP_SA_KEY }}"
