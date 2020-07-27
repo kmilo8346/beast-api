@@ -26,7 +26,14 @@ const app = new Koa();
 
 app.use(koaJson());
 app.use(koaBody());
-app.use(health());
+app.use(
+  health({
+    labels: {
+      COMPILATION: config.get('COMPILATION', ''),
+      GIT_SHA: config.get('GIT_SHA', ''),
+    },
+  }),
+);
 app.use(JwtVerification());
 
 // mercado pago
