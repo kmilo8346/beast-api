@@ -15,29 +15,30 @@ jobs:
       - name: Export variables
         if: github.ref == 'refs/heads/develop'
         run: |
-          echo "::set-env name=ENV::${{ secrets.DEVELOPMENT_ENV }}"
+          echo "::set-env name=ENV::development"
+          echo "::set-env name=ENV_VARS::${{ secrets.DEVELOPMENT_ENV_VARS }}"
+          echo "::set-env name=GCP_SA_EMAIL::${{ secrets.DEVELOPMENT_GCP_SA_EMAIL }}"
+          echo "::set-env name=GCP_SA_KEY::${{ secrets.DEVELOPMENT_GCP_SA_KEY }}"
+          echo "::set-env name=PROJECT_ID::${{ secrets.DEVELOPMENT_PROJECT_ID }}"
 
-      - name: Tests
+      - name: Test
         run: |
-          echo ${{env.ENV}}
-      # echo ${{ENV}}
-      # echo ${{APP_NAME}}
-      # echo ${{github.ref}}
-      # echo ${{github}}
-      # - name: Create .env
-      #   run: |
-      #     echo "${DEVELOPMENT_ENV}" > .env
-      #   env:
-      #     ENV: ${{ secrets.ENV }}
-      # - name: Initialize Google Cloud SDK
-      #   uses: zxyle/publish-gae-action@master
-      #   with:
-      #     service_account_email: ${{ secrets.DEVELOPMENT_GCP_SA_EMAIL }}
-      #     service_account_key: ${{ secrets.DEVELOPMENT_GCP_SA_KEY }}
-      #     project_id: ${{ secrets.DEVELOPMENT_PROJECT_ID }}
-      # - name: Publish app to Google App Engine
-      #   run: |
-      #     # This client-secret.json is converted by GCP_SA_KEY.
-      #     gcloud auth activate-service-account ${{ secrets.GCP_SA_EMAIL }} --key-file=client-secret.json
-      #     gcloud config set project ${{ secrets.PROJECT_ID }}
-      #     gcloud -q app deploy app.yaml --promote
+          echo "${{ env.ENV }}"
+
+      - name: Create .env
+        run: |
+          echo "${{ env.ENV_VARS }}" > .env
+
+      - name: Initialize Google Cloud SDK
+        uses: zxyle/publish-gae-action@master
+        with:
+          service_account_email: ${{ env.GCP_SA_EMAIL }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Publish app to Google App Engine
+        run: |
+          # This client-secret.json is converted by GCP_SA_KEY.
+          gcloud auth activate-service-account ${{ env.GCP_SA_EMAIL }} --key-file=client-secret.json
+          gcloud config set project ${{ env.PROJECT_ID }}
+          gcloud -q app deploy "app-${{ env.ENV }}.yaml" --promote
