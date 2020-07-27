@@ -10,6 +10,12 @@ jobs:
   initalize-publish:
     name: Publish
     runs-on: ubuntu-latest
+    if: contains(github.ref, "development")
+    steps:
+    - run: echo "development"
+    if: contains(github.ref, "staging")
+    steps:
+    - run: echo "staging"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,13 +28,6 @@ jobs:
           echo "::set-env name=GCP_SA_KEY::${{ secrets.DEVELOPMENT_GCP_SA_KEY }}"
           echo "::set-env name=PROJECT_ID::${{ secrets.DEVELOPMENT_PROJECT_ID }}"
           echo "${{ secrets.DEVELOPMENT_ENV_VARS }}" >> .env
-        if: github.ref == 'refs/heads/staging'
-        run: |
-          echo "::set-env name=APP_YML::app-staging.yaml"
-          echo "::set-env name=GCP_SA_EMAIL::${{ secrets.STAGING_GCP_SA_EMAIL }}"
-          echo "::set-env name=GCP_SA_KEY::${{ secrets.STAGING_GCP_SA_KEY }}"
-          echo "::set-env name=PROJECT_ID::${{ secrets.STAGING_PROJECT_ID }}"
-          echo "${{ secrets.STAGING_ENV_VARS }}" >> .env  
 
       - name: Adding to .env github variables
         run: |
