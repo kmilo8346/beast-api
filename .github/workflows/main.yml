@@ -20,9 +20,18 @@ jobs:
           echo "::set-env name=GCP_SA_KEY::${{ secrets.DEVELOPMENT_GCP_SA_KEY }}"
           echo "::set-env name=PROJECT_ID::${{ secrets.DEVELOPMENT_PROJECT_ID }}"
           echo "${{ secrets.DEVELOPMENT_ENV_VARS }}" >> .env
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          echo "::set-env name=APP_YML::app-staging.yaml"
+          echo "::set-env name=GCP_SA_EMAIL::${{ secrets.STAGING_GCP_SA_EMAIL }}"
+          echo "::set-env name=GCP_SA_KEY::${{ secrets.STAGING_GCP_SA_KEY }}"
+          echo "::set-env name=PROJECT_ID::${{ secrets.STAGING_PROJECT_ID }}"
+          echo "${{ secrets.STAGING_ENV_VARS }}" >> .env  
 
       - name: Adding to .env github variables
         run: |
+          echo ""
+          echo "# CI CD"
           echo "GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER}" >> .env
           echo "GITHUB_SHA=${GITHUB_SHA}" >> .env
 
