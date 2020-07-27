@@ -7,8 +7,7 @@
     "build": "rm -rf build && npx tsc",
     "dev": "npx nodemon --watch 'src' --ignore 'src/**/*.spec.ts' --exec 'npx ts-node  -r dotenv-safe/config' src/index.ts | pino-pretty --messageKey message --ignore pid,hostname,name",
     "start": "node -r dotenv-safe/config build/src/index.js | npx pino-stackdriver-mapper",
-    "gcp-build": "npm run build",
-    "deploy": "gcloud app deploy"
+    "gcp-build": "npm run build"
   },
   "repository": {
     "type": "git",
