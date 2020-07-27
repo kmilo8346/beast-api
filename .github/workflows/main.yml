@@ -12,20 +12,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Export steps variables
+      - name: Export steps variables and create .env
         if: github.ref == 'refs/heads/develop'
         run: |
           echo "::set-env name=APP_YML::app-development.yaml"
-          echo "::set-env name=ENV_VARS::${{ secrets.DEVELOPMENT_ENV_VARS }}"
           echo "::set-env name=GCP_SA_EMAIL::${{ secrets.DEVELOPMENT_GCP_SA_EMAIL }}"
           echo "::set-env name=GCP_SA_KEY::${{ secrets.DEVELOPMENT_GCP_SA_KEY }}"
           echo "::set-env name=PROJECT_ID::${{ secrets.DEVELOPMENT_PROJECT_ID }}"
-
-      - name: Create .env
-        run: |
           echo "${{ secrets.DEVELOPMENT_ENV_VARS }}" >> .env
-          echo "COMPILATION=${GITHUB_RUN_NUMBER}" >> .env
-          echo "GIT_SHA=${GITHUB_SHA}" >> .env
+
+      - name: Adding to .env github variables
+        run: |
+          echo "GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER}" >> .env
+          echo "GITHUB_SHA=${GITHUB_SHA}" >> .env
 
       - name: Initialize Google Cloud SDK
         uses: zxyle/publish-gae-action@master

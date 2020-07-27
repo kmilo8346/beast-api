@@ -29,8 +29,8 @@ app.use(koaBody());
 app.use(
   health({
     labels: {
-      compilation: config.get('COMPILATION', ''),
-      git_sha: config.get('GIT_SHA', ''),
+      github_run_number: config.get('GITHUB_RUN_NUMBER', ''),
+      github_sha: config.get('GITHUB_SHA', ''),
       gae_application: config.get('GAE_APPLICATION', ''),
       gae_deployment_id: config.get('GAE_DEPLOYMENT_ID', ''),
       gae_service: config.get('GAE_SERVICE', ''),
