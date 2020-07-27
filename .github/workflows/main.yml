@@ -1,4 +1,4 @@
-name: Deploy to GAE
+name: Publish to GAE
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   initalize-publish:
-    name: Publish to GAE
+    name: Publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
