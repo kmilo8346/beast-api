@@ -24,7 +24,7 @@ jobs:
           echo "${{ secrets.DEVELOPMENT_ENV_VARS }}" >> .env
 
       - name: Export steps variables and create .env for staging
-        if: github.ref == 'refs/heads/staging'
+        if: github.ref == 'refs/heads/master'
         run: |
           echo "::set-env name=APP_YML::app-staging.yaml"
           echo "::set-env name=GCP_SA_EMAIL::${{ secrets.STAGING_GCP_SA_EMAIL }}"
