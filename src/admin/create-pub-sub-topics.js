@@ -15,9 +15,11 @@ async function createTopic(topicName) {
 }
 
 async function run() {
-  await createTopic(process.env.GOOGLE_PUB_SUB_TOPIC_SHOPS_CREATED);
-  await createTopic(process.env.GOOGLE_PUB_SUB_TOPIC_PAYMENTS_PENDING);
-  await createTopic(process.env.GOOGLE_PUB_SUB_TOPIC_ORDERS_PENDING);
+  await createTopic(process.env.GOOGLE_PUB_SUB_TOPIC_SHOP_CREATED);
+  await createTopic(process.env.GOOGLE_PUB_SUB_TOPIC_ORDER_PAYMENT_PENDING);
+  await createTopic(
+    process.env.GOOGLE_PUB_SUB_TOPIC_ORDER_CONFIRMATION_PENDING,
+  );
 }
 
 run();

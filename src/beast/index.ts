@@ -49,7 +49,7 @@ app.on('error', (err) => {
 });
 
 export const liftServer = () => {
-  const port = config.getNumber('PORT', 8080);
+  const port = config.getNumber('PORT', 3000);
   app.listen(port);
   logger.info(`Starting Beast Server in port ${port}`);
 };

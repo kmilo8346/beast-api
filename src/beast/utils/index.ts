@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 
-import { Product } from '../../types';
+import { Item } from '../../types';
 import elastic from '../clients/elastic';
 
 class Utils {
@@ -20,8 +20,8 @@ class Utils {
     return data.map((d) => this.mapObject<T>(d, source));
   }
 
-  public getStats(products: Product[]) {
-    return products.reduce(
+  public getStats(items: Item[]) {
+    return items.reduce(
       (stats, product) => ({
         total: stats.total + 1,
         ammount: stats.ammount + product.price * 1,
@@ -31,13 +31,6 @@ class Utils {
         ammount: 0,
       },
     );
-  }
-
-  public generateOrderId() {
-    const random = `${Math.round(new Date().getTime() / 10)}${Math.floor(
-      10 + Math.random() * 90,
-    )}`;
-    return `${random}`;
   }
 
   public async createIndexIfNotExist(index: string, body: any) {

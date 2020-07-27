@@ -8,14 +8,14 @@ import {
   Shop,
   SearchParams,
   SearchResponse,
-  Payment,
-  CreatePayment,
+  OrderStatus,
+  CreateOrder,
 } from '../../../types';
 import logger from '../../../beast/logger';
 import config from '../../../beast/config';
 import elastic from '../../../beast/clients/elastic';
 import utils from '../../../beast/utils';
-import paymentClient from '../../payments/clients/payment-client';
+import paymentClient from '../../orders/clients/order-client';
 
 const prefix = '[shop client]';
 const pubSubClient = new PubSub();
@@ -43,7 +43,10 @@ class ShopClient {
       });
       if (searchResponse.hits.length) {
         shop = searchResponse.hits[0] as Shop;
-        logger.info(`${prefix} Using a already created shop, id: ${shop.id}`);
+
+        logger.info(
+          `${prefix} Shop with idempotency ${params.idempotency} is already created, using shop: ${shop.id}`,
+        );
       }
 
       // saving new shop in elastic
@@ -79,7 +82,7 @@ class ShopClient {
       }
 
       // emitting shops.created
-      const topic = config.get('GOOGLE_PUB_SUB_TOPIC_SHOPS_CREATED');
+      const topic = config.get('GOOGLE_PUB_SUB_TOPIC_SHOP_CREATED');
       logger.info(`${prefix} Publishing ${topic}`);
       const messageId = await pubSubClient
         .topic(topic)
@@ -90,13 +93,17 @@ class ShopClient {
         });
       logger.info(`${prefix} Event published id: ${messageId}`);
 
-      // creting payments or orders
+      // creating orders
       for (let i = 0; i < shop.transaction.shopping_cart.length; i++) {
         const item = shop.transaction.shopping_cart[i];
         const idempotency = `${shop.transaction.country}-${item.store.id}-${shop.id}`;
 
-        const payload = {
-          status: 'pending',
+        let status: OrderStatus = 'payment_pending';
+        if (shop.transaction.payment_method === 'TO_AGREE') {
+          status = 'confirmation_pending';
+        }
+        const newOrder = {
+          status,
           shop_id: shop.id,
           customer: shop.customer,
           transaction: {
@@ -104,30 +111,18 @@ class ShopClient {
             currency: shop.transaction.currency,
             language: shop.transaction.language,
             delivery_address: shop.transaction.delivery_address,
-            shopping_cart: item.data,
             payment_method: shop.transaction.payment_method,
             payment_info: shop.transaction.payment_info,
+            shopping_cart: item.data,
             store: item.store,
             stats: utils.getStats(item.data),
           },
         };
 
-        if (shop.transaction.payment_method === 'CREDIT_CARD') {
-          await paymentClient.create({
-            body: payload as CreatePayment,
-            idempotency,
-          });
-        } else {
-          // logger.info(`${prefix} Publishing orders.pending event`);
-          // messageId = await pubSubClient
-          //   .topic(config.get('GOOGLE_PUB_SUB_TOPIC_ORDERS_PENDING')) // create_order
-          //   .publish(Buffer.from(JSON.stringify(data)), {
-          //     id,
-          //     time: new Date(shop?.created_at).toISOString(),
-          //     source: 'beast-api',
-          //   });
-          // logger.info(`${prefix} Event published ${messageId}`);
-        }
+        await paymentClient.create({
+          body: newOrder as CreateOrder,
+          idempotency,
+        });
       }
 
       return utils.mapObject(shop, params.source);
@@ -187,74 +182,3 @@ class ShopClient {
 }
 
 export default new ShopClient();
-
-// const operation_id = uuidv1();
-
-// for (let i = 0; i < params.body.shopping_cart.length; i++) {
-//   const { store, data } = params.body.shopping_cart[i];
-//   const payment = {
-//     ...params.body,
-//     shopping_cart: data,
-//     store,
-//     operation_id,
-//   };
-
-//   logger.info(
-//     `${prefix} Publishing payments.pending event for store: ${store.id}`,
-//   );
-//   const messageId = await pubSubClient
-//     .topic(config.get('GOOGLE_PUB_SUB_TOPIC_PAYMENTS_PENDING'))
-//     .publish(Buffer.from(JSON.stringify(payment)));
-//   logger.info(`${prefix} Event published ${messageId}`);
-// }
-
-// return {
-//   operation_id,
-// };
-
-// const data = params.body;
-
-// for (let i = 0; i < data.shopping_cart.length; i++) {
-//   const groupedProducts = data.shopping_cart[i];
-//   const stats = utils.getStats(groupedProducts.data);
-//   const store = groupedProducts.store;
-
-//   logger.info(`${prefix} Creating token for payment ${i + 1}`);
-//   logger.info(`${prefix} Configuring Beast access token`);
-//   mercadopago.configure({
-//     access_token: config.get('MERCADO_PAGO_ACCESS_TOKEN'),
-//   });
-//   const createCardTokenResponse = await mercadopago.card_token.create({
-//     security_code: data.security_code,
-//     card_id: data.card.id,
-//   });
-//   logger.info(`${prefix} Token generated :)`);
-
-//   logger.info(`${prefix} Configuring ${store.name} access token`);
-//   mercadopago.configure({
-//     access_token: store.seller_credentials.access_token,
-//   });
-
-//   const createPaymentResponse = await mercadopago.payment.create({
-//     transaction_amount: stats.ammount,
-//     token: createCardTokenResponse.response.id,
-//     description: `Compra en Shop Shop de ${stats.total} producto(s)`,
-//     installments: data.installments,
-//     payment_method_id: data.card.payment_method.id,
-//     issuer_id: `${data.card.issuer.id}`,
-//     payer: {
-//       type: 'customer',
-//       id: data.customer.mercado_pago_customer_id,
-//       email: data.customer.email,
-//       identification: {
-//         type: data.card.cardholder.identification.type,
-//         number: data.card.cardholder.identification.number,
-//       },
-
-//       first_name: data.customer.first_name,
-//       last_name: data.customer.last_name,
-//     },
-//     // external_reference
-//   });
-//   logger.info(`${prefix} Payment created`, createPaymentResponse);
-// }

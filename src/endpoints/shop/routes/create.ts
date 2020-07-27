@@ -11,6 +11,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
     const validProduct = await schema.validateAsync(ctx.request.body, {
       stripUnknown: true,
     });
+    console.log(JSON.stringify(validProduct));
     // set formatted body
     ctx.request.body = validProduct;
     await next();

@@ -181,13 +181,19 @@ export interface Customer {
   mercado_pago_customer_id: string;
 }
 
-export interface Item extends Product {
+export interface Item extends Omit<Product, 'store'> {
   qty: number;
 }
 
 export type ShoppingCart = { store: Store; data: Item[] }[];
 
 export type PaymentMethod = 'CREDIT_CARD' | 'TO_AGREE';
+
+export interface PaymentInfo {
+  card: Card;
+  security_code: string;
+  installments: number;
+}
 
 export interface CreateShop {
   customer: Customer;
@@ -198,11 +204,7 @@ export interface CreateShop {
     delivery_address: Place;
     shopping_cart: ShoppingCart;
     payment_method: PaymentMethod;
-    payment_info?: {
-      card: Card;
-      security_code: string;
-      installments: number;
-    };
+    payment_info?: PaymentInfo;
   };
 }
 
@@ -219,8 +221,16 @@ export interface Stats {
   ammount: number;
 }
 
-export interface CreatePayment {
-  status: string;
+export type OrderStatus =
+  | 'payment_pending'
+  | 'payment_in_process'
+  | 'payment_rejected'
+  | 'confirmation_pending'
+  | 'in_delivery'
+  | 'delivered';
+
+export interface CreateOrder {
+  status: OrderStatus;
   shop_id: string;
   customer: Customer;
   transaction: {
@@ -228,19 +238,15 @@ export interface CreatePayment {
     currency: string;
     language: string;
     delivery_address: Place;
+    payment_method: PaymentMethod;
+    payment_info?: PaymentInfo;
     shopping_cart: Item[];
-    payment_method: string;
-    payment_info: {
-      card: Card;
-      security_code: string;
-      installments: number;
-    };
     store: Store;
     stats: Stats;
   };
 }
 
-export interface Payment {
+export interface Order extends CreateOrder {
   id: string;
   index: string;
   idempotency: string;

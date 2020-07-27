@@ -2,7 +2,7 @@ import Router from 'koa-router';
 
 import create from './create';
 
-const router = new Router({ prefix: '/shop' });
+const router = new Router({ prefix: '/shops' });
 
 // register routes
 create(router);
