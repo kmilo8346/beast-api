@@ -6,7 +6,7 @@ on:
 
 jobs:
   initalize-publish:
-    name: Initialize and Publish
+    name: Publish to GAE
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -15,11 +15,13 @@ jobs:
       - name: Export variables
         if: github.ref == 'refs/heads/develop'
         run: |
+          print("::set-env name=APP_NAME::{}".format("foo"))
           ::set-env ENV=${{ secrets.DEVELOPMENT_ENV }}
 
       - name: Tests
         run: |
           echo ${{ENV}}
+          echo ${{APP_NAME}}
           echo ${{github.ref}}
           echo ${{github}}
       # - name: Create .env
