@@ -12,6 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create release APK name
+        run: |
+          export APK_NAME="release_$(date +'%Y-%m-%d')"
+          echo "::set-env name=NEW_APK_NAME::$APK_NAME"
+
       - name: Export variables
         if: github.ref == 'refs/heads/develop'
         run: |
