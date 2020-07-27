@@ -33,6 +33,8 @@ app.use(
       git_sha: config.get('GIT_SHA', ''),
       gae_application: config.get('GAE_APPLICATION', ''),
       gae_deployment_id: config.get('GAE_DEPLOYMENT_ID', ''),
+      gae_service: config.get('GAE_SERVICE', ''),
+      gae_version: config.get('GAE_VERSION', ''),
     },
   }),
 );
