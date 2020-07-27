@@ -2,7 +2,9 @@ name: Publish to GAE
 
 on:
   push:
-    branches: [develop]
+    branches:
+      - master
+      - develop
 
 jobs:
   initalize-publish:
