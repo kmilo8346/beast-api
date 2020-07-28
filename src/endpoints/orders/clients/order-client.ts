@@ -105,26 +105,71 @@ class OrderClient {
    */
   async search(params: SearchParams): Promise<SearchResponse<Order>> {
     try {
-      const bool: { [key: string]: any } = { filter: [] };
+      // filters
+      const must: any[] = [];
+      if (params.filters) {
+        if (params.filters.idempotency) {
+          must.push({
+            match_phrase: {
+              'idempotency.keyword': {
+                query: params.filters.idempotency,
+              },
+            },
+          });
+        }
+        if (params.filters.customer) {
+          must.push({
+            match_phrase: {
+              'customer.id.keyword': {
+                query: params.filters.customer,
+              },
+            },
+          });
+        }
+        if (params.filters.store) {
+          must.push({
+            match_phrase: {
+              'transaction.store.id.keyword': {
+                query: params.filters.store,
+              },
+            },
+          });
+        }
+        if (params.filters.status) {
+          const should = params.filters.status.map((status: string) => ({
+            match_phrase: {
+              'status.keyword': status,
+            },
+          }));
+          must.push({
+            bool: {
+              should,
+              minimum_should_match: 1,
+            },
+          });
+        }
+      }
 
-      if (params.filters?.idempotency) {
-        bool.filter.push({
-          term: {
-            'idempotency.keyword': params.filters.idempotency,
-          },
-        });
+      // sort
+      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] = [
+        { updated_at: { order: 'desc' } },
+      ];
+      if (params.sort) {
+        sort = params.sort.map((s) => ({ [s.field]: { order: s.order } }));
       }
 
       const response = await elastic.search({
         index: 'orders-*',
         body: {
           query: {
-            bool,
+            bool: {
+              must,
+            },
           },
+          sort,
           from: params.from,
           size: params.size,
           _source: params.source,
-          sort: [{ updated_at: { order: 'desc' } }],
         },
       });
 

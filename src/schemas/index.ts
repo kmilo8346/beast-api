@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi, { ObjectSchema } from '@hapi/joi';
 import { ProductFactory } from '../endpoints/products/schemas';
 
 const PlaceGeometryLocationFactory = (optional = false) => {
@@ -337,4 +337,21 @@ export const CreateParamsFactory = (body: any) =>
     body,
     source: Joi.array().items(Joi.string()).optional(),
     idempotency: Joi.string().optional(),
+  });
+
+export const SearchParamsFactory = (filters: ObjectSchema) =>
+  Joi.object({
+    query: Joi.string().allow('').optional(),
+    filters: filters.optional(),
+    from: Joi.number().integer().min(0).default(0),
+    size: Joi.number().min(0).max(100).default(10),
+    sort: Joi.array()
+      .items(
+        Joi.object({
+          field: Joi.string().required(),
+          order: Joi.string().allow('desc', 'asc').required(),
+        }),
+      )
+      .optional(),
+    source: Joi.array().items(Joi.string()).optional(),
   });

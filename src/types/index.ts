@@ -15,12 +15,14 @@ export interface GetAllParams {
   source?: string[];
 }
 
+export type SortParam = { field: string; order: 'asc' | 'desc' }[];
+
 export interface SearchParams {
   query?: string;
   filters?: { [key: string]: any };
   from: number;
   size: number;
-  sort?: { field: string; order: 'asc' | 'desc' }[];
+  sort?: SortParam;
   source?: string[];
 }
 
