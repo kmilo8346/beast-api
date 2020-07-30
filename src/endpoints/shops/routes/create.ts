@@ -1,19 +1,18 @@
 import Router, { IMiddleware } from 'koa-router';
 
 import { CreateParamsFactory } from '../../../schemas';
-import { CreateShopIntentFactory } from '../schemas';
-import shopIntentClient from '../clients/shop-client';
+import { CreateShopFactory } from '../schemas';
+import shopClient from '../clients/shop-client';
 
-const schema = CreateParamsFactory(CreateShopIntentFactory().required());
+const schema = CreateParamsFactory(CreateShopFactory().required());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const validProduct = await schema.validateAsync(ctx.request.body, {
+    const body = await schema.validateAsync(ctx.request.body, {
       stripUnknown: true,
     });
-    console.log(JSON.stringify(validProduct));
     // set formatted body
-    ctx.request.body = validProduct;
+    ctx.request.body = body;
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -23,7 +22,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.post('/', validate, async (ctx) => {
     try {
-      const response = await shopIntentClient.create(ctx.request.body);
+      const response = await shopClient.create(ctx.request.body);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);

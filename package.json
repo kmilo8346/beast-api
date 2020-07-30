@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "rm -rf build && npx tsc",
-    "dev": "npx nodemon --watch 'src' --ignore 'src/**/*.spec.ts' --exec 'npx ts-node  -r dotenv-safe/config' src/index.ts | pino-pretty --messageKey message --ignore pid,hostname,name",
+    "dev": "npx nodemon --watch 'src' --ignore 'src/**/*.spec.ts' --exec 'npx ts-node  -r dotenv-safe/config' src/index.ts dotenv_config_path=${ENV_PATH} | pino-pretty --messageKey message --ignore pid,hostname,name",
     "start": "node -r dotenv-safe/config build/src/index.js | npx pino-stackdriver-mapper",
     "gcp-build": "npm run build",
     "commit": "git commit -m \"ci(api)\" --allow-empty"
