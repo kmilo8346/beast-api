@@ -34,9 +34,9 @@ export const CreateProductFactory = (optional = false) => {
 
 export const ProductFactory = (optional = false) => {
   const schema = CreateProductFactory(optional).keys({
-    id: Joi.string().allow('CL').required(),
-    created_at: Joi.string().allow('CL').required(),
-    updated_at: Joi.string().allow('CL').required(),
+    id: Joi.string().required(),
+    created_at: Joi.date().required(),
+    updated_at: Joi.date().required(),
   });
 
   if (!optional) {

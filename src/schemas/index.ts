@@ -1,5 +1,4 @@
 import Joi, { ObjectSchema } from '@hapi/joi';
-import { ProductFactory } from '../endpoints/products/schemas';
 
 const PlaceGeometryLocationFactory = (optional = false) => {
   const schema = Joi.object({
@@ -280,56 +279,6 @@ export const StoreFactory = (optional = false) => {
     ],
     (mySchema) => mySchema.optional(),
   );
-};
-
-export const CustomerFactory = (optional = false) => {
-  const schema = Joi.object({
-    id: Joi.string().required(),
-    email: Joi.string().email().required(),
-    first_name: Joi.string().required(),
-    last_name: Joi.string().optional(),
-    photo_url: Joi.string().optional(),
-    mercado_pago_customer_id: Joi.string().required(),
-    phone: Joi.string().required(),
-  });
-  if (!optional) {
-    return schema;
-  }
-  return schema.fork(
-    [
-      'id',
-      'email',
-      'identification_type',
-      'identification_number',
-      'first_name',
-      'last_name',
-      'photo_url',
-      'mercado_pago_customer_id',
-      'phone',
-      'address',
-      'payment_method',
-    ],
-    (mySchema) => mySchema.optional(),
-  );
-};
-
-export const ShoppingCartItemFactory = (optional = false) => {
-  const schema = Joi.object({
-    store: StoreFactory(optional).required(),
-    data: Joi.array().items(ProductFactory(optional).required()),
-  });
-  if (!optional) {
-    return schema;
-  }
-  return schema.fork(['store', 'data'], (mySchema) => mySchema.optional());
-};
-
-export const ShoppingCartFactory = (optional = false) => {
-  // TODO: fix, not working
-  const schema = Joi.array().items(
-    ShoppingCartItemFactory(optional).required(),
-  );
-  return schema;
 };
 
 export const CreateParamsFactory = (body: any) =>
