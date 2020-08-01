@@ -7,6 +7,12 @@ export interface CreateParams<T> {
 export interface UpdateParams<T> {
   index: string;
   idempotency?: string;
+  body: Partial<T>;
+}
+
+export interface ActionParams<T> {
+  index: string;
+  idempotency?: string;
   body: T;
 }
 

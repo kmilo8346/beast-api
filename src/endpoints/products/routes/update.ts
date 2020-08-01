@@ -1,9 +1,10 @@
 import Router, { IMiddleware } from 'koa-router';
 
-import productClient from '../clients/product-client';
+import { UpdateParamsFactory } from '../../../schemas';
 import { ProductFactory } from '../schemas';
+import productClient from '../clients/product-client';
 
-const schema = ProductFactory(true);
+const schema = UpdateParamsFactory(ProductFactory(true));
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {

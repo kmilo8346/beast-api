@@ -305,7 +305,14 @@ export const SearchParamsFactory = (filters: ObjectSchema) =>
     source: Joi.array().items(Joi.string()).optional(),
   });
 
-export const UpdateParamsFactory = (body?: ObjectSchema) => {
+export const UpdateParamsFactory = (body: ObjectSchema) =>
+  Joi.object({
+    index: Joi.string().required(),
+    idempotency: Joi.string().optional(),
+    body: body.required(),
+  });
+
+export const ActionParamsFactory = (body?: ObjectSchema) => {
   const object: { [key: string]: any } = {
     index: Joi.string().required(),
     idempotency: Joi.string().optional(),
