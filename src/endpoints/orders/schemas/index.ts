@@ -9,7 +9,7 @@ export const SearchFiltersFactory = () =>
     status: Joi.array().items(Joi.string()).optional(),
   });
 
-const ConfirmFactory = () =>
+const ConfirmationFactory = () =>
   Joi.array()
     .items(
       Joi.alternatives().try(
@@ -26,13 +26,7 @@ const ConfirmFactory = () =>
     )
     .required();
 
-export const ConfirmPayloadFactory = () =>
+export const ConfirmDataFactory = () =>
   Joi.object().keys({
-    index: Joi.string().required(),
-    confirmation: ConfirmFactory().required(),
-  });
-
-export const DeliverPayloadFactory = () =>
-  Joi.object().keys({
-    index: Joi.string().required(),
+    confirmation: ConfirmationFactory().required(),
   });

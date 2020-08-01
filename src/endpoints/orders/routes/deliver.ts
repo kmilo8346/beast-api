@@ -1,10 +1,9 @@
 import Router, { IMiddleware } from 'koa-router';
-import Joi from '@hapi/joi';
 
-import { DeliverPayloadFactory } from '../schemas';
+import { UpdateParamsFactory } from '../../../schemas';
 import orderClient from '../clients/order-client';
 
-const schema = DeliverPayloadFactory().required();
+const schema = UpdateParamsFactory().required();
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {

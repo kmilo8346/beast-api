@@ -4,6 +4,12 @@ export interface CreateParams<T> {
   idempotency?: string;
 }
 
+export interface UpdateParams<T> {
+  index: string;
+  idempotency?: string;
+  body: T;
+}
+
 export interface GetParams {
   id: string;
   source?: string[];
