@@ -304,3 +304,14 @@ export const SearchParamsFactory = (filters: ObjectSchema) =>
       .optional(),
     source: Joi.array().items(Joi.string()).optional(),
   });
+
+export const UpdateParamsFactory = (body?: ObjectSchema) => {
+  const object: { [key: string]: any } = {
+    index: Joi.string().required(),
+    idempotency: Joi.string().optional(),
+  };
+  if (body) {
+    object.body = body.required();
+  }
+  return Joi.object(object);
+};

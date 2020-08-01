@@ -9,6 +9,7 @@ import {
   SearchResponse,
   Order,
   Confirmation,
+  UpdateParams,
 } from '../../../types';
 import logger from '../../../beast/logger';
 import config from '../../../beast/config';
@@ -195,27 +196,29 @@ class OrderClient {
   /**
    * Confirm order
    * @param id
-   * @param payload
+   * @param params
    */
   async confirm(
     id: string,
-    payload: { index: string; confirmation: Confirmation },
+    params: UpdateParams<{
+      confirmation: Confirmation;
+    }>,
   ): Promise<void> {
     try {
       await elastic.update({
-        index: payload.index,
+        index: params.index,
         id,
         body: {
           doc: {
             status: 'in_delivery',
-            confirmation: payload.confirmation,
+            confirmation: params.body.confirmation,
             updated_at: new Date(),
           },
         },
       });
     } catch (error) {
       throw new Error(
-        { cause: error, info: { id, payload } },
+        { cause: error, info: { id, params } },
         'Unexpected error confirming order',
       );
     }
@@ -226,10 +229,10 @@ class OrderClient {
    * @param id
    * @param payload
    */
-  async deliver(id: string, payload: { index: string }): Promise<void> {
+  async deliver(id: string, params: UpdateParams<any>): Promise<void> {
     try {
       await elastic.update({
-        index: payload.index,
+        index: params.index,
         id,
         body: {
           doc: {
@@ -240,7 +243,7 @@ class OrderClient {
       });
     } catch (error) {
       throw new Error(
-        { cause: error, info: { id, payload } },
+        { cause: error, info: { id, params } },
         'Unexpected error delivering order',
       );
     }
