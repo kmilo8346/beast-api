@@ -13,7 +13,7 @@ export interface UpdateParams<T> {
 export interface ActionParams<T> {
   index: string;
   idempotency?: string;
-  body: T;
+  body: Partial<T>;
 }
 
 export interface GetParams {
