@@ -7,6 +7,7 @@ import {
   Product,
   CreateParams,
   Service,
+  UpdateParams,
 } from '../../../types';
 import utils from '../../../beast/utils';
 
@@ -167,7 +168,7 @@ class ProductClient {
   async update(
     storeId: string,
     productId: string,
-    product: Product | Service,
+    params: UpdateParams<Product | Service>,
   ): Promise<void> {
     try {
       await elastic.update({
@@ -175,15 +176,15 @@ class ProductClient {
         id: productId,
         body: {
           doc: {
-            ...product,
+            ...params.body,
             updated_at: new Date(),
           },
         },
       });
     } catch (error) {
       throw new Error(
-        { cause: error, info: { storeId, productId, product } },
-        'Error updating product',
+        { cause: error, info: { storeId, productId, params } },
+        'Unexpected error updating product',
       );
     }
   }
