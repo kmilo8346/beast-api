@@ -246,10 +246,24 @@ export interface CreateOrder {
   };
 }
 
+export enum ProductConfirmationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  REPLACE = 'replace',
+}
+
+export type ProductConfirmation =
+  | { type: ProductConfirmationType.UPDATE; id: string; qty_posible: number }
+  | { type: ProductConfirmationType.DELETE; id: string };
+
+export type Confirmation = ProductConfirmation[];
+
 export interface Order extends CreateOrder {
   id: string;
   index: string;
   idempotency: string;
+  confirmation?: Confirmation;
   created_at: Date;
   updated_at: Date;
 }

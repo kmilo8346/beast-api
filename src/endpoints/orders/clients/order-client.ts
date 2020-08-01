@@ -8,6 +8,7 @@ import {
   SearchParams,
   SearchResponse,
   Order,
+  Confirmation,
 } from '../../../types';
 import logger from '../../../beast/logger';
 import config from '../../../beast/config';
@@ -187,6 +188,60 @@ class OrderClient {
       throw new Error(
         { cause: error, info: params },
         `${prefix} Unexpected error searching over orders`,
+      );
+    }
+  }
+
+  /**
+   * Confirm order
+   * @param id
+   * @param payload
+   */
+  async confirm(
+    id: string,
+    payload: { index: string; confirmation: Confirmation },
+  ): Promise<void> {
+    try {
+      await elastic.update({
+        index: payload.index,
+        id,
+        body: {
+          doc: {
+            status: 'in_delivery',
+            confirmation: payload.confirmation,
+            updated_at: new Date(),
+          },
+        },
+      });
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, payload } },
+        'Unexpected error confirming order',
+      );
+    }
+  }
+
+  /**
+   * Deliver order
+   * @param id
+   * @param payload
+   */
+  async deliver(id: string, payload: { index: string }): Promise<void> {
+    try {
+      await elastic.update({
+        index: payload.index,
+        id,
+        body: {
+          doc: {
+            status: 'delivered',
+            updated_at: new Date(),
+          },
+        },
+      });
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, payload } },
+        'Unexpected error delivering order',
       );
     }
   }
