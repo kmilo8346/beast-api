@@ -10,7 +10,6 @@ export const CreateProductFactory = (optional = false) => {
     images: Joi.array().items(Joi.string()).required(),
     price: Joi.number().optional().allow(null), // for product is required
     brand: Joi.string().optional().allow(''),
-    category: Joi.string().required(),
     tags: Joi.array().items(Joi.string()).optional(),
     enabled: Joi.boolean().required(),
     store: StoreFactory(optional).required(),
@@ -26,7 +25,6 @@ export const CreateProductFactory = (optional = false) => {
       'images',
       'price',
       'brand',
-      'category',
       'tags',
       'store',
     ],

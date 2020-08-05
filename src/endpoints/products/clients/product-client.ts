@@ -28,7 +28,7 @@ class ProductClient {
         bool.must = {
           multi_match: {
             query: params.query,
-            fields: ['name^2', 'description', 'category', 'tags', 'store.name'],
+            fields: ['name^2', 'description', 'tags', 'store.name'],
           },
         };
       }
