@@ -20,8 +20,8 @@ import googlePlacesRouter from '../endpoints/google/places/routes';
 import phonesRouter from '../endpoints/phones/routes';
 import storesRouter from '../endpoints/stores/routes';
 import productsRouter from '../endpoints/products/routes';
-import shopsRouter from '../endpoints/shops/routes';
 import ordersRouter from '../endpoints/orders/routes';
+import paymentsRouter from '../endpoints/payments/routes';
 
 const app = new Koa();
 
@@ -54,8 +54,8 @@ app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 app.use(phonesRouter.routes()).use(phonesRouter.allowedMethods());
 app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
-app.use(shopsRouter.routes()).use(shopsRouter.allowedMethods());
 app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
+app.use(paymentsRouter.routes()).use(paymentsRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error({ err });

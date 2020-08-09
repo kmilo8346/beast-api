@@ -261,6 +261,8 @@ export const StoreFactory = (optional = false) => {
     delivery_area: DeliveryAreaFactory(optional).required(),
     opening_hours: OpeningHoursFactory(optional).required(),
     seller_credentials: SellerCredentialsFactory(optional).required(),
+    payment_provider: Joi.string().allow('mercadopago').required(),
+    dispatch_provider: Joi.string().allow('owner').required(),
   });
   if (!optional) {
     return schema;
@@ -307,14 +309,12 @@ export const SearchParamsFactory = (filters: ObjectSchema) =>
 
 export const UpdateParamsFactory = (body: ObjectSchema) =>
   Joi.object({
-    index: Joi.string().required(),
     idempotency: Joi.string().optional(),
     body: body.required(),
   });
 
 export const ActionParamsFactory = (body?: ObjectSchema) => {
   const object: { [key: string]: any } = {
-    index: Joi.string().required(),
     idempotency: Joi.string().optional(),
   };
   if (body) {

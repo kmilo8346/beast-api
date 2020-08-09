@@ -42,6 +42,10 @@ class Utils {
       });
     }
   }
+
+  public generateId() {
+    return `${Math.floor(1000 + Math.random() * 9000)}${new Date().valueOf()}`;
+  }
 }
 
 export default new Utils();

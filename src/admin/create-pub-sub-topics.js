@@ -15,10 +15,18 @@ async function createTopic(topicName) {
 }
 
 async function run() {
-  await createTopic(process.env.GOOGLE_PUB_SUB_TOPIC_SHOP_CREATED);
-  await createTopic(process.env.GOOGLE_PUB_SUB_TOPIC_ORDER_PAYMENT_PENDING);
   await createTopic(
-    process.env.GOOGLE_PUB_SUB_TOPIC_ORDER_CONFIRMATION_PENDING,
+    `${process.env.GOOGLE_PUB_SUB_TOPIC_PREFIX}/payment.approved`,
+  );
+  await createTopic(`${process.env.GOOGLE_PUB_SUB_TOPIC_PREFIX}/order.created`);
+  await createTopic(
+    `${process.env.GOOGLE_PUB_SUB_TOPIC_PREFIX}/order.confirmed`,
+  );
+  await createTopic(
+    `${process.env.GOOGLE_PUB_SUB_TOPIC_PREFIX}/order.delivered`,
+  );
+  await createTopic(
+    `${process.env.GOOGLE_PUB_SUB_TOPIC_PREFIX}/order.cancelled`,
   );
 }
 

@@ -5,13 +5,11 @@ export interface CreateParams<T> {
 }
 
 export interface UpdateParams<T> {
-  index: string;
   idempotency?: string;
   body: Partial<T>;
 }
 
 export interface ActionParams<T> {
-  index: string;
   idempotency?: string;
   body: Partial<T>;
 }
@@ -42,7 +40,7 @@ export interface SearchResponse<T> {
   from: number;
   size: number;
   total: number;
-  hits: Partial<T>[];
+  hits: T[];
 }
 
 export interface IntegerRange {
@@ -146,6 +144,14 @@ export interface AddressProp {
   long_name: string;
 }
 
+export enum PaymentProvider {
+  MERCADOPAGO = 'mercadopago',
+}
+
+export enum DispatchProvider {
+  OWNER = 'owner',
+}
+
 export interface Store {
   id: string;
   version: number;
@@ -156,6 +162,8 @@ export interface Store {
   delivery_area: DeliveryArea;
   opening_hours: OpeningHours;
   seller_credentials: SellerCredentials;
+  payment_provider: PaymentProvider;
+  dispatch_provider: DispatchProvider;
 }
 
 export interface Product {
@@ -190,72 +198,76 @@ export interface Customer {
   last_name?: string;
   photo_url?: string;
   phone: string;
-  mercado_pago_customer_id: string;
 }
 
 export interface Item extends Omit<Product, 'store'> {
   qty: number;
 }
 
-export type ShoppingCart = { store: Store; data: Item[] }[];
-
-export type PaymentMethod = 'CREDIT_CARD' | 'TO_AGREE';
-
-export interface PaymentInfo {
-  card: Card;
-  security_code: string;
-  installments: number;
+export interface Transaction {
+  country: string;
+  currency: string;
+  language: string;
+  delivery_address: Place;
+  shopping_cart: Item[];
+  store: Store;
 }
 
-export interface CreateShop {
+export interface CreatePayment {
   customer: Customer;
-  transaction: {
-    country: string;
-    currency: string;
-    language: string;
-    delivery_address: Place;
-    shopping_cart: ShoppingCart;
-    payment_method: PaymentMethod;
-    payment_info?: PaymentInfo;
-  };
+  transaction: Transaction;
+  redirect_url: string;
 }
 
-export interface Shop extends CreateShop {
+export interface CreateCheckout {
+  reference: string;
+  customer: Customer;
+  transaction: Transaction;
+  redirect_url: string;
+}
+
+export enum MercadopagoPaymentStatus {
+  STARTED = 'started',
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  AUTHORIZED = 'authorized',
+  IN_PROCESS = 'in_process',
+  IN_MEDIATION = 'in_mediation',
+  REJECTED = 'rejected',
+  CANCELLED = 'cancelled',
+  REFUNDED = 'refunded',
+  CHARGED_BACK = 'charged_back',
+}
+
+export type PaymentProviderState = {
+  id: PaymentProvider.MERCADOPAGO;
+  status: MercadopagoPaymentStatus;
+  checkout: { id: string; init_point: string };
+  data: { [key: string]: any };
+};
+
+export enum PaymentStatus {
+  CREATED = 'created',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  CANCELLED = 'cancelled',
+}
+
+export interface Payment extends CreatePayment {
   id: string;
-  index: string;
-  idempotency: string;
+  reference: string;
+  status: PaymentStatus;
+  provider: PaymentProviderState;
+  idempotency?: string;
   created_at: Date;
   updated_at: Date;
 }
 
-export interface Stats {
-  total: number;
-  ammount: number;
-}
-
-export type OrderStatus =
-  | 'payment_pending'
-  | 'payment_in_process'
-  | 'payment_rejected'
-  | 'confirmation_pending'
-  | 'in_delivery'
-  | 'delivered';
-
-export interface CreateOrder {
-  status: OrderStatus;
-  shop_id: string;
-  customer: Customer;
-  transaction: {
-    country: string;
-    currency: string;
-    language: string;
-    delivery_address: Place;
-    payment_method: PaymentMethod;
-    payment_info?: PaymentInfo;
-    shopping_cart: Item[];
-    store: Store;
-    stats: Stats;
-  };
+export enum OrderStatus {
+  CREATED = 'created',
+  CONFIRMED = 'confirmed',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
 }
 
 export enum ProductConfirmationType {
@@ -271,11 +283,30 @@ export type ProductConfirmation =
 
 export type Confirmation = ProductConfirmation[];
 
+export enum OwnerDispatchStatus {
+  CREATED = 'created',
+  CONFIRMED = 'confirmed',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+}
+
+export interface DispatchProviderState {
+  id: DispatchProvider.OWNER;
+  status: OwnerDispatchStatus;
+  confirmation?: Confirmation;
+}
+
+export interface CreateOrder {
+  reference: string;
+  customer: Customer;
+  transaction: Transaction;
+  idempotency?: string;
+}
+
 export interface Order extends CreateOrder {
   id: string;
-  index: string;
-  idempotency: string;
-  confirmation?: Confirmation;
+  status: OrderStatus;
+  provider: DispatchProviderState;
   created_at: Date;
   updated_at: Date;
 }

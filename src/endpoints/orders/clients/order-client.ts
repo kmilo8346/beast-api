@@ -1,111 +1,53 @@
 import Error from 'verror';
 import { PubSub } from '@google-cloud/pubsub';
-import moment from 'moment';
 
 import {
-  CreateParams,
-  CreateOrder,
   SearchParams,
   SearchResponse,
   Order,
   Confirmation,
   UpdateParams,
+  OrderStatus,
+  OwnerDispatchStatus,
+  GetParams,
 } from '../../../types';
-import logger from '../../../beast/logger';
 import config from '../../../beast/config';
 import elastic from '../../../beast/clients/elastic';
-import utils from '../../../beast/utils';
+import logger from '../../../beast/logger';
 
-const prefix = '[payment client]';
+const prefix = '[order client]';
 const pubSubClient = new PubSub();
 
 class OrderClient {
   /**
-   *
+   * Get order
    * @param params
    */
-  async create(params: CreateParams<CreateOrder>): Promise<Partial<Order>> {
+  private async get(params: GetParams): Promise<Order> {
     try {
-      // precondition
-      if (!params.idempotency) {
-        throw new Error(
-          `${prefix} Idempotency id is required to create a order`,
-        );
-      }
-
-      // finding already created order using idempotency
-      let order: Order | undefined;
-      const searchResponse = await this.search({
-        filters: { idempotency: params.idempotency },
-        from: 0,
-        size: 1,
+      const [_index, _id] = params.id.split('|');
+      const response = await elastic.get({
+        index: _index,
+        id: _id,
+        _source: params.source,
       });
-      if (searchResponse.hits.length) {
-        order = searchResponse.hits[0] as Order;
-        logger.info(
-          `${prefix} Order with idempotency ${params.idempotency} is already created, using order: ${order.id}`,
-        );
-      }
-
-      // saving new order in elastic
-      if (!order) {
-        const index = `orders-${moment().format('YYYY-MM-DD')}`;
-        // creating index if not exist
-        await utils.createIndexIfNotExist(index, {
-          mappings: {
-            properties: {
-              // TODO: add more mapping
-              created_at: { type: 'date' },
-              updated_at: { type: 'date' },
-            },
-          },
-        });
-        const newOrder = {
-          ...params.body,
-          idempotency: params.idempotency,
-          created_at: new Date(),
-          updated_at: new Date(),
-        };
-        const response = await elastic.index({
-          index,
-          refresh: 'true',
-          body: newOrder,
-        });
-        order = {
-          ...newOrder,
-          id: response.body._id,
-          index: response.body._index,
-        };
-      }
-
-      // emitting orders.${status}
-      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_ORDER_PREFIX')}.${
-        order.status
-      }`;
-      logger.info(`${prefix} Publishing ${topic}`);
-      const messageId = await pubSubClient
-        .topic(topic)
-        .publish(Buffer.from(JSON.stringify(order)), {
-          id: order.id,
-          time: new Date(order.created_at).toISOString(),
-          source: 'beast-api',
-        });
-      logger.info(`${prefix} Event published id: ${messageId}`);
-
-      return utils.mapObject(order, params.source);
+      return {
+        ...response.body._source,
+        id: `${response.body._index}|${response.body._id}`,
+      };
     } catch (error) {
       throw new Error(
-        { cause: error, info: { params } },
-        `${prefix} Unexpected error creating order`,
+        { cause: error, info: params },
+        `${prefix} Unexpected error getting order`,
       );
     }
   }
 
   /**
-   *
+   * Search orders
    * @param params
    */
-  async search(params: SearchParams): Promise<SearchResponse<Order>> {
+  public async search(params: SearchParams): Promise<SearchResponse<Order>> {
     try {
       // filters
       const must: any[] = [];
@@ -140,7 +82,7 @@ class OrderClient {
         if (params.filters.status) {
           const should = params.filters.status.map((status: string) => ({
             match_phrase: {
-              'status.keyword': status,
+              'provider.status.keyword': status,
             },
           }));
           must.push({
@@ -181,8 +123,7 @@ class OrderClient {
         total: response.body.hits.total.value,
         hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
           ..._source,
-          id: _id,
-          index: _index,
+          id: `${_index}|${_id}`,
         })),
       };
     } catch (error) {
@@ -194,28 +135,70 @@ class OrderClient {
   }
 
   /**
+   * Update order
+   * @param id
+   * @param params
+   */
+  private async update(id: string, params: UpdateParams<any>): Promise<void> {
+    try {
+      const [_index, _id] = id.split('|');
+      await elastic.update({
+        index: _index,
+        id: _id,
+        body: {
+          doc: {
+            ...params.body,
+            updated_at: new Date(),
+          },
+        },
+      });
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, params } },
+        'Unexpected error updating order',
+      );
+    }
+  }
+
+  /**
    * Confirm order
    * @param id
    * @param params
    */
-  async confirm(
+  public async confirm(
     id: string,
     params: UpdateParams<{
       confirmation: Confirmation;
     }>,
   ): Promise<void> {
     try {
-      await elastic.update({
-        index: params.index,
-        id,
+      // update order
+      await this.update(id, {
         body: {
-          doc: {
-            status: 'in_delivery',
+          status: OrderStatus.CONFIRMED,
+          provider: {
+            status: OwnerDispatchStatus.CONFIRMED,
             confirmation: params.body.confirmation,
-            updated_at: new Date(),
           },
         },
       });
+
+      // get updated event
+      const updatedOrder = await this.get({ id });
+
+      // emit event
+      const event = 'order.confirmed';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient
+        .topic(topic)
+        .publish(Buffer.from(JSON.stringify(updatedOrder)), {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-functions',
+        });
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },
@@ -227,20 +210,36 @@ class OrderClient {
   /**
    * Deliver order
    * @param id
-   * @param payload
+   * @param params
    */
-  async deliver(id: string, params: UpdateParams<any>): Promise<void> {
+  public async deliver(id: string, params: UpdateParams<any>): Promise<void> {
     try {
-      await elastic.update({
-        index: params.index,
-        id,
+      // update order
+      await this.update(id, {
         body: {
-          doc: {
-            status: 'delivered',
-            updated_at: new Date(),
+          status: OrderStatus.DELIVERED,
+          provider: {
+            status: OwnerDispatchStatus.DELIVERED,
           },
         },
       });
+
+      // get updated event
+      const updatedOrder = await this.get({ id });
+
+      // emit event
+      const event = 'order.delivered';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient
+        .topic(topic)
+        .publish(Buffer.from(JSON.stringify(updatedOrder)), {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-functions',
+        });
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },

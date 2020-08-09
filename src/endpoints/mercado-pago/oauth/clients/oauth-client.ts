@@ -29,7 +29,11 @@ class OauthClient {
       form.append('client_secret', config.get('MERCADO_PAGO_ACCESS_TOKEN'));
       form.append('grant_type', 'authorization_code');
       form.append('code', params.body.code);
-      form.append('redirect_uri', config.get('MERCADO_PAGO_REDIRECT_URI'));
+      form.append(
+        'redirect_uri',
+        `${config.get('BEAST_REDIRECT')}/auth/mercadopago`,
+      );
+      console.log(`${config.get('BEAST_REDIRECT')}/auth/mercadopago`);
       const response = await this.request.post('token', form, {
         headers: form.getHeaders(),
       });

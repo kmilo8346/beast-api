@@ -10,23 +10,26 @@ export const SearchFiltersFactory = () =>
   });
 
 const ConfirmationFactory = () =>
-  Joi.array()
-    .items(
-      Joi.alternatives().try(
-        {
-          type: Joi.string().allow('update').required(),
-          id: Joi.string().required(),
-          qty_posible: Joi.number().required(),
-        },
-        {
-          type: Joi.string().allow('delete').required(),
-          id: Joi.string().required(),
-        },
-      ),
-    )
-    .required();
+  Joi.array().items(
+    Joi.alternatives().try(
+      {
+        type: Joi.string().allow('update').required(),
+        id: Joi.string().required(),
+        qty_posible: Joi.number().required(),
+      },
+      {
+        type: Joi.string().allow('delete').required(),
+        id: Joi.string().required(),
+      },
+    ),
+  );
+
+const ProviderFactory = () =>
+  Joi.object().keys({
+    confirmation: ConfirmationFactory().required(),
+  });
 
 export const ConfirmDataFactory = () =>
   Joi.object().keys({
-    confirmation: ConfirmationFactory().required(),
+    provider: ProviderFactory().required(),
   });
