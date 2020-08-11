@@ -26,6 +26,7 @@
     "@hapi/joi": "^17.1.1",
     "axios": "^0.19.2",
     "dotenv-safe": "^8.2.0",
+    "expo-server-sdk": "^3.5.1",
     "firebase-admin": "^8.12.1",
     "form-data": "^3.0.0",
     "koa": "^2.12.0",
