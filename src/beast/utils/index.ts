@@ -4,7 +4,7 @@ import { Item } from '../../types';
 import elastic from '../clients/elastic';
 
 class Utils {
-  public mapObject<T>(data: T, source: string[] | undefined): Partial<T> {
+  public mapObject<T>(data: T, source: string[] | undefined): T {
     if (!source) return data;
 
     const result: { [key: string]: any } = {};
@@ -14,7 +14,7 @@ class Utils {
     return result as T;
   }
 
-  public mapArray<T>(data: T[], source: string[] | undefined): Partial<T>[] {
+  public mapArray<T>(data: T[], source: string[] | undefined): T[] {
     if (!source) return data;
 
     return data.map((d) => this.mapObject<T>(d, source));

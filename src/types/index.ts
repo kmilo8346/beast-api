@@ -310,3 +310,14 @@ export interface Order extends CreateOrder {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface CreateDevice {
+  token: string;
+  user_id: string;
+}
+
+export interface Device extends CreateDevice {
+  id: string;
+  created_at: Date;
+  updated_at: Date;
+}
