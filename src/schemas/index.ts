@@ -253,6 +253,7 @@ export const CardFactory = (optional = false) => {
 export const StoreFactory = (optional = false) => {
   const schema = Joi.object().keys({
     id: Joi.string().required(),
+    user: Joi.string().required(),
     version: Joi.number().required(),
     name: Joi.string().required(),
     phone: Joi.string().required(),
