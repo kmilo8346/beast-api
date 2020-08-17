@@ -1,66 +1,197 @@
 import Error from 'verror';
 
+import utils from '../../../beast/utils';
 import elastic from '../../../beast/clients/elastic';
-import { SearchParams, SearchResponse, Store } from '../../../types';
+import {
+  SearchParams,
+  SearchResponse,
+  Store,
+  CreateStore,
+  CreateParams,
+  UpdateParams,
+  GetParams,
+} from '../../../types';
 
-const index = 'stores';
+const prefix = '[store client]';
 
+/**
+ * @class StoreClient
+ */
 class StoreClient {
   /**
-   * Search over stores index
+   * Get store
+   * @param id string
+   * @param params GetParams
+   * @returns Promise<Store>
+   */
+  public async get(id: string, source?: string[]): Promise<Store> {
+    try {
+      const [_index, _id] = id.split('|');
+      const response = await elastic.get({
+        index: _index,
+        id: _id,
+        _source: source,
+      });
+      return {
+        ...response.body._source,
+        id: `${response.body._index}|${response.body._id}`,
+      };
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, source } },
+        `${prefix} Unexpected error getting store`,
+      );
+    }
+  }
+
+  /**
+   * Search stores
    * @param params
    */
-  async search(params: SearchParams): Promise<SearchResponse<Store>> {
+  public async search(params: SearchParams): Promise<SearchResponse<Store>> {
     try {
-      const bool: { [key: string]: any } = {};
-      if (params.query) {
-        bool.must = {
-          multi_match: {
-            query: params.query,
-            fields: ['name'],
-          },
-        };
-      }
+      // filters
+      const bool: any = {
+        must: [],
+        filter: [],
+      };
       if (params.filters) {
-        if (params.filters.position) {
-          bool.filter = bool.filter || {};
-          bool.filter.geo_shape = {
-            'delivery_area.geometry': {
-              shape: {
-                type: 'Point',
-                coordinates: params.filters.position,
+        if (params.filters.user) {
+          bool.must.push({
+            match_phrase: {
+              'user.keyword': {
+                query: params.filters.user,
               },
-              relation: 'intersects',
             },
-          };
+          });
+        }
+        if (params.filters.position) {
+          bool.filter.push({
+            geo_shape: {
+              'delivery_area.geometry': {
+                shape: {
+                  type: 'Point',
+                  coordinates: params.filters.position,
+                },
+                relation: 'intersects',
+              },
+            },
+          });
         }
       }
 
+      // sort
+      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] = [
+        { updated_at: { order: 'desc' } },
+      ];
+      if (params.sort) {
+        sort = params.sort.map((s) => ({ [s.field]: { order: s.order } }));
+      }
+
       const response = await elastic.search({
-        index,
+        index: 'stores*',
         body: {
           query: {
             bool,
           },
+          sort,
           from: params.from,
           size: params.size,
           _source: params.source,
-          sort: [{ 'name.keyword': { order: 'asc' } }],
         },
       });
+
       return {
         from: params.from,
         size: params.size,
         total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _id, _source }: any) => ({
-          id: _id,
+        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
           ..._source,
+          id: `${_index}|${_id}`,
         })),
       };
     } catch (error) {
       throw new Error(
         { cause: error, info: params },
-        'Error searching over stores index',
+        `${prefix} Unexpected error searching stores`,
+      );
+    }
+  }
+
+  /**
+   * Create store
+   * @param params CreateParams<CreateStore>
+   * @returns Promise<Store>
+   */
+  public async create(params: CreateParams<CreateStore>): Promise<Store> {
+    try {
+      // create index if not exist
+      const index = 'stores';
+      await utils.createIndexIfNotExist(index, {
+        mappings: {
+          properties: {
+            delivery_time: { type: 'integer_range' },
+            delivery_area: {
+              properties: {
+                geometry: {
+                  type: 'geo_shape',
+                  strategy: 'recursive',
+                },
+              },
+            },
+            opening_hours: { type: 'nested' },
+            created_at: { type: 'date' },
+            updated_at: { type: 'date' },
+          },
+        },
+      });
+
+      const newStore = {
+        ...params.body,
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      const response = await elastic.index({
+        index,
+        refresh: 'true',
+        body: newStore,
+      });
+      return utils.mapObject(
+        {
+          ...newStore,
+          id: `${response.body._index}|${response.body._id}`,
+        },
+        params.source,
+      );
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { params } },
+        `${prefix} Unexpected error creating store`,
+      );
+    }
+  }
+
+  /**
+   * Update a store
+   * @param params
+   */
+  public async update(id: string, params: UpdateParams<Store>): Promise<void> {
+    try {
+      const [_index, _id] = id.split('|');
+      await elastic.update({
+        index: _index,
+        id: _id,
+        body: {
+          doc: {
+            ...params.body,
+            updated_at: new Date(),
+          },
+        },
+      });
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, params } },
+        `${prefix} Unexpected error updating store`,
       );
     }
   }

@@ -1,31 +1,17 @@
 import Router, { IMiddleware } from 'koa-router';
-import Joi from '@hapi/joi';
 
+import { SearchParamsFactory } from '../../../schemas';
+import { SearchFiltersFactory } from '../schemas';
 import productClient from '../clients/product-client';
 
-const inputSchema = Joi.object({
-  query: Joi.string().allow(''),
-  filters: Joi.object().keys({
-    position: Joi.array().items(Joi.number()).length(2),
-    type: Joi.string(),
-    store: Joi.string().allow(''),
-  }),
-  from: Joi.number().integer().min(0).default(0),
-  size: Joi.number().min(0).max(100).default(10),
-  sort: Joi.array().items(
-    Joi.object({
-      field: Joi.string().required(),
-      order: Joi.string().allow('desc', 'asc').required(),
-    }),
-  ),
-  source: Joi.array().items(Joi.string()),
-});
+const schema = SearchParamsFactory(SearchFiltersFactory());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const value = await inputSchema.validateAsync(ctx.request.body);
+    const body = await schema.validateAsync(ctx.request.body);
+
     // set formatted body
-    ctx.request.body = value;
+    ctx.request.body = body;
     await next();
   } catch (error) {
     ctx.throw(400, error);

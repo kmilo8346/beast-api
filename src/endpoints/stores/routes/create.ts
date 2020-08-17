@@ -1,16 +1,17 @@
 import Router, { IMiddleware } from 'koa-router';
 
-import { SearchParamsFactory } from '../../../schemas';
-import { SearchFiltersFactory } from '../schemas';
+import { CreateParamsFactory, CreateStoreFactory } from '../../../schemas';
 import storeClient from '../clients/store-client';
 
-const schema = SearchParamsFactory(SearchFiltersFactory());
+const schema = CreateParamsFactory(CreateStoreFactory());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const value = await schema.validateAsync(ctx.request.body);
+    const validProduct = await schema.validateAsync(ctx.request.body, {
+      stripUnknown: true,
+    });
     // set formatted body
-    ctx.request.body = value;
+    ctx.request.body = validProduct;
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -18,9 +19,9 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 };
 
 export default (router: Router) => {
-  router.post('/search', validate, async (ctx) => {
+  router.post('/', validate, async (ctx) => {
     try {
-      const response = await storeClient.search(ctx.request.body);
+      const response = await storeClient.create(ctx.request.body);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);

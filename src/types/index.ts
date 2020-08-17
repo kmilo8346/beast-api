@@ -21,7 +21,6 @@ export interface ActionParams<T> {
 }
 
 export interface GetParams {
-  id: string;
   source?: string[];
 }
 
@@ -117,6 +116,11 @@ export interface Card {
   date_last_updated: string;
 }
 
+export interface AddressProp {
+  short_name: string;
+  long_name: string;
+}
+
 export interface Place {
   id: string;
   url: string;
@@ -145,11 +149,6 @@ export interface Place {
   };
 }
 
-export interface AddressProp {
-  short_name: string;
-  long_name: string;
-}
-
 export enum PaymentProvider {
   MERCADOPAGO = 'mercadopago',
 }
@@ -158,10 +157,8 @@ export enum DispatchProvider {
   OWNER = 'owner',
 }
 
-export interface Store {
-  id: string;
+export interface CreateStore {
   user: string;
-  version: number;
   name: string;
   phone: string;
   images: string[];
@@ -173,9 +170,13 @@ export interface Store {
   dispatch_provider: DispatchProvider;
 }
 
-export interface Product {
+export interface Store extends CreateStore {
   id: string;
-  type: 'product';
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CreateProduct {
   name: string;
   description: string;
   images: string[];
@@ -183,19 +184,13 @@ export interface Product {
   brand?: string;
   tags?: string[];
   enabled: boolean;
-  store: Store;
 }
 
-export interface Service {
+export interface Product extends CreateProduct {
   id: string;
-  type: 'service';
-  name: string;
-  description: string;
-  images: string[];
-  price: number | null;
-  tags?: string[];
-  enabled: boolean;
-  store: Store;
+  store: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface Customer {

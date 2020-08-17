@@ -6,64 +6,61 @@ import {
   SearchResponse,
   Product,
   CreateParams,
-  Service,
   UpdateParams,
+  CreateProduct,
 } from '../../../types';
 import utils from '../../../beast/utils';
 
-const index = 'products-*';
 const prefix = '[product client]';
 
 class ProductClient {
   /**
    * Search products
-   * @param params
+   * @param store string
+   * @param params SearchParams
+   * @returns Promise<SearchResponse<Product>
    */
   async search(
-    storeId: string,
+    store: string,
     params: SearchParams,
   ): Promise<SearchResponse<Product>> {
     try {
-      const bool: { [key: string]: any } = {};
+      // filters
+      const bool: any = {
+        must: [
+          {
+            match_phrase: {
+              'store.keyword': {
+                query: store,
+              },
+            },
+          },
+        ],
+        filter: [],
+      };
       if (params.query) {
-        bool.must = {
+        bool.filter.push({
           multi_match: {
             query: params.query,
-            fields: ['name^2', 'description', 'tags', 'store.name'],
-          },
-        };
-      }
-
-      bool.filter = [];
-      if (storeId !== '-') {
-        bool.filter.push({
-          term: {
-            'store.id': storeId,
+            fields: ['name^3', 'description^3', 'brand^2', 'tags^1.5'],
+            fuzziness: 'AUTO',
+            prefix_length: 2,
           },
         });
       }
       if (params.filters) {
-        if (params.filters.position) {
-          bool.filter.push({
-            geo_shape: {
-              'store.delivery_area.geometry': {
-                shape: {
-                  type: 'Point',
-                  coordinates: params.filters.position,
-                },
-                relation: 'intersects',
+        if ('enabled' in params.filters) {
+          bool.must.push({
+            match_phrase: {
+              enabled: {
+                query: params.filters.enabled,
               },
             },
           });
         }
-        if (params.filters.type) {
-          bool.filter.push({
-            term: {
-              type: params.filters.type,
-            },
-          });
-        }
       }
+
+      // sort
       let sort: { [key: string]: { order: 'desc' | 'asc' } }[] = [
         { updated_at: { order: 'desc' } },
       ];
@@ -72,15 +69,15 @@ class ProductClient {
       }
 
       const response = await elastic.search({
-        index,
+        index: 'products*',
         body: {
           query: {
             bool,
           },
+          sort,
           from: params.from,
           size: params.size,
           _source: params.source,
-          sort,
         },
       });
 
@@ -88,94 +85,87 @@ class ProductClient {
         from: params.from,
         size: params.size,
         total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _id, _source }: any) => ({
-          id: _id,
+        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
           ..._source,
+          id: `${_index}|${_id}`,
         })),
       };
     } catch (error) {
       throw new Error(
         { cause: error, info: params },
-        `${prefix} Error searching over products index`,
+        `${prefix} Unexpected error searching products`,
       );
     }
   }
 
   /**
    * Create a product
-   * @param params
+   * @param stors string
+   * @param params CreateParams<CreateProduct>
+   * @returns Promise<Product>
    */
   async create(
-    storeId: string,
-    params: CreateParams<Product | Service>,
-  ): Promise<any> {
+    store: string,
+    params: CreateParams<CreateProduct>,
+  ): Promise<Product> {
     try {
-      // creating index if not exist
-      await utils.createIndexIfNotExist(`products-${storeId}`, {
+      // create index if not exist
+      const index = 'products';
+      await utils.createIndexIfNotExist(index, {
         mappings: {
           properties: {
-            type: { type: 'keyword' },
-            description: { type: 'text' },
-            format: { type: 'text' },
-            store: {
-              properties: {
-                id: { type: 'keyword' },
-                delivery_time: { type: 'integer_range' },
-                delivery_area: {
-                  properties: {
-                    geometry: {
-                      type: 'geo_shape',
-                      strategy: 'recursive',
-                    },
-                  },
-                },
-                opening_hours: { type: 'nested' },
-              },
-            },
+            created_at: { type: 'date' },
+            updated_at: { type: 'date' },
           },
         },
       });
 
       const newProduct = {
+        store,
         ...params.body,
         created_at: new Date(),
         updated_at: new Date(),
       };
       const response = await elastic.index({
-        index: `products-${storeId}`,
+        index,
         refresh: 'true',
         body: newProduct,
       });
       return utils.mapObject(
         {
           ...newProduct,
-          id: response.body._id,
+          id: `${response.body._index}|${response.body._id}`,
         },
         params.source,
       );
     } catch (error) {
       throw new Error(
         { cause: error, info: { params } },
-        'Error creating product',
+        `${prefix} Unexpected error creating product`,
       );
     }
   }
 
   /**
    * Update a product
-   * @param params
+   * @param store: string
+   * @param product: string
+   * @param params UpdateParams<Product>
+   * @returns Promise<void>
    */
   async update(
-    storeId: string,
-    productId: string,
-    params: UpdateParams<Product | Service>,
+    store: string,
+    product: string,
+    params: UpdateParams<Product>,
   ): Promise<void> {
     try {
+      const [_index, _id] = product.split('|');
       await elastic.update({
-        index: `products-${storeId}`,
-        id: productId,
+        index: _index,
+        id: _id,
         body: {
           doc: {
+            store,
             ...params.body,
             updated_at: new Date(),
           },
@@ -183,27 +173,30 @@ class ProductClient {
       });
     } catch (error) {
       throw new Error(
-        { cause: error, info: { storeId, productId, params } },
-        'Unexpected error updating product',
+        { cause: error, info: { store, product, params } },
+        `${prefix} Unexpected error updating product`,
       );
     }
   }
 
   /**
-   * Update a product
-   * @param params
+   * Delete product
+   * @param store string
+   * @param product string
+   * @returns Promise<void>
    */
-  async delete(storeId: string, productId: string): Promise<void> {
+  async delete(store: string, product: string): Promise<void> {
     try {
+      const [_index, _id] = product.split('|');
       await elastic.delete({
-        index: `products-${storeId}`,
-        id: productId,
+        index: _index,
+        id: _id,
         refresh: 'true',
       });
     } catch (error) {
       throw new Error(
-        { cause: error, info: { storeId, productId } },
-        'Error deleting product',
+        { cause: error, info: { store, product } },
+        `${prefix} Unexpected error deleting product`,
       );
     }
   }

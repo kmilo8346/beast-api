@@ -1,6 +1,7 @@
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaJson from 'koa-json';
+import koaPinoLogger from 'koa-pino-logger';
 
 import config from './config';
 import logger from './logger';
@@ -28,6 +29,7 @@ const app = new Koa();
 
 app.use(koaJson());
 app.use(koaBody());
+app.use(koaPinoLogger());
 app.use(
   health({
     labels: {

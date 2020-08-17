@@ -21,15 +21,16 @@ const pubSubClient = new PubSub();
 class OrderClient {
   /**
    * Get order
-   * @param params
+   * @param id string
+   * @param source string[]
    */
-  private async get(params: GetParams): Promise<Order> {
+  private async get(id: string, source?: string[]): Promise<Order> {
     try {
-      const [_index, _id] = params.id.split('|');
+      const [_index, _id] = id.split('|');
       const response = await elastic.get({
         index: _index,
         id: _id,
-        _source: params.source,
+        _source: source,
       });
       return {
         ...response.body._source,
@@ -37,7 +38,7 @@ class OrderClient {
       };
     } catch (error) {
       throw new Error(
-        { cause: error, info: params },
+        { cause: error, info: { id, source } },
         `${prefix} Unexpected error getting order`,
       );
     }
@@ -184,7 +185,7 @@ class OrderClient {
       });
 
       // get updated event
-      const updatedOrder = await this.get({ id });
+      const updatedOrder = await this.get(id);
 
       // emit event
       const event = 'order.confirmed';
@@ -225,7 +226,7 @@ class OrderClient {
       });
 
       // get updated event
-      const updatedOrder = await this.get({ id });
+      const updatedOrder = await this.get(id);
 
       // emit event
       const event = 'order.delivered';

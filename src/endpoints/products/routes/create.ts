@@ -4,15 +4,15 @@ import productClient from '../clients/product-client';
 import { CreateParamsFactory } from '../../../schemas';
 import { CreateProductFactory } from '../schemas';
 
-const schema = CreateParamsFactory(CreateProductFactory().required());
+const schema = CreateParamsFactory(CreateProductFactory());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const validProduct = await schema.validateAsync(ctx.request.body, {
+    const body = await schema.validateAsync(ctx.request.body, {
       stripUnknown: true,
     });
     // set formatted body
-    ctx.request.body = validProduct;
+    ctx.request.body = body;
     await next();
   } catch (error) {
     ctx.throw(400, error);
