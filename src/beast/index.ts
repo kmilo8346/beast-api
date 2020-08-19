@@ -18,12 +18,13 @@ import oauthRouter from '../endpoints/mercado-pago/oauth/routes';
 // google
 import googlePlacesRouter from '../endpoints/google/places/routes';
 // beast
+import devicesRouter from '../endpoints/devices/routes';
+import usersRouter from '../endpoints/users/routes';
 import phonesRouter from '../endpoints/phones/routes';
 import storesRouter from '../endpoints/stores/routes';
 import productsRouter from '../endpoints/products/routes';
-import ordersRouter from '../endpoints/orders/routes';
 import paymentsRouter from '../endpoints/payments/routes';
-import devicesRouter from '../endpoints/devices/routes';
+import ordersRouter from '../endpoints/orders/routes';
 
 const app = new Koa();
 
@@ -54,12 +55,13 @@ app.use(oauthRouter.routes()).use(oauthRouter.allowedMethods());
 // google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 // beast
+app.use(devicesRouter.routes()).use(devicesRouter.allowedMethods());
+app.use(usersRouter.routes()).use(usersRouter.allowedMethods());
 app.use(phonesRouter.routes()).use(phonesRouter.allowedMethods());
 app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
-app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
 app.use(paymentsRouter.routes()).use(paymentsRouter.allowedMethods());
-app.use(devicesRouter.routes()).use(devicesRouter.allowedMethods());
+app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error({ err });

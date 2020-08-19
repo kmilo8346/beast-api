@@ -2,6 +2,7 @@ import Error from 'verror';
 import axios, { AxiosInstance } from 'axios';
 
 import config from '../../../../beast/config';
+import { Place, AddressProp } from '../../../../types';
 
 interface Prediction {
   description: string;
@@ -10,39 +11,6 @@ interface Prediction {
 
 interface AutocompleteResponse {
   predictions: Prediction[];
-}
-
-interface AddressProp {
-  short_name: string;
-  long_name: string;
-}
-
-interface Place {
-  id: string;
-  url: string;
-  street_number: AddressProp;
-  route: AddressProp;
-  locality: AddressProp;
-  administrative_area_level_3: AddressProp;
-  administrative_area_level_2: AddressProp;
-  administrative_area_level_1: AddressProp;
-  apartment: string;
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-    viewport: {
-      northeast: {
-        lat: number;
-        lng: number;
-      };
-      southwest: {
-        lat: number;
-        lng: number;
-      };
-    };
-  };
 }
 
 class PlacesClient {
@@ -139,6 +107,7 @@ class PlacesClient {
           });
         },
       );
+      delete response.data.result.geometry.viewport;
       return {
         id: response.data.result.place_id,
         url: response.data.result.url,

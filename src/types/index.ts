@@ -136,18 +136,53 @@ export interface Place {
       lat: number;
       lng: number;
     };
-    viewport: {
-      northeast: {
-        lat: number;
-        lng: number;
-      };
-      southwest: {
-        lat: number;
-        lng: number;
-      };
-    };
   };
 }
+
+export interface CreateAnonymouslyUser {
+  id: string;
+  current_address: string;
+  addresses: Place[];
+}
+
+export interface CreateLoggedUser {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name?: string;
+  photo_url: string;
+  phone: string;
+  phone_verified: boolean;
+  current_address: string;
+  addresses: Place[];
+}
+
+export type CreateUser = CreateAnonymouslyUser | CreateLoggedUser;
+
+export interface AnonymouslyUser {
+  id: string;
+  current_address: string;
+  addresses: Place[];
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface LoggedUser {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name?: string;
+  photo_url: string;
+  phone: string;
+  phone_verified: boolean;
+  current_address: string;
+  addresses: Place[];
+  current_store?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export type User = AnonymouslyUser | LoggedUser;
 
 export enum PaymentProvider {
   MERCADOPAGO = 'mercadopago',

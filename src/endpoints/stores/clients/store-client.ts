@@ -21,7 +21,7 @@ class StoreClient {
   /**
    * Get store
    * @param id string
-   * @param params GetParams
+   * @param source string[]
    * @returns Promise<Store>
    */
   public async get(id: string, source?: string[]): Promise<Store> {
