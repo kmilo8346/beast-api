@@ -1,10 +1,10 @@
 import Router, { IMiddleware } from 'koa-router';
 
-import userClient from '../clients/user-client';
 import { CreateParamsFactory } from '../../../schemas';
-import { CreateUserFactory } from '../schemas';
+import { CreateWidgetFactory } from '../schemas';
+import widgetClient from '../clients/widget-client';
 
-const schema = CreateParamsFactory(CreateUserFactory());
+const schema = CreateParamsFactory(CreateWidgetFactory());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
@@ -21,7 +21,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.post('/', validate, async (ctx) => {
     try {
-      const response = await userClient.create(ctx.request.body);
+      const response = await widgetClient.create(ctx.request.body);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);

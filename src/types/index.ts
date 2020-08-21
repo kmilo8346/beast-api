@@ -42,8 +42,11 @@ export interface SearchParams {
 }
 
 export interface SearchResponse<T> {
+  query?: string;
+  filters?: { [key: string]: any };
   from: number;
   size: number;
+  sort?: SortParam;
   total: number;
   hits: T[];
 }
@@ -121,6 +124,11 @@ export interface AddressProp {
   long_name: string;
 }
 
+export interface Location {
+  lat: number;
+  lng: number;
+}
+
 export interface Place {
   id: string;
   url: string;
@@ -132,10 +140,7 @@ export interface Place {
   administrative_area_level_1: AddressProp;
   apartment: string;
   geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
+    location: Location;
   };
 }
 
@@ -159,24 +164,12 @@ export interface CreateLoggedUser {
 
 export type CreateUser = CreateAnonymouslyUser | CreateLoggedUser;
 
-export interface AnonymouslyUser {
-  id: string;
-  current_address: string;
-  addresses: Place[];
+export interface AnonymouslyUser extends CreateAnonymouslyUser {
   created_at: Date;
   updated_at: Date;
 }
 
-export interface LoggedUser {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name?: string;
-  photo_url: string;
-  phone: string;
-  phone_verified: boolean;
-  current_address: string;
-  addresses: Place[];
+export interface LoggedUser extends CreateLoggedUser {
   current_store?: string;
   created_at: Date;
   updated_at: Date;
@@ -393,4 +386,70 @@ export interface MessageReceipt extends CreateMessageReceipt {
   expo_receipt?: ExpoPushReceipt;
   created_at: Date;
   updated_at: Date;
+}
+
+export enum WidgetType {
+  BANNER = 'banner',
+  NEARBY_STORES = 'nearby_stores',
+}
+
+export interface BannerInstructions {
+  image: string;
+}
+
+export interface NearbyStoresInstructions {
+  title: string;
+  from: number;
+  size: number;
+}
+
+export interface CreateWidget {
+  type: WidgetType;
+  tags: string[];
+  sort: number;
+  instructions: BannerInstructions | NearbyStoresInstructions;
+}
+
+export interface Widget extends CreateWidget {
+  id: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface BannerContent {
+  image: string;
+}
+
+export interface NearbyStoresContent {
+  title: string;
+  initial: SearchResponse<Store>;
+}
+
+export interface ComputedWidget {
+  id: string;
+  type: WidgetType;
+  content: BannerContent | NearbyStoresContent;
+}
+
+export interface ComputeContext {
+  location: Location;
+}
+
+export interface ComputeFilters {
+  tag: string;
+}
+
+export interface ComputeParams {
+  filters: ComputeFilters;
+  context: ComputeContext;
+  from: number;
+  size: number;
+}
+
+export interface ComputeResponse {
+  filters: ComputeFilters;
+  from: number;
+  size: number;
+  total: number;
+  hits: ComputedWidget[];
 }

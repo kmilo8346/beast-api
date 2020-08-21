@@ -1,8 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 import Joi from '@hapi/joi';
+import { LocationFactory } from '../../../schemas';
 
 export const SearchFiltersFactory = () =>
   Joi.object().keys({
     user: Joi.string().optional(),
-    position: Joi.array().items(Joi.number()).length(2),
+    location: LocationFactory().optional(),
   });

@@ -1,5 +1,11 @@
 import Joi, { ObjectSchema, AlternativesSchema } from '@hapi/joi';
 
+export const LocationFactory = () =>
+  Joi.object({
+    lat: Joi.number().required(),
+    lng: Joi.number().required(),
+  });
+
 const PlaceGeometryLocationFactory = (optional = false) => {
   const schema = Joi.object({
     lat: Joi.number().required(),

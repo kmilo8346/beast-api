@@ -65,13 +65,16 @@ class StoreClient {
             },
           });
         }
-        if (params.filters.position) {
+        if (params.filters.location) {
           bool.filter.push({
             geo_shape: {
               'delivery_area.geometry': {
                 shape: {
                   type: 'Point',
-                  coordinates: params.filters.position,
+                  coordinates: [
+                    params.filters.location.lng,
+                    params.filters.location.lat,
+                  ],
                 },
                 relation: 'intersects',
               },
@@ -102,8 +105,11 @@ class StoreClient {
       });
 
       return {
+        query: params.query,
+        filters: params.filters,
         from: params.from,
         size: params.size,
+        sort: params.sort,
         total: response.body.hits.total.value,
         hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
           ..._source,
