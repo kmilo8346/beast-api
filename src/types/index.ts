@@ -209,8 +209,7 @@ export interface CreateProduct {
   description: string;
   images: string[];
   price: number;
-  brand?: string;
-  tags?: string[];
+  tags: string[];
   enabled: boolean;
 }
 

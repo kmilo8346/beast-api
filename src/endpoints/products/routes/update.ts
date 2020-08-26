@@ -2,8 +2,7 @@ import Router, { IMiddleware } from 'koa-router';
 import Error from 'verror';
 import lodash from 'lodash';
 
-import { UpdateParamsFactory } from '../../../schemas';
-import { ProductFactory } from '../schemas';
+import { UpdateParamsFactory, ProductFactory } from '../../../schemas';
 import productClient from '../clients/product-client';
 
 const schema = UpdateParamsFactory(ProductFactory(true));

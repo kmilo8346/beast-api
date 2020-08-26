@@ -1,8 +1,7 @@
 import Router, { IMiddleware } from 'koa-router';
 
 import productClient from '../clients/product-client';
-import { CreateParamsFactory } from '../../../schemas';
-import { CreateProductFactory } from '../schemas';
+import { CreateParamsFactory, CreateProductFactory } from '../../../schemas';
 
 const schema = CreateParamsFactory(CreateProductFactory());
 
