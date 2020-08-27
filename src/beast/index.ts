@@ -9,11 +9,6 @@ import JwtVerification from './middlewares/jwt-verfication';
 import health from './middlewares/health';
 
 // mercado pago
-import customersRouter from '../endpoints/mercado-pago/customers/routes';
-import cardsRouter from '../endpoints/mercado-pago/cards/routes';
-import paymentMethsRouter from '../endpoints/mercado-pago/payment-methods/routes';
-import installmentsRouter from '../endpoints/mercado-pago/installments/routes';
-import cardTokensRouter from '../endpoints/mercado-pago/card-tokens/routes';
 import oauthRouter from '../endpoints/mercado-pago/oauth/routes';
 // google
 import googlePlacesRouter from '../endpoints/google/places/routes';
@@ -47,11 +42,6 @@ app.use(
 app.use(JwtVerification());
 
 // mercado pago
-app.use(customersRouter.routes()).use(customersRouter.allowedMethods());
-app.use(cardsRouter.routes()).use(cardsRouter.allowedMethods());
-app.use(paymentMethsRouter.routes()).use(paymentMethsRouter.allowedMethods());
-app.use(installmentsRouter.routes()).use(installmentsRouter.allowedMethods());
-app.use(cardTokensRouter.routes()).use(cardTokensRouter.allowedMethods());
 app.use(oauthRouter.routes()).use(oauthRouter.allowedMethods());
 // google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
