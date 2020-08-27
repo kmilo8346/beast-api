@@ -1,5 +1,4 @@
 import Error from 'verror';
-import moment from 'moment';
 
 import elastic from '../../../beast/clients/elastic';
 import {
@@ -44,7 +43,7 @@ class DeviceClient {
       }
 
       const response = await elastic.search({
-        index: 'devices-*',
+        index: 'devices*',
         body: {
           query: {
             bool: {
@@ -81,7 +80,7 @@ class DeviceClient {
    */
   async create(params: CreateParams<CreateDevice>): Promise<Device> {
     try {
-      const index = `devices-${moment().format('YYYY-MM-DD')}`;
+      const index = 'devices';
       await utils.createIndexIfNotExist(index, {
         mappings: {
           properties: {
