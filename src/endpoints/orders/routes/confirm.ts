@@ -8,9 +8,7 @@ const schema = ActionParamsFactory(ConfirmDataFactory()).required();
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    console.log('ctx.request.body', JSON.stringify(ctx.request.body));
     const body = await schema.validateAsync(ctx.request.body);
-    console.log('validated', body);
     // set formatted body
     ctx.request.body = body;
     await next();

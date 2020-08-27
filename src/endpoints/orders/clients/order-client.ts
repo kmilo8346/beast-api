@@ -10,6 +10,7 @@ import {
   OrderStatus,
   OwnerDispatchStatus,
   GetParams,
+  ActionParams,
 } from '../../../types';
 import config from '../../../beast/config';
 import elastic from '../../../beast/clients/elastic';
@@ -168,8 +169,10 @@ class OrderClient {
    */
   public async confirm(
     id: string,
-    params: UpdateParams<{
-      confirmation: Confirmation;
+    params: ActionParams<{
+      provider: {
+        confirmation: Confirmation;
+      };
     }>,
   ): Promise<void> {
     try {
@@ -179,7 +182,7 @@ class OrderClient {
           status: OrderStatus.CONFIRMED,
           provider: {
             status: OwnerDispatchStatus.CONFIRMED,
-            confirmation: params.body.confirmation,
+            confirmation: params.body.provider?.confirmation,
           },
         },
       });
