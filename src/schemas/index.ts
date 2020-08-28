@@ -157,6 +157,7 @@ export const CreateStoreFactory = (optional = false) => {
     user: Joi.string().required(),
     name: Joi.string().required(),
     phone: Joi.string().required(),
+    reference: Joi.string().required(),
     images: Joi.array().items(Joi.string()),
     delivery_time: IntegerRangeFactory(optional).required(),
     delivery_area: DeliveryAreaFactory(optional).required(),
@@ -202,17 +203,18 @@ export const StoreFactory = (optional = false) => {
 export const CreateProductFactory = (optional = false) => {
   const schema = Joi.object({
     name: Joi.string().required(),
-    description: Joi.string().required(),
-    images: Joi.array().items(Joi.string()).required(),
     price: Joi.number().required(),
-    tags: Joi.array().items(Joi.string()).required(),
     enabled: Joi.boolean().required(),
+    reference: Joi.string().required(),
+    description: Joi.string().required(),
+    tags: Joi.array().items(Joi.string()).required(),
+    images: Joi.array().items(Joi.string()).required(),
   });
   if (!optional) {
     return schema;
   }
   return schema.fork(
-    ['name', 'description', 'images', 'price', 'tags', 'enabled'],
+    ['name', 'description', 'images', 'price', 'tags', 'enabled', 'reference'],
     (mySchema) => mySchema.optional(),
   );
 };

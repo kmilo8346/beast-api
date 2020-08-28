@@ -156,6 +156,7 @@ export interface CreateStore {
   name: string;
   phone: string;
   images: string[];
+  reference: string;
   delivery_time: IntegerRange;
   delivery_area: DeliveryArea;
   opening_hours: OpeningHours;
@@ -172,11 +173,13 @@ export interface Store extends CreateStore {
 
 export interface CreateProduct {
   name: string;
-  description: string;
-  images: string[];
   price: number;
-  tags: string[];
+  brand?: string;
+  tags?: string[];
+  images: string[];
   enabled: boolean;
+  reference: string;
+  description: string;
 }
 
 export interface Product extends CreateProduct {
