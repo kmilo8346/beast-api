@@ -246,14 +246,7 @@ export const SearchParamsFactory = (filters: ObjectSchema) =>
     filters: filters.optional(),
     from: Joi.number().integer().min(0).default(0),
     size: Joi.number().min(0).max(100).default(10),
-    sort: Joi.array()
-      .items(
-        Joi.object({
-          field: Joi.string().required(),
-          order: Joi.string().allow('desc', 'asc').required(),
-        }),
-      )
-      .optional(),
+    sort: Joi.object().optional(),
     source: Joi.array().items(Joi.string()).optional(),
   });
 

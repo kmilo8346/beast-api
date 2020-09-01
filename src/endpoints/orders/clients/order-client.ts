@@ -52,10 +52,18 @@ class OrderClient {
   public async search(params: SearchParams): Promise<SearchResponse<Order>> {
     try {
       // filters
-      const must: any[] = [];
+      const bool: {
+        must: any[];
+        filter: any[];
+        should: any[];
+      } = {
+        must: [],
+        filter: [],
+        should: [],
+      };
       if (params.filters) {
-        if (params.filters.idempotency) {
-          must.push({
+        if ('idempotency' in params.filters) {
+          bool.must.push({
             match_phrase: {
               'idempotency.keyword': {
                 query: params.filters.idempotency,
@@ -63,8 +71,8 @@ class OrderClient {
             },
           });
         }
-        if (params.filters.customer) {
-          must.push({
+        if ('customer' in params.filters) {
+          bool.must.push({
             match_phrase: {
               'customer.id.keyword': {
                 query: params.filters.customer,
@@ -72,8 +80,8 @@ class OrderClient {
             },
           });
         }
-        if (params.filters.store) {
-          must.push({
+        if ('store' in params.filters) {
+          bool.must.push({
             match_phrase: {
               'transaction.store.id.keyword': {
                 query: params.filters.store,
@@ -81,16 +89,45 @@ class OrderClient {
             },
           });
         }
-        if (params.filters.status) {
+        if ('status' in params.filters) {
           const should = params.filters.status.map((status: string) => ({
             match_phrase: {
               'provider.status.keyword': status,
             },
           }));
-          must.push({
+          bool.must.push({
             bool: {
               should,
               minimum_should_match: 1,
+            },
+          });
+        }
+        if ('water_mark' in params.filters) {
+          bool.must.push({
+            range: {
+              updated_at: {
+                gte: params.filters.water_mark,
+                lte: new Date().toISOString(),
+                format: 'strict_date_optional_time',
+              },
+            },
+          });
+        }
+        if ('should_customer' in params.filters) {
+          bool.should.push({
+            match_phrase: {
+              'customer.id.keyword': {
+                query: params.filters.should_customer,
+              },
+            },
+          });
+        }
+        if ('should_seller' in params.filters) {
+          bool.should.push({
+            match_phrase: {
+              'transaction.store.user.keyword': {
+                query: params.filters.should_seller,
+              },
             },
           });
         }
@@ -101,16 +138,16 @@ class OrderClient {
         { updated_at: { order: 'desc' } },
       ];
       if (params.sort) {
-        sort = params.sort.map((s) => ({ [s.field]: { order: s.order } }));
+        sort = Object.keys(params.sort).map((field) => ({
+          [field]: { order: (params.sort as any)[field] },
+        }));
       }
 
       const response = await elastic.search({
         index: 'orders-*',
         body: {
           query: {
-            bool: {
-              must,
-            },
+            bool,
           },
           sort,
           from: params.from,

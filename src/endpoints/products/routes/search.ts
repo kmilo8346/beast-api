@@ -8,10 +8,12 @@ const schema = SearchParamsFactory(SearchFiltersFactory());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const body = await schema.validateAsync(ctx.request.body);
-
-    // set formatted body
-    ctx.request.body = body;
+    const query = await schema.validateAsync(ctx.query, {
+      convert: true,
+      stripUnknown: true,
+    });
+    // set formatted query
+    ctx.state.query = query;
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -19,11 +21,11 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 };
 
 export default (router: Router) => {
-  router.post('/search', validate, async (ctx) => {
+  router.get('/', validate, async (ctx) => {
     try {
       const response = await productClient.search(
         ctx.params.storeId,
-        ctx.request.body,
+        ctx.state.query,
       );
       ctx.body = response;
     } catch (error) {

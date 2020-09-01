@@ -65,7 +65,9 @@ class ProductClient {
         { updated_at: { order: 'desc' } },
       ];
       if (params.sort) {
-        sort = params.sort.map((s) => ({ [s.field]: { order: s.order } }));
+        sort = Object.keys(params.sort).map((field) => ({
+          [field]: { order: (params.sort as any)[field] },
+        }));
       }
 
       const response = await elastic.search({
@@ -82,8 +84,11 @@ class ProductClient {
       });
 
       return {
+        query: params.query,
+        filters: params.filters,
         from: params.from,
         size: params.size,
+        sort: params.sort,
         total: response.body.hits.total.value,
         hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
           ..._source,

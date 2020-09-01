@@ -1,6 +1,4 @@
 import Router, { IMiddleware } from 'koa-router';
-import conditional from 'koa-conditional-get';
-import etag from 'koa-etag';
 
 import { GetParamsFactory } from '../../../schemas';
 import storeClient from '../clients/store-client';
@@ -19,9 +17,6 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 };
 
 export default (router: Router) => {
-  router.use(conditional());
-  router.use(etag());
-
   router.get('/:storeId', validate, async (ctx) => {
     try {
       const response = await storeClient.get(

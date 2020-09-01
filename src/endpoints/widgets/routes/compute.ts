@@ -7,12 +7,12 @@ const schema = ComputeParamsFactory();
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const body = await schema.validateAsync(ctx.request.body, {
+    const query = await schema.validateAsync(ctx.query, {
+      convert: true,
       stripUnknown: true,
     });
-
-    // set formatted body
-    ctx.request.body = body;
+    // set formatted query
+    ctx.state.query = query;
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -20,9 +20,9 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 };
 
 export default (router: Router) => {
-  router.post('/compute', validate, async (ctx) => {
+  router.get('/compute', validate, async (ctx) => {
     try {
-      const response = await widgetClient.compute(ctx.request.body);
+      const response = await widgetClient.compute(ctx.state.query);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);

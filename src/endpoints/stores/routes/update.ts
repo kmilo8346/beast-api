@@ -7,11 +7,9 @@ const schema = UpdateParamsFactory(StoreFactory(true));
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    console.log('body raw', ctx.request.body);
     const body = await schema.validateAsync(ctx.request.body, {
       stripUnknown: true,
     });
-    console.log('body validate', body);
     // set formatted body
     ctx.request.body = body;
     await next();

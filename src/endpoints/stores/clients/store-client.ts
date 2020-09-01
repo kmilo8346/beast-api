@@ -88,7 +88,9 @@ class StoreClient {
         { updated_at: { order: 'desc' } },
       ];
       if (params.sort) {
-        sort = params.sort.map((s) => ({ [s.field]: { order: s.order } }));
+        sort = Object.keys(params.sort).map((field) => ({
+          [field]: { order: (params.sort as any)[field] },
+        }));
       }
 
       const response = await elastic.search({

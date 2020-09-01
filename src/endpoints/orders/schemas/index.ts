@@ -7,6 +7,9 @@ export const SearchFiltersFactory = () =>
     store: Joi.string().optional(),
     customer: Joi.string().optional(),
     status: Joi.array().items(Joi.string()).optional(),
+    water_mark: Joi.string().optional(),
+    should_customer: Joi.string().optional(),
+    should_seller: Joi.string().optional(),
   });
 
 const ConfirmationFactory = () =>

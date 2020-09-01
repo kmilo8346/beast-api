@@ -14,7 +14,7 @@ if (withBasiAuth) {
   clientOptions.auth = { username, password };
 }
 
-logger.info(`${prefix} Client     : elastic`);
+logger.info(`${prefix} Module     : Elastic client`);
 logger.info(`${prefix} Node       : ${clientOptions.node}`);
 if (withBasiAuth) {
   logger.info(`${prefix} Basic Auth : ${username} *******`);

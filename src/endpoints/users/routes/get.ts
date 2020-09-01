@@ -1,6 +1,4 @@
 import Router, { IMiddleware } from 'koa-router';
-import conditional from 'koa-conditional-get';
-import etag from 'koa-etag';
 import Error from 'verror';
 import lodash from 'lodash';
 
@@ -22,9 +20,6 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 };
 
 export default (router: Router) => {
-  router.use(conditional());
-  router.use(etag());
-
   router.get('/:userId', validate, async (ctx) => {
     try {
       const response = await userClient.get(
