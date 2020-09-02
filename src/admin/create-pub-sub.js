@@ -59,6 +59,7 @@ async function run() {
     `${process.env.GOOGLE_PUB_SUB_TOPIC_PREFIX}/order.cancelled`,
     'beast-socket-order-cancelled-us-central-1',
   );
+  process.exit(0);
 }
 
 run();
