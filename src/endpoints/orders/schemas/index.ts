@@ -13,19 +13,26 @@ export const SearchFiltersFactory = () =>
   });
 
 const ConfirmationFactory = () =>
-  Joi.array().items(
-    Joi.alternatives().try(
-      {
-        type: Joi.string().allow('update').required(),
-        id: Joi.string().required(),
-        qty_posible: Joi.number().required(),
-      },
-      {
-        type: Joi.string().allow('delete').required(),
-        id: Joi.string().required(),
-      },
-    ),
-  );
+  Joi.object().keys({
+    status: Joi.string()
+      .valid('full_stock', 'partial_stock', 'out_of_stock')
+      .required(),
+    product_confirmations: Joi.array()
+      .items(
+        Joi.alternatives().try(
+          {
+            type: Joi.string().allow('update').required(),
+            id: Joi.string().required(),
+            qty_posible: Joi.number().required(),
+          },
+          {
+            type: Joi.string().allow('delete').required(),
+            id: Joi.string().required(),
+          },
+        ),
+      )
+      .required(),
+  });
 
 const ProviderFactory = () =>
   Joi.object().keys({
@@ -34,5 +41,5 @@ const ProviderFactory = () =>
 
 export const ConfirmDataFactory = () =>
   Joi.object().keys({
-    provider: ProviderFactory().required(),
+    dispatch_provider: ProviderFactory().required(),
   });

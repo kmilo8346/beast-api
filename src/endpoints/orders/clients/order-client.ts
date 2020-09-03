@@ -11,6 +11,8 @@ import {
   OwnerDispatchStatus,
   GetParams,
   ActionParams,
+  ConfirmationStatus,
+  CancellationReason,
 } from '../../../types';
 import config from '../../../beast/config';
 import elastic from '../../../beast/clients/elastic';
@@ -92,7 +94,7 @@ class OrderClient {
         if ('status' in params.filters) {
           const should = params.filters.status.map((status: string) => ({
             match_phrase: {
-              'provider.status.keyword': status,
+              'dispatch_provider.status.keyword': status,
             },
           }));
           bool.must.push({
@@ -201,34 +203,48 @@ class OrderClient {
 
   /**
    * Confirm order
+   * TODO: move to functions to dispatch provider owner
    * @param id
    * @param params
    */
   public async confirm(
     id: string,
     params: ActionParams<{
-      provider: {
+      dispatch_provider: {
         confirmation: Confirmation;
       };
     }>,
   ): Promise<void> {
     try {
+      const payload: any = {
+        status: OrderStatus.CONFIRMED,
+        dispatch_provider: {
+          status: OwnerDispatchStatus.CONFIRMED,
+          confirmation: params.body.dispatch_provider
+            ?.confirmation as Confirmation,
+        },
+      };
+      let event = 'order.confirmed';
+      if (
+        payload.dispatch_provider.confirmation.status ===
+        ConfirmationStatus.OUT_OF_STOCK
+      ) {
+        payload.status = OrderStatus.CANCELLED;
+        payload.dispatch_provider.status = OwnerDispatchStatus.CANCELLED;
+        payload.dispatch_provider.cancellation = {
+          reason: CancellationReason.CONFIRMATION_OUT_OF_STOCK,
+        };
+        event = 'order.cancelled';
+      }
       // update order
       await this.update(id, {
-        body: {
-          status: OrderStatus.CONFIRMED,
-          provider: {
-            status: OwnerDispatchStatus.CONFIRMED,
-            confirmation: params.body.provider?.confirmation,
-          },
-        },
+        body: payload,
       });
 
-      // get updated event
+      // get updated entity
       const updatedOrder = await this.get(id);
 
       // emit event
-      const event = 'order.confirmed';
       const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
       const messageId = await pubSubClient
         .topic(topic)
@@ -250,6 +266,7 @@ class OrderClient {
 
   /**
    * Deliver order
+   * TODO: move to functions to dispatch provider owner
    * @param id
    * @param params
    */
@@ -259,13 +276,13 @@ class OrderClient {
       await this.update(id, {
         body: {
           status: OrderStatus.DELIVERED,
-          provider: {
+          dispatch_provider: {
             status: OwnerDispatchStatus.DELIVERED,
           },
         },
       });
 
-      // get updated event
+      // get updated entity
       const updatedOrder = await this.get(id);
 
       // emit event

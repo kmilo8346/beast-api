@@ -1,3 +1,8 @@
-import { liftServer } from './beast';
+import { initServer, liftServer } from './beast';
 
-liftServer();
+const run = async () => {
+  await initServer();
+  liftServer();
+};
+
+run();

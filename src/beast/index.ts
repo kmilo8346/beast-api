@@ -7,6 +7,7 @@ import conditional from 'koa-conditional-get';
 import etag from 'koa-etag';
 import koaPinoLogger from 'koa-pino-logger';
 
+import init from './init';
 import config from './config';
 import logger from './logger';
 import io from './clients/socket.io';
@@ -69,6 +70,10 @@ app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
 app.on('error', (err) => {
   logger.error({ err });
 });
+
+export const initServer = async () => {
+  await init();
+};
 
 export const liftServer = () => {
   const port = config.getNumber('PORT', 3000);
