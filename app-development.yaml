@@ -1,3 +1,6 @@
 runtime: nodejs12
 network:
   session_affinity: true
+  forwarded_ports:
+    - 65080
+  instance_tag: websocket
