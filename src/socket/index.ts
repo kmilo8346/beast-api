@@ -130,8 +130,11 @@ const listenForOrderCancelled = () => {
 };
 
 socketIO.on('socket.initialized', (io: Server) => {
-  io.on('connection', () => {
-    logger.info(`${prefix} Client connected`);
+  io.on('connection', (socket) => {
+    logger.info(`${prefix} Socket client connected`);
+    socket.on('disconnect', (reason) => {
+      logger.info(`${prefix} Socket client disconnected, reason: ${reason}`);
+    });
   });
 
   listenForOrderCreated();
