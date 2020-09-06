@@ -110,29 +110,23 @@ export default (router: Router) => {
         clearTimeout(timeout);
         logger.info(`${prefix} Timeout was cleared`);
       }
-      bus.removeListener(user, listener);
-      logger.info(
-        `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
-          user,
-        )}`,
-      );
-      bus.removeListener(user, listener);
-      logger.info(
-        `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
-          user,
-        )}`,
-      );
+      // bus.removeListener(user, listener);
+      // logger.info(
+      //   `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
+      //     user,
+      //   )}`,
+      // );
     }
   });
 };
 
-bus.on('AWVkRvWD1FgmNioW7pqpthwt9vU2-', () => {
-  logger.info(`${prefix} Entró al listener statico`);
-});
+// bus.on('AWVkRvWD1FgmNioW7pqpthwt9vU2-', () => {
+//   logger.info(`${prefix} Entró al listener statico`);
+// });
 
-setInterval(() => {
-  bus.emit('AWVkRvWD1FgmNioW7pqpthwt9vU2-');
-}, 2000);
+// setInterval(() => {
+//   bus.emit('AWVkRvWD1FgmNioW7pqpthwt9vU2-');
+// }, 2000);
 
 const listenForOrderCreated = () => {
   const subscription = pubSubClient.subscription(
