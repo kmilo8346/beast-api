@@ -126,6 +126,10 @@ export default (router: Router) => {
   });
 };
 
+bus.on('AWVkRvWD1FgmNioW7pqpthwt9vU2', () => {
+  logger.info(`${prefix} Entró al listener statico`);
+});
+
 const listenForOrderCreated = () => {
   const subscription = pubSubClient.subscription(
     'beast-long-polling-order-created-us-central-1',
