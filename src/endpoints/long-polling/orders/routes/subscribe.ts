@@ -75,10 +75,16 @@ export default (router: Router) => {
 
       // listening data
       const listener = (data: Order[]) => {
-        resolver.resolve();
         ctx.body = data;
+        resolver.resolve();
+        logger.info(`${prefix} Data received for event: ${user}`);
       };
       bus.on(user, listener);
+      logger.info(
+        `${prefix} Listener was added for event ${user}, count for this event ${bus.listenerCount(
+          user,
+        )}`,
+      );
 
       // cleaning
       // usefull for connection closed from client or proxy
@@ -87,6 +93,11 @@ export default (router: Router) => {
         clearTimeout(timeoutId);
         // removing listener
         bus.removeListener(user, listener);
+        logger.info(
+          `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
+            user,
+          )}`,
+        );
         resolver.resolve();
       });
 
