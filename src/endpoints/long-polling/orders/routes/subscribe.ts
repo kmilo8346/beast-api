@@ -88,6 +88,7 @@ export default (router: Router) => {
           user,
         )}`,
       );
+      logger.info(`${prefix} Events in bus, ${bus.eventNames()}`);
 
       // usefull for connection closed from client or proxy
       ctx.req.on('close', () => {
