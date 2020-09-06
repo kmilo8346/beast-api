@@ -1,6 +1,6 @@
 import Router, { IMiddleware } from 'koa-router';
 import { PubSub } from '@google-cloud/pubsub';
-import events from 'events';
+import { EventEmitter } from 'events';
 import Joi from '@hapi/joi';
 
 import orderClient from '../../../orders/clients/order-client';
@@ -9,7 +9,7 @@ import { Order } from '../../../../types';
 
 const prefix = '[long polling orders]';
 const pollingTimeout = 30 * 1000;
-const bus = new events.EventEmitter();
+const bus = new EventEmitter();
 const pubSubClient = new PubSub();
 
 const responseResolver = () => {
