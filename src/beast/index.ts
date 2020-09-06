@@ -33,7 +33,7 @@ koaQS(app);
 
 app.use(koaJson());
 app.use(koaBody());
-app.use(koaPinoLogger());
+// app.use(koaPinoLogger());
 app.use(conditional());
 app.use(etag());
 app.use(

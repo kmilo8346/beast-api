@@ -56,6 +56,10 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 
 export default (router: Router) => {
   router.get('/subscribe', validate, async (ctx) => {
+    let timeout: NodeJS.Timeout | undefined;
+    let listener: (data: Order[]) => void = () => null;
+    const user = ctx.query.filters.should_customer;
+
     try {
       const orders = await orderClient.search(ctx.query);
       if (orders.hits.length) {
@@ -64,20 +68,19 @@ export default (router: Router) => {
       }
 
       // subscribing logic
-      const user = ctx.query.filters.should_customer;
       const resolver = responseResolver();
 
       // request timeout
-      const timeoutId = setTimeout(() => {
-        resolver.resolve();
+      timeout = setTimeout(() => {
         ctx.body = [];
+        resolver.resolve();
       }, pollingTimeout);
 
       // listening data
-      const listener = (data: Order[]) => {
+      listener = (data: Order[]) => {
+        logger.info(`${prefix} Data received for event: ${user}`);
         ctx.body = data;
         resolver.resolve();
-        logger.info(`${prefix} Data received for event: ${user}`);
       };
       bus.on(user, listener);
       logger.info(
@@ -86,24 +89,31 @@ export default (router: Router) => {
         )}`,
       );
 
-      // cleaning
       // usefull for connection closed from client or proxy
       ctx.req.on('close', () => {
-        // clearing timeout
-        clearTimeout(timeoutId);
-        // removing listener
-        bus.removeListener(user, listener);
-        logger.info(
-          `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
-            user,
-          )}`,
-        );
         resolver.resolve();
       });
 
       await resolver.promise;
     } catch (error) {
       ctx.throw(500, error);
+    } finally {
+      if (timeout) {
+        clearTimeout(timeout);
+        logger.info(`${prefix} Timeout was cleared`);
+      }
+      bus.removeListener(user, listener);
+      logger.info(
+        `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
+          user,
+        )}`,
+      );
+      bus.removeListener(user, listener);
+      logger.info(
+        `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
+          user,
+        )}`,
+      );
     }
   });
 };
