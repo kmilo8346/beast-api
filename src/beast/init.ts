@@ -55,19 +55,19 @@ export default async () => {
     logger.info(`${prefix} Creating subscriptions...`);
     await createSubscription(
       'order.created',
-      'beast-socket-order-created-us-central-1',
+      'beast-long-polling-order-created-us-central-1',
     );
     await createSubscription(
       'order.confirmed',
-      'beast-socket-order-confirmed-us-central-1',
+      'beast-long-polling-order-confirmed-us-central-1',
     );
     await createSubscription(
       'order.delivered',
-      'beast-socket-order-delivered-us-central-1',
+      'beast-long-polling-order-delivered-us-central-1',
     );
     await createSubscription(
       'order.cancelled',
-      'beast-socket-order-cancelled-us-central-1',
+      'beast-long-polling-order-cancelled-us-central-1',
     );
   }
   logger.info('');

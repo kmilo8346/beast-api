@@ -10,7 +10,6 @@ import koaPinoLogger from 'koa-pino-logger';
 import init from './init';
 import config from './config';
 import logger from './logger';
-import io from './clients/socket.io';
 import health from './middlewares/health';
 import JwtVerification from './middlewares/jwt-verfication';
 
@@ -27,8 +26,8 @@ import storesRouter from '../endpoints/stores/routes';
 import productsRouter from '../endpoints/products/routes';
 import paymentsRouter from '../endpoints/payments/routes';
 import ordersRouter from '../endpoints/orders/routes';
-// socket logic
-import '../socket';
+// long polling
+import longPollingRouter from '../endpoints/long-polling/routes';
 
 const prefix = '[beast server]';
 const app = new Koa();
@@ -36,7 +35,7 @@ koaQS(app);
 
 app.use(koaJson());
 app.use(koaBody());
-// app.use(koaPinoLogger());
+app.use(koaPinoLogger());
 app.use(conditional());
 app.use(etag());
 app.use(
@@ -66,6 +65,8 @@ app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 app.use(paymentsRouter.routes()).use(paymentsRouter.allowedMethods());
 app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
+// long polling
+app.use(longPollingRouter.routes()).use(longPollingRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error({ err });
@@ -77,9 +78,7 @@ export const initServer = async () => {
 
 export const liftServer = () => {
   const port = config.getNumber('PORT', 3000);
-  const server = http.createServer(app.callback());
-  io.initialize(server);
-  server.listen(port);
+  app.listen(port);
   logger.info(`${prefix} Started in port ${port}`);
 };
 

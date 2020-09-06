@@ -108,7 +108,7 @@ class OrderClient {
           bool.must.push({
             range: {
               updated_at: {
-                gte: params.filters.water_mark,
+                gt: params.filters.water_mark,
                 lte: new Date().toISOString(),
                 format: 'strict_date_optional_time',
               },
