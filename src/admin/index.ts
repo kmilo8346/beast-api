@@ -1,10 +1,12 @@
 import { PubSub } from '@google-cloud/pubsub';
 
-import config from './config';
-import logger from './logger';
+import config from '../beast/config';
+import logger from '../beast/logger';
 
 const prefix = '[init logic]';
 const pubSubClient = new PubSub();
+
+console.log(config.get('ENVIRONMENT'));
 
 const createTopic = async (topicName: string) => {
   try {
@@ -39,8 +41,8 @@ const createSubscription = async (
   }
 };
 
-export default async () => {
-  logger.info(`${prefix} Initializing server...`);
+const run = async () => {
+  logger.info(`${prefix} Initializing...`);
 
   logger.info(`${prefix}`);
 
@@ -71,4 +73,7 @@ export default async () => {
   );
 
   logger.info('');
+  process.exit(0);
 };
+
+run();

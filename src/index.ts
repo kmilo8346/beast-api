@@ -1,7 +1,6 @@
-import { initServer, liftServer } from './beast';
+import { liftServer } from './beast';
 
 const run = async () => {
-  await initServer();
   liftServer();
 };
 

@@ -9,7 +9,8 @@
     "start": "node -r dotenv-safe/config build/src/index.js | npx pino-stackdriver-mapper",
     "gcp-build": "npm run build",
     "commit": "git commit -m \"ci(api)\" --allow-empty",
-    "test": "k6 run ./tests/script.js"
+    "test": "k6 run ./tests/script.js",
+    "init": "npx ts-node -r dotenv-safe/config src/admin/index.ts dotenv_config_path=${ENV_PATH} | pino-pretty --messageKey message --ignore pid,hostname,name"
   },
   "repository": {
     "type": "git",

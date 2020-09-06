@@ -1,4 +1,3 @@
-import http from 'http';
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaJson from 'koa-json';
@@ -7,7 +6,6 @@ import conditional from 'koa-conditional-get';
 import etag from 'koa-etag';
 import koaPinoLogger from 'koa-pino-logger';
 
-import init from './init';
 import config from './config';
 import logger from './logger';
 import health from './middlewares/health';
@@ -71,10 +69,6 @@ app.use(longPollingRouter.routes()).use(longPollingRouter.allowedMethods());
 app.on('error', (err) => {
   logger.error({ err });
 });
-
-export const initServer = async () => {
-  await init();
-};
 
 export const liftServer = () => {
   const port = config.getNumber('PORT', 3000);
