@@ -57,7 +57,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.get('/subscribe', validate, async (ctx) => {
     let timeout: NodeJS.Timeout | undefined;
-    let listener: (data: Order[]) => void = () => null;
+    let listener: (data: Order) => void = () => null;
     const user = ctx.query.filters.should_customer;
     let finished = false;
 
@@ -79,9 +79,9 @@ export default (router: Router) => {
       }, pollingTimeout);
 
       // listening data
-      listener = (data: Order[]) => {
+      listener = (data: Order) => {
         logger.info(`${prefix} Data received for event: ${user}`);
-        ctx.body = data;
+        ctx.body = [data];
         resolver.resolve();
       };
       bus.on(user, listener);
@@ -136,11 +136,11 @@ const listenForOrderCreated = () => {
       logger.info(
         `${prefix} Emitting order created to customer ${order.customer.id}`,
       );
-      bus.emit(order.customer.id, [order]);
+      bus.emit(order.customer.id, order);
       logger.info(
         `${prefix} Emitting sale created to seller ${order.transaction.store.user}`,
       );
-      bus.emit(order.transaction.store.user, [order]);
+      bus.emit(order.transaction.store.user, order);
     } catch (error) {
       logger.error(
         { err: error },
@@ -163,11 +163,11 @@ const listenForOrderConfirmed = () => {
       logger.info(
         `${prefix} Emitting order confirmed to customer ${order.customer.id}`,
       );
-      bus.emit(order.customer.id, [order]);
+      bus.emit(order.customer.id, order);
       logger.info(
         `${prefix} Emitting sale created to seller ${order.transaction.store.user}`,
       );
-      bus.emit(order.transaction.store.user, [order]);
+      bus.emit(order.transaction.store.user, order);
     } catch (error) {
       logger.error(
         { err: error },
@@ -190,11 +190,11 @@ const listenForOrderDelivered = () => {
       logger.info(
         `${prefix} Emitting order delivered to customer ${order.customer.id}`,
       );
-      bus.emit(order.customer.id, [order]);
+      bus.emit(order.customer.id, order);
       logger.info(
         `${prefix} Emitting sale delivered to seller ${order.transaction.store.user}`,
       );
-      bus.emit(order.transaction.store.user, [order]);
+      bus.emit(order.transaction.store.user, order);
     } catch (error) {
       logger.error(
         { err: error },
@@ -217,11 +217,11 @@ const listenForOrderCancelled = () => {
       logger.info(
         `${prefix} Emitting order cancelled to customer ${order.customer.id}`,
       );
-      bus.emit(order.customer.id, [order]);
+      bus.emit(order.customer.id, order);
       logger.info(
         `${prefix} Emitting sale cancelled to seller ${order.transaction.store.user}`,
       );
-      bus.emit(order.transaction.store.user, [order]);
+      bus.emit(order.transaction.store.user, order);
     } catch (error) {
       logger.error(
         { err: error },
