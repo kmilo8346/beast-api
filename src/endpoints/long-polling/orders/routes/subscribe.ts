@@ -110,12 +110,12 @@ export default (router: Router) => {
         clearTimeout(timeout);
         logger.info(`${prefix} Timeout was cleared`);
       }
-      // bus.removeListener(user, listener);
-      // logger.info(
-      //   `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
-      //     user,
-      //   )}`,
-      // );
+      bus.removeListener(user, listener);
+      logger.info(
+        `${prefix} Listener was removed for event ${user}, count for this event ${bus.listenerCount(
+          user,
+        )}`,
+      );
     }
   });
 };
