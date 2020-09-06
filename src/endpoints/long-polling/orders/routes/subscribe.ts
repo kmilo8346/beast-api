@@ -126,9 +126,13 @@ export default (router: Router) => {
   });
 };
 
-bus.on('AWVkRvWD1FgmNioW7pqpthwt9vU2', () => {
+bus.on('AWVkRvWD1FgmNioW7pqpthwt9vU2-', () => {
   logger.info(`${prefix} Entró al listener statico`);
 });
+
+setInterval(() => {
+  bus.emit('AWVkRvWD1FgmNioW7pqpthwt9vU2-');
+}, 2000);
 
 const listenForOrderCreated = () => {
   const subscription = pubSubClient.subscription(
