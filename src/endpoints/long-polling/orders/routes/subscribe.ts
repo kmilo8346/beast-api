@@ -59,6 +59,7 @@ export default (router: Router) => {
     let timeout: NodeJS.Timeout | undefined;
     let listener: (data: Order[]) => void = () => null;
     const user = ctx.query.filters.should_customer;
+    let finished = false;
 
     try {
       const orders = await orderClient.search(ctx.query);
@@ -67,6 +68,7 @@ export default (router: Router) => {
         return;
       }
 
+      logger.info(`${prefix} aki1`);
       // subscribing logic
       const resolver = responseResolver();
 
@@ -92,13 +94,18 @@ export default (router: Router) => {
 
       // usefull for connection closed from client or proxy
       ctx.req.on('close', () => {
+        if (!finished) {
+          logger.info(`${prefix} Close was called before logic finish`);
+        }
         resolver.resolve();
       });
 
       await resolver.promise;
+      finished = true;
     } catch (error) {
       ctx.throw(500, error);
     } finally {
+      logger.info(`${prefix} aki2`);
       if (timeout) {
         clearTimeout(timeout);
         logger.info(`${prefix} Timeout was cleared`);
