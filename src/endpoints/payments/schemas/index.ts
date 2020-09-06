@@ -28,7 +28,7 @@ export const CustomerFactory = () => {
     id: Joi.string().required(),
     email: Joi.string().email().required(),
     first_name: Joi.string().required(),
-    last_name: Joi.string().optional(),
+    last_name: Joi.string().allow('').optional(),
     photo_url: Joi.string().optional(),
     phone: Joi.string().required(),
   });
