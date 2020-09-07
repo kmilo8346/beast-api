@@ -19,6 +19,71 @@ const prefix = '[shop client]';
 
 class PaymentClient {
   /**
+   * Search payments
+   * @param params
+   */
+  async search(params: SearchParams): Promise<SearchResponse<Payment>> {
+    try {
+      // filters
+      const must: any[] = [];
+      if (params.filters) {
+        if (params.filters.idempotency) {
+          must.push({
+            match_phrase: {
+              'idempotency.keyword': {
+                query: params.filters.idempotency,
+              },
+            },
+          });
+        }
+      }
+
+      // sort
+      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] = [
+        { updated_at: { order: 'desc' } },
+      ];
+      if (params.sort) {
+        sort = Object.keys(params.sort).map((field) => ({
+          [field]: { order: (params.sort as any)[field] },
+        }));
+      }
+
+      const response = await elastic.search({
+        index: 'payments*',
+        body: {
+          query: {
+            bool: {
+              must,
+            },
+          },
+          sort,
+          from: params.from,
+          size: params.size,
+          _source: params.source,
+        },
+      });
+
+      return {
+        query: params.query,
+        filters: params.filters,
+        from: params.from,
+        size: params.size,
+        sort: params.sort,
+        total: response.body.hits.total.value,
+        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
+          ..._source,
+          id: `${_index}|${_id}`,
+        })),
+      };
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: params },
+        `${prefix} Unexpected error searching over payments`,
+      );
+    }
+  }
+
+  /**
    * Create a payment
    * @param params
    */
@@ -56,7 +121,7 @@ class PaymentClient {
           redirect_url: params.body.redirect_url,
         });
 
-        const index = `payments-${moment().format('YYYY-MM-DD')}`;
+        const index = 'payments';
         // creating index if not exist
         await utils.createIndexIfNotExist(index, {
           mappings: {
@@ -92,71 +157,6 @@ class PaymentClient {
       throw new Error(
         { cause: error, info: { params } },
         'unexpected error creating a payment',
-      );
-    }
-  }
-
-  /**
-   * Search payments
-   * @param params
-   */
-  async search(params: SearchParams): Promise<SearchResponse<Payment>> {
-    try {
-      // filters
-      const must: any[] = [];
-      if (params.filters) {
-        if (params.filters.idempotency) {
-          must.push({
-            match_phrase: {
-              'idempotency.keyword': {
-                query: params.filters.idempotency,
-              },
-            },
-          });
-        }
-      }
-
-      // sort
-      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] = [
-        { updated_at: { order: 'desc' } },
-      ];
-      if (params.sort) {
-        sort = Object.keys(params.sort).map((field) => ({
-          [field]: { order: (params.sort as any)[field] },
-        }));
-      }
-
-      const response = await elastic.search({
-        index: 'payments-*',
-        body: {
-          query: {
-            bool: {
-              must,
-            },
-          },
-          sort,
-          from: params.from,
-          size: params.size,
-          _source: params.source,
-        },
-      });
-
-      return {
-        query: params.query,
-        filters: params.filters,
-        from: params.from,
-        size: params.size,
-        sort: params.sort,
-        total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
-          ..._source,
-          id: `${_index}|${_id}`,
-        })),
-      };
-    } catch (error) {
-      throw new Error(
-        { cause: error, info: params },
-        `${prefix} Unexpected error searching over payments`,
       );
     }
   }

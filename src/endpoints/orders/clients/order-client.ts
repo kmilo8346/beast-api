@@ -146,7 +146,7 @@ class OrderClient {
       }
 
       const response = await elastic.search({
-        index: 'orders-*',
+        index: 'orders*',
         body: {
           query: {
             bool,

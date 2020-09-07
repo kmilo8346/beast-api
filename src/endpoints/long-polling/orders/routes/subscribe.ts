@@ -68,7 +68,6 @@ export default (router: Router) => {
         return;
       }
 
-      logger.info(`${prefix} aki1`);
       // subscribing logic
       const resolver = responseResolver();
 
@@ -105,7 +104,6 @@ export default (router: Router) => {
     } catch (error) {
       ctx.throw(500, error);
     } finally {
-      logger.info(`${prefix} aki2`);
       if (timeout) {
         clearTimeout(timeout);
         logger.info(`${prefix} Timeout was cleared`);
@@ -119,14 +117,6 @@ export default (router: Router) => {
     }
   });
 };
-
-// bus.on('AWVkRvWD1FgmNioW7pqpthwt9vU2-', () => {
-//   logger.info(`${prefix} Entró al listener statico`);
-// });
-
-// setInterval(() => {
-//   bus.emit('AWVkRvWD1FgmNioW7pqpthwt9vU2-');
-// }, 2000);
 
 const listenForOrderCreated = () => {
   const subscription = pubSubClient.subscription(
