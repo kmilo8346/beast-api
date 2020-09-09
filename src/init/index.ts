@@ -6,8 +6,6 @@ import logger from '../beast/logger';
 const prefix = '[init logic]';
 const pubSubClient = new PubSub();
 
-console.log(config.get('ENVIRONMENT'));
-
 const createTopic = async (topicName: string) => {
   try {
     await pubSubClient.createTopic(
@@ -42,7 +40,7 @@ const createSubscription = async (
 };
 
 const run = async () => {
-  logger.info(`${prefix} Initializing...`);
+  logger.info(`${prefix} Initializing beast api...`);
 
   logger.info(`${prefix}`);
 
