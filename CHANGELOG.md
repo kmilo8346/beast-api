@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.10](https://github.com/firedevs-team/beast-api/compare/v1.0.9...v1.0.10) (2020-09-10)
+
+
+### Bug Fixes
+
+* **package json:** adding bump command ([ace6070](https://github.com/firedevs-team/beast-api/commit/ace6070b1635547c6185b63962a95006f680fe97))
+
 ### [1.0.9](https://github.com/firedevs-team/beast-api/compare/v1.0.8...v1.0.9) (2020-09-10)
 
 ### [1.0.8](https://github.com/firedevs-team/beast-api/compare/v1.0.7...v1.0.8) (2020-09-10)
