@@ -10,7 +10,8 @@
     "gcp-build": "npm run build",
     "commit": "git commit -m \"ci(api)\" --allow-empty",
     "test": "k6 run ./tests/script.js",
-    "init": "npx ts-node -r dotenv-safe/config src/init/index.ts dotenv_config_path=${ENV_PATH} | pino-pretty --messageKey message --ignore pid,hostname,name"
+    "init": "npx ts-node -r dotenv-safe/config src/init/index.ts dotenv_config_path=${ENV_PATH} | pino-pretty --messageKey message --ignore pid,hostname,name",
+    "publish": "npx standard-version --release-as patch"
   },
   "repository": {
     "type": "git",
@@ -45,6 +46,7 @@
     "pino": "^6.4.1",
     "pino-pretty": "^4.1.0",
     "pino-stackdriver-mapper": "^1.0.1",
+    "standard-version": "^9.0.0",
     "twilio": "^3.47.0",
     "uuid": "^8.2.0",
     "verror": "^1.10.0"
