@@ -1,7 +1,7 @@
 {
   "name": "beast-api",
   "version": "1.0.10",
-  "description": "",
+  "description": "Beast api",
   "main": "src/index.ts",
   "scripts": {
     "build": "rm -rf build && npx tsc",
