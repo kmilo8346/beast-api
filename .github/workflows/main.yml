@@ -33,7 +33,7 @@ jobs:
           echo "::set-env name=PROJECT_ID::${{ secrets.PRODUCTION_PROJECT_ID }}"
           echo "${{ secrets.PRODUCTION_ENV_VARS }}" >> .env
 
-      - name: Adding to .env github variables
+      - name: Adding github variables to .env
         run: |
           echo ""
           echo "# CI CD"

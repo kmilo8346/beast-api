@@ -8,7 +8,7 @@ import logger from '../../../../beast/logger';
 import { Order } from '../../../../types';
 
 const prefix = '[long polling orders]';
-const pollingTimeout = 30 * 1000;
+const pollingTimeout = 10 * 1000;
 const bus = new EventEmitter();
 const pubSubClient = new PubSub();
 
