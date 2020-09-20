@@ -12,7 +12,8 @@ import health from './middlewares/health';
 import JwtVerification from './middlewares/jwt-verfication';
 
 // mercado pago
-import oauthRouter from '../endpoints/mercado-pago/oauth/routes';
+import mpOauthRouter from '../endpoints/mercado-pago/oauth/routes';
+import mpUsersRouter from '../endpoints/mercado-pago/users/routes';
 // google
 import googlePlacesRouter from '../endpoints/google/places/routes';
 // beast
@@ -51,7 +52,8 @@ app.use(
 app.use(JwtVerification());
 
 // mercado pago
-app.use(oauthRouter.routes()).use(oauthRouter.allowedMethods());
+app.use(mpOauthRouter.routes()).use(mpOauthRouter.allowedMethods());
+app.use(mpUsersRouter.routes()).use(mpUsersRouter.allowedMethods());
 // google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 // beast

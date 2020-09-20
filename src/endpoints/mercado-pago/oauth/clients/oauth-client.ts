@@ -6,7 +6,7 @@ import config from '../../../../beast/config';
 import { CreateParams } from '../../../../types';
 import utils from '../../../../beast/utils';
 
-const prefix = '[oauth client]';
+const prefix = '[mercado pago oauth client]';
 
 class OauthClient {
   private request: AxiosInstance;
@@ -33,7 +33,7 @@ class OauthClient {
         'redirect_uri',
         `${config.get('BEAST_REDIRECT')}/auth/mercadopago`,
       );
-      console.log(`${config.get('BEAST_REDIRECT')}/auth/mercadopago`);
+
       const response = await this.request.post('token', form, {
         headers: form.getHeaders(),
       });
