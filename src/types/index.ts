@@ -172,7 +172,6 @@ export interface Store extends CreateStore {
 export interface CreateProduct {
   name: string;
   price: number;
-  brand?: string;
   tags?: string[];
   images: string[];
   enabled: boolean;

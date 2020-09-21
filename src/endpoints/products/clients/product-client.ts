@@ -42,7 +42,7 @@ class ProductClient {
         bool.filter.push({
           multi_match: {
             query: params.query,
-            fields: ['name^3', 'description^3', 'brand^2', 'tags^1.5'],
+            fields: ['name^3', 'description^3', 'tags^1.5'],
             fuzziness: 'AUTO',
             prefix_length: 2,
           },
