@@ -1,4 +1,5 @@
 import Error from 'verror';
+import moment from 'moment-timezone';
 
 import utils from '../../../beast/utils';
 import elastic from '../../../beast/clients/elastic';
@@ -56,7 +57,7 @@ class StoreClient {
         filter: [],
       };
       if (params.filters) {
-        if (params.filters.user) {
+        if ('user' in params.filters) {
           bool.must.push({
             match_phrase: {
               'user.keyword': {
@@ -65,7 +66,7 @@ class StoreClient {
             },
           });
         }
-        if (params.filters.location) {
+        if ('location' in params.filters) {
           bool.filter.push({
             geo_shape: {
               'delivery_area.geometry': {
@@ -80,6 +81,49 @@ class StoreClient {
               },
             },
           });
+        }
+        if ('open' in params.filters) {
+          if (params.filters.open) {
+            // TODO: add support for other countries
+            const date = moment().tz('America/Santiago');
+            const day = `${date.day()}`;
+            const minutes = date.minutes();
+            const time = parseInt(
+              `${date.hour()}${minutes < 10 ? `0${minutes}` : minutes}`,
+              10,
+            );
+
+            bool.must.push({
+              nested: {
+                path: 'opening_hours',
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          'opening_hours.day': day,
+                        },
+                      },
+                      {
+                        range: {
+                          'opening_hours.open': {
+                            lte: time,
+                          },
+                        },
+                      },
+                      {
+                        range: {
+                          'opening_hours.close': {
+                            gt: time,
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            });
+          }
         }
       }
 

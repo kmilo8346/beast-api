@@ -8,7 +8,7 @@ const schema = SearchParamsFactory(SearchFiltersFactory());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const query = await schema.validateAsync(ctx.query, {
+    const query = await schema.validateAsync(ctx.state.query, {
       convert: true,
       stripUnknown: true,
     });

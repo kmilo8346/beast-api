@@ -236,6 +236,7 @@ class WidgetClient {
       const stores = await storeClient.search({
         filters: {
           location: context.location,
+          open: true,
         },
         from: nearbyStoresInstructions.from,
         size: nearbyStoresInstructions.size,

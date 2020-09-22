@@ -9,10 +9,12 @@ const schema = GetParamsFactory();
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const query = await schema.validateAsync(ctx.query, { stripUnknown: true });
+    const query = await schema.validateAsync(ctx.state.query, {
+      stripUnknown: true,
+    });
 
     // set formatted params
-    ctx.query = query;
+    ctx.state.query = query;
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -22,7 +24,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.get('/:userId', validate, async (ctx) => {
     try {
-      const response = await userClient.get(ctx.params.userId, ctx.query);
+      const response = await userClient.get(ctx.params.userId, ctx.state.query);
       ctx.body = response;
     } catch (error) {
       // if (lodash.get(Error.cause(error), 'meta.statusCode') === 404) {

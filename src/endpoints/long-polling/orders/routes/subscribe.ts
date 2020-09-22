@@ -42,7 +42,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
       size: Joi.number().min(0).max(100).default(10),
       sort: Joi.object().optional(),
       source: Joi.array().items(Joi.string()).optional(),
-    }).validateAsync(ctx.query, {
+    }).validateAsync(ctx.state.query, {
       convert: true,
       stripUnknown: true,
     });
@@ -58,11 +58,11 @@ export default (router: Router) => {
   router.get('/subscribe', validate, async (ctx) => {
     let timeout: NodeJS.Timeout | undefined;
     let listener: (data: Order) => void = () => null;
-    const user = ctx.query.filters.should_customer;
+    const user = ctx.state.query.filters.should_customer;
     let finished = false;
 
     try {
-      const orders = await orderClient.search(ctx.query);
+      const orders = await orderClient.search(ctx.state.query);
       if (orders.hits.length) {
         ctx.body = orders.hits;
         return;

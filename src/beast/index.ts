@@ -1,15 +1,15 @@
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaJson from 'koa-json';
-import koaQS from 'koa-qs';
-import conditional from 'koa-conditional-get';
-import etag from 'koa-etag';
-import koaPinoLogger from 'koa-pino-logger';
+import koaConditional from 'koa-conditional-get';
+import koaEtag from 'koa-etag';
+// import koaPinoLogger from 'koa-pino-logger';
 
 import config from './config';
 import logger from './logger';
-import health from './middlewares/health';
-import JwtVerification from './middlewares/jwt-verfication';
+import koaQs from './middlewares/qs';
+import koaHealth from './middlewares/health';
+import koaJwtVerification from './middlewares/jwt-verfication';
 
 // mercado pago
 import mpOauthRouter from '../endpoints/mercado-pago/oauth/routes';
@@ -30,15 +30,15 @@ import longPollingRouter from '../endpoints/long-polling/routes';
 
 const prefix = '[beast server]';
 const app = new Koa();
-koaQS(app);
 
+app.use(koaQs());
 app.use(koaJson());
 app.use(koaBody());
 // app.use(koaPinoLogger());
-app.use(conditional());
-app.use(etag());
+app.use(koaConditional());
+app.use(koaEtag());
 app.use(
-  health({
+  koaHealth({
     labels: {
       github_run_number: config.get('GITHUB_RUN_NUMBER', ''),
       github_sha: config.get('GITHUB_SHA', ''),
@@ -49,7 +49,7 @@ app.use(
     },
   }),
 );
-app.use(JwtVerification());
+app.use(koaJwtVerification());
 
 // mercado pago
 app.use(mpOauthRouter.routes()).use(mpOauthRouter.allowedMethods());

@@ -9,9 +9,9 @@ const schema = GetParamsFactory();
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const value = await schema.validateAsync(ctx.query);
+    const value = await schema.validateAsync(ctx.state.query);
     // set formatted params
-    ctx.query = value;
+    ctx.state.query = value;
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -23,7 +23,7 @@ export default (router: Router) => {
     try {
       const response = await storeClient.get(
         ctx.params.storeId,
-        ctx.query.source,
+        ctx.state.query.source,
       );
       ctx.body = response;
     } catch (error) {
