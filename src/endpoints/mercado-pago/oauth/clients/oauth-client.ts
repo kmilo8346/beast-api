@@ -31,7 +31,7 @@ class OauthClient {
       form.append('code', params.body.code);
       form.append(
         'redirect_uri',
-        `${config.get('BEAST_REDIRECT')}/auth/mercadopago`,
+        `${config.get('BEAST_WEB_URL')}/auth/mercadopago`,
       );
 
       const response = await this.request.post('token', form, {

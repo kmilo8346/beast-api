@@ -21,7 +21,7 @@ class MercadoPagoCheckout extends ICheckout {
         access_token: data.transaction.store.seller_credentials.access_token,
       });
       const redirect = `${config.get(
-        'BEAST_REDIRECT',
+        'BEAST_WEB_URL',
       )}/checkout/mercadopago?beast_redirect=${data.redirect_url}`;
       const response = await mercadopago.preferences.create({
         payer: {
