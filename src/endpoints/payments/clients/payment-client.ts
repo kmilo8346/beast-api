@@ -1,5 +1,4 @@
 import Error from 'verror';
-import moment from 'moment';
 
 import {
   CreateParams,

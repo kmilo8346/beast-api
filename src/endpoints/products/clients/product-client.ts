@@ -10,6 +10,7 @@ import {
   CreateProduct,
 } from '../../../types';
 import utils from '../../../beast/utils';
+import logger from '../../../beast/logger';
 
 const prefix = '[product client]';
 
@@ -54,6 +55,15 @@ class ProductClient {
             match_phrase: {
               enabled: {
                 query: params.filters.enabled,
+              },
+            },
+          });
+        }
+        if ('reference' in params.filters) {
+          bool.must.push({
+            match_phrase: {
+              'reference.keyword': {
+                query: params.filters.reference,
               },
             },
           });
@@ -114,6 +124,20 @@ class ProductClient {
     params: CreateParams<CreateProduct>,
   ): Promise<Product> {
     try {
+      // find already created product
+      const searchResponse = await this.search(store, {
+        filters: { reference: params.body.reference },
+        from: 0,
+        size: 1,
+      });
+      if (searchResponse.hits.length) {
+        const alreadyCreated = searchResponse.hits[0] as Product;
+        logger.info(
+          `${prefix} A product is already created, product id ${alreadyCreated.id}, reference ${alreadyCreated.reference}`,
+        );
+        return utils.mapObject(alreadyCreated, params.source);
+      }
+
       // create index if not exist
       const index = 'products';
       await utils.createIndexIfNotExist(index, {

@@ -10,8 +10,8 @@ import {
   CreateStore,
   CreateParams,
   UpdateParams,
-  GetParams,
 } from '../../../types';
+import logger from '../../../beast/logger';
 
 const prefix = '[store client]';
 
@@ -125,6 +125,15 @@ class StoreClient {
             });
           }
         }
+        if ('reference' in params.filters) {
+          bool.must.push({
+            match_phrase: {
+              'reference.keyword': {
+                query: params.filters.reference,
+              },
+            },
+          });
+        }
       }
 
       // sort
@@ -177,6 +186,20 @@ class StoreClient {
    */
   public async create(params: CreateParams<CreateStore>): Promise<Store> {
     try {
+      // find already created store
+      const searchResponse = await this.search({
+        filters: { reference: params.body.reference },
+        from: 0,
+        size: 1,
+      });
+      if (searchResponse.hits.length) {
+        const alreadyCreated = searchResponse.hits[0] as Store;
+        logger.info(
+          `${prefix} A store is already created, store id ${alreadyCreated.id}, reference ${alreadyCreated.reference}`,
+        );
+        return utils.mapObject(alreadyCreated, params.source);
+      }
+
       // create index if not exist
       const index = 'stores';
       await utils.createIndexIfNotExist(index, {
