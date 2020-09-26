@@ -14,6 +14,7 @@ import koaJwtVerification from './middlewares/jwt-verfication';
 // mercado pago
 import mpOauthRouter from '../endpoints/mercado-pago/oauth/routes';
 import mpUsersRouter from '../endpoints/mercado-pago/users/routes';
+import mpAuthRouter from '../endpoints/mercado-pago/authorization/routes';
 // google
 import googlePlacesRouter from '../endpoints/google/places/routes';
 // beast
@@ -49,11 +50,12 @@ app.use(
     },
   }),
 );
-app.use(koaJwtVerification());
+app.use(koaJwtVerification({ skip: ['/mercadopago/authorization'] }));
 
 // mercado pago
 app.use(mpOauthRouter.routes()).use(mpOauthRouter.allowedMethods());
 app.use(mpUsersRouter.routes()).use(mpUsersRouter.allowedMethods());
+app.use(mpAuthRouter.routes()).use(mpAuthRouter.allowedMethods());
 // google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 // beast

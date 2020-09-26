@@ -13,8 +13,8 @@ class UserClient {
 
   constructor() {
     this.request = axios.create({
-      baseURL: `${config.get('MERCADO_PAGO_URL')}/users`,
-      timeout: config.getNumber('MERCADO_PAGO_REQUEST_TIMEOUT'),
+      baseURL: `${config.get('MERCADO_PAGO_API_URL')}/users`,
+      timeout: config.getNumber('MERCADO_PAGO_API_REQUEST_TIMEOUT'),
       headers: { Accept: 'application/json' },
     });
   }
