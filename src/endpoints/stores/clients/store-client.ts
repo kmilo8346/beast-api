@@ -86,12 +86,15 @@ class StoreClient {
           if (params.filters.open) {
             // TODO: add support for other countries
             const date = moment().tz('America/Santiago');
-            const day = `${date.day()}`;
+            let day = `${date.day()}`;
             const minutes = date.minutes();
             const time = parseInt(
               `${date.hour()}${minutes < 10 ? `0${minutes}` : minutes}`,
               10,
             );
+            if (day === '0') {
+              day = '7';
+            }
 
             bool.must.push({
               nested: {
