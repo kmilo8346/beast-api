@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.18](https://github.com/firedevs-team/beast-api/compare/v1.0.17...v1.0.18) (2020-09-27)
+
+
+### Bug Fixes
+
+* **store client:** mapping sunday ([a890d13](https://github.com/firedevs-team/beast-api/commit/a890d133c4cf7a5887b93542dfa1c27426a800d2))
+
 ### [1.0.17](https://github.com/firedevs-team/beast-api/compare/v1.0.16...v1.0.17) (2020-09-23)
 
 ### [1.0.16](https://github.com/firedevs-team/beast-api/compare/v1.0.15...v1.0.16) (2020-09-21)
