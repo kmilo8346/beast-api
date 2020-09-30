@@ -8,6 +8,8 @@ import {
   CreatePayment,
   PaymentStatus,
   PaymentProvider,
+  CreateCheckout,
+  DispatchProvider,
 } from '../../../types';
 import logger from '../../../beast/logger';
 import elastic from '../../../beast/clients/elastic';
@@ -109,16 +111,29 @@ class PaymentClient {
       if (!payment) {
         // create preference
         const reference = utils.generateId();
-        const checkout = checkoutFactory(
-          // params.body.transaction.store.payment_provider,
-          PaymentProvider.MERCADOPAGO,
+        const checkout = checkoutFactory(PaymentProvider.MERCADOPAGO);
+
+        let createCheckoutPayload: CreateCheckout;
+        if (params.body.dispatch_provider_id === DispatchProvider.OWNER) {
+          createCheckoutPayload = {
+            reference,
+            customer: params.body.customer,
+            transaction: params.body.transaction,
+            redirect_url: params.body.redirect_url,
+            payment_provider_id: params.body.payment_provider_id,
+            dispatch_provider_id: params.body.dispatch_provider_id,
+          };
+        } else {
+          createCheckoutPayload = {
+            reference,
+            transaction: params.body.transaction,
+            payment_provider_id: params.body.payment_provider_id,
+            dispatch_provider_id: params.body.dispatch_provider_id,
+          };
+        }
+        const paymentProviderState = await checkout.create(
+          createCheckoutPayload,
         );
-        const paymentProviderState = await checkout.create({
-          reference,
-          customer: params.body.customer,
-          transaction: params.body.transaction,
-          redirect_url: params.body.redirect_url,
-        });
 
         const index = 'payments';
         // creating index if not exist

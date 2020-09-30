@@ -147,6 +147,7 @@ export enum PaymentProvider {
 
 export enum DispatchProvider {
   OWNER = 'owner',
+  OWNER_RRSS = 'owner_rrss',
 }
 
 export interface CreateStore {
@@ -186,40 +187,45 @@ export interface Product extends CreateProduct {
   updated_at: Date;
 }
 
-export interface Customer {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name?: string;
-  photo_url?: string;
-  phone: string;
-}
-
-export interface Item extends Omit<Product, 'store'> {
+export interface Item extends Product {
   qty: number;
 }
 
-export interface Transaction {
-  country: string;
-  currency: string;
-  language: string;
-  delivery_address: Place;
-  shopping_cart: Item[];
-  store: Store;
-}
+export type CreatePayment =
+  | {
+      payment_provider_id: PaymentProvider.MERCADOPAGO;
+      dispatch_provider_id: DispatchProvider.OWNER;
+      customer: {
+        id: string;
+        email: string;
+        first_name: string;
+        last_name?: string;
+        photo_url?: string;
+        phone: string;
+      };
+      transaction: {
+        country: string;
+        currency: string;
+        language: string;
+        delivery_address: Place;
+        shopping_cart: Item[];
+        store: Store;
+      };
+      redirect_url: string;
+    }
+  | {
+      payment_provider_id: PaymentProvider.MERCADOPAGO;
+      dispatch_provider_id: DispatchProvider.OWNER_RRSS;
+      transaction: {
+        country: string;
+        currency: string;
+        language: string;
+        shopping_cart: Item[];
+        store: Store;
+      };
+    };
 
-export interface CreatePayment {
-  customer: Customer;
-  transaction: Transaction;
-  redirect_url: string;
-}
-
-export interface CreateCheckout {
-  reference: string;
-  customer: Customer;
-  transaction: Transaction;
-  redirect_url: string;
-}
+export type CreateCheckout = CreatePayment & { reference: string };
 
 export enum MercadopagoPaymentStatus {
   STARTED = 'started',
@@ -234,7 +240,7 @@ export enum MercadopagoPaymentStatus {
   CHARGED_BACK = 'charged_back',
 }
 
-export type PaymentProviderState = {
+export type MercadopagoPaymentProviderState = {
   id: PaymentProvider.MERCADOPAGO;
   status: MercadopagoPaymentStatus;
   checkout: { id: string; init_point: string };
@@ -248,17 +254,25 @@ export enum PaymentStatus {
   CANCELLED = 'cancelled',
 }
 
-export interface Payment extends CreatePayment {
+export type Payment = CreatePayment & {
   id: string;
   reference: string;
   status: PaymentStatus;
-  provider: PaymentProviderState;
+  // TODO: change to dispatch provider state
+  provider: MercadopagoPaymentProviderState;
   idempotency?: string;
   created_at: Date;
   updated_at: Date;
-}
+};
 
 export enum OrderStatus {
+  CREATED = 'created',
+  CONFIRMED = 'confirmed',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+}
+
+export enum OwnerDispatchStatus {
   CREATED = 'created',
   CONFIRMED = 'confirmed',
   DELIVERED = 'delivered',
@@ -281,16 +295,10 @@ export enum ConfirmationStatus {
   PARTIAL_STOCK = 'partial_stock',
   OUT_OF_STOCK = 'out_of_stock',
 }
+
 export interface Confirmation {
   status: ConfirmationStatus;
   product_confirmations: ProductConfirmation[];
-}
-
-export enum OwnerDispatchStatus {
-  CREATED = 'created',
-  CONFIRMED = 'confirmed',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
 }
 
 export enum CancellationReason {
@@ -302,28 +310,68 @@ export interface Cancellation {
   reason: CancellationReason;
 }
 
-export interface DispatchProviderState {
+export type OwnerDispatchProviderState = {
   id: DispatchProvider.OWNER;
   status: OwnerDispatchStatus;
   confirmation?: Confirmation;
   cancellation?: Cancellation;
+};
+
+export enum OwnerRRSSDispatchStatus {
+  DELIVERED = 'delivered',
 }
 
-export interface CreateOrder {
-  reference: string;
-  customer: Customer;
-  transaction: Transaction;
-  payment_provider: PaymentProviderState;
-  idempotency?: string;
-}
+export type OwnerRRSSDispatchProviderState = {
+  id: DispatchProvider.OWNER_RRSS;
+  status: OwnerRRSSDispatchStatus;
+};
 
-export interface Order extends CreateOrder {
+export type CreateOrder =
+  | {
+      status: OrderStatus;
+      reference: string;
+      customer: {
+        id: string;
+        email: string;
+        first_name: string;
+        last_name?: string;
+        photo_url?: string;
+        phone: string;
+      };
+      transaction: {
+        country: string;
+        currency: string;
+        language: string;
+        delivery_address: Place;
+        shopping_cart: Item[];
+        store: Store;
+      };
+      payment_provider_id: PaymentProvider.MERCADOPAGO;
+      dispatch_provider_id: DispatchProvider.OWNER;
+      payment_provider: MercadopagoPaymentProviderState;
+      dispatch_provider: OwnerDispatchProviderState;
+    }
+  | {
+      status: OrderStatus;
+      reference: string;
+      transaction: {
+        country: string;
+        currency: string;
+        language: string;
+        shopping_cart: Item[];
+        store: Store;
+      };
+      payment_provider_id: PaymentProvider.MERCADOPAGO;
+      dispatch_provider_id: DispatchProvider.OWNER_RRSS;
+      payment_provider: MercadopagoPaymentProviderState;
+      dispatch_provider: OwnerRRSSDispatchProviderState;
+    };
+
+export type Order = CreateOrder & {
   id: string;
-  status: OrderStatus;
-  dispatch_provider: DispatchProviderState;
   created_at: Date;
   updated_at: Date;
-}
+};
 
 export interface CreateDevice {
   token: string;

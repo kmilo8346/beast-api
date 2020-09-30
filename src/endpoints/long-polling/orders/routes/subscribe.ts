@@ -5,7 +5,7 @@ import Joi from '@hapi/joi';
 
 import orderClient from '../../../orders/clients/order-client';
 import logger from '../../../../beast/logger';
-import { Order } from '../../../../types';
+import { DispatchProvider, Order } from '../../../../types';
 
 const prefix = '[long polling orders]';
 const pollingTimeout = 10 * 1000;
@@ -125,6 +125,9 @@ const listenForOrderCreated = () => {
   subscription.on('message', (message: any) => {
     const order: Order = JSON.parse(message.data);
     try {
+      if (order.dispatch_provider_id !== DispatchProvider.OWNER) {
+        return;
+      }
       logger.info(
         `${prefix} Emitting order created to customer ${order.customer.id}`,
       );
@@ -152,6 +155,9 @@ const listenForOrderConfirmed = () => {
   subscription.on('message', (message: any) => {
     const order: Order = JSON.parse(message.data);
     try {
+      if (order.dispatch_provider_id !== DispatchProvider.OWNER) {
+        return;
+      }
       logger.info(
         `${prefix} Emitting order confirmed to customer ${order.customer.id}`,
       );
@@ -179,6 +185,9 @@ const listenForOrderDelivered = () => {
   subscription.on('message', (message: any) => {
     const order: Order = JSON.parse(message.data);
     try {
+      if (order.dispatch_provider_id !== DispatchProvider.OWNER) {
+        return;
+      }
       logger.info(
         `${prefix} Emitting order delivered to customer ${order.customer.id}`,
       );
@@ -206,6 +215,9 @@ const listenForOrderCancelled = () => {
   subscription.on('message', (message: any) => {
     const order: Order = JSON.parse(message.data);
     try {
+      if (order.dispatch_provider_id !== DispatchProvider.OWNER) {
+        return;
+      }
       logger.info(
         `${prefix} Emitting order cancelled to customer ${order.customer.id}`,
       );

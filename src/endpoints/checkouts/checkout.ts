@@ -1,7 +1,9 @@
-import { PaymentProviderState, CreateCheckout } from '../../types';
+import { MercadopagoPaymentProviderState, CreateCheckout } from '../../types';
 
 abstract class ICheckout {
-  abstract create(data: CreateCheckout): Promise<PaymentProviderState>;
+  abstract create(
+    data: CreateCheckout,
+  ): Promise<MercadopagoPaymentProviderState>;
 }
 
 export default ICheckout;

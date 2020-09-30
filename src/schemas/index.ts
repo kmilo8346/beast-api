@@ -164,7 +164,7 @@ export const CreateStoreFactory = (optional = false) => {
     opening_hours: OpeningHoursFactory(optional).required(),
     seller_credentials: SellerCredentialsFactory(optional).required(),
     payment_provider: Joi.string().allow('mercadopago').required(),
-    dispatch_provider: Joi.string().allow('owner').required(),
+    dispatch_provider: Joi.string().valid('owner', 'owner_rrss').required(),
   });
   if (!optional) {
     return schema;
