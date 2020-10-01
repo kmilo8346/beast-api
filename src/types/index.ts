@@ -421,11 +421,11 @@ export interface MessageReceipt extends CreateMessageReceipt {
 }
 
 export enum WidgetType {
-  BANNER = 'banner',
+  SMALL_BANNER = 'small_banner',
   NEARBY_STORES = 'nearby_stores',
 }
 
-export interface BannerInstructions {
+export interface SmallBannerInstructions {
   image: string;
 }
 
@@ -439,7 +439,7 @@ export interface CreateWidget {
   type: WidgetType;
   tags: string[];
   sort: number;
-  instructions: BannerInstructions | NearbyStoresInstructions;
+  instructions: SmallBannerInstructions | NearbyStoresInstructions;
 }
 
 export interface Widget extends CreateWidget {
@@ -448,7 +448,7 @@ export interface Widget extends CreateWidget {
   updated_at: Date;
 }
 
-export interface BannerContent {
+export interface SmallBannerContent {
   image: string;
 }
 
@@ -460,7 +460,7 @@ export interface NearbyStoresContent {
 export interface ComputedWidget {
   id: string;
   type: WidgetType;
-  content: BannerContent | NearbyStoresContent;
+  content: SmallBannerContent | NearbyStoresContent;
 }
 
 export interface ComputeContext {

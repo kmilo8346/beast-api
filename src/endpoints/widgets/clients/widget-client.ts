@@ -11,8 +11,8 @@ import {
   SearchResponse,
   Location,
   ComputedWidget,
-  BannerInstructions,
-  BannerContent,
+  SmallBannerInstructions,
+  SmallBannerContent,
   NearbyStoresInstructions,
   WidgetType,
   NearbyStoresContent,
@@ -21,6 +21,7 @@ import {
   ComputeContext,
 } from '../../../types';
 import storeClient from '../../stores/clients/store-client';
+import logger from '../../../beast/logger';
 
 const prefix = '[widget client]';
 
@@ -202,12 +203,15 @@ class WidgetClient {
           this.computeWidget(widget, params.context),
         ),
       );
+      const saveComputedWidgets = computedWidgets.filter(
+        (w) => w !== null,
+      ) as ComputedWidget[];
       return {
         filters: params.filters,
         from: widgets.from,
         size: widgets.size,
         total: widgets.total,
-        hits: computedWidgets,
+        hits: saveComputedWidgets,
       };
     } catch (error) {
       throw new Error(
@@ -220,15 +224,15 @@ class WidgetClient {
   private async computeWidget(
     widget: Widget,
     context: ComputeContext,
-  ): Promise<ComputedWidget> {
+  ): Promise<ComputedWidget | null> {
     let computedWidget: ComputedWidget | null = null;
-    if (widget.type === WidgetType.BANNER) {
-      const bannerInstructions = widget.instructions as BannerInstructions;
+    if (widget.type === WidgetType.SMALL_BANNER) {
+      const smallBannerInstructions = widget.instructions as SmallBannerInstructions;
       computedWidget = {
         id: widget.id,
         type: widget.type,
         content: {
-          image: bannerInstructions.image,
+          image: smallBannerInstructions.image,
         },
       };
     } else if (widget.type === WidgetType.NEARBY_STORES) {
@@ -251,10 +255,7 @@ class WidgetClient {
       };
     }
     if (!computedWidget) {
-      throw new Error(
-        { info: { widget, context } },
-        `${prefix} Unexpected error computing widget`,
-      );
+      logger.warn(`${prefix} Widget type not mapped, type: ${widget.type}`);
     }
     return computedWidget;
   }

@@ -3,7 +3,7 @@ import { LocationFactory } from '../../../schemas';
 
 export const CreateWidgetFactory = () =>
   Joi.object({
-    type: Joi.string().valid('banner', 'nearby_stores').required(),
+    type: Joi.string().valid('small_banner', 'nearby_stores').required(),
     tags: Joi.array().items(Joi.string()).min(1).required(),
     sort: Joi.number().required(),
     // TODO: validate using type, can be Joi when
