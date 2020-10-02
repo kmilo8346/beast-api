@@ -120,8 +120,8 @@ export interface CreateLoggedUser {
   first_name: string;
   last_name?: string;
   photo_url: string;
-  phone: string;
-  phone_verified: boolean;
+  phone?: string;
+  phone_verified?: boolean;
   current_address: string;
   addresses: Place[];
 }
