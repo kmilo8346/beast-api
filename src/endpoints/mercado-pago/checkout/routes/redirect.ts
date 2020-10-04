@@ -8,6 +8,7 @@ const prefix = '[mercadopago checkout redirect route]';
 export default (router: Router) => {
   router.get('/', async (ctx) => {
     try {
+      logger.info({ query: ctx.state.query }, '[debug redirect]');
       const beastRedirect = ctx.state.query.beast_redirect;
       if (!beastRedirect) {
         throw new Error(`${prefix} Beast redirect must be defined`);
