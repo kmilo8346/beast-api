@@ -53,7 +53,11 @@ app.use(
 );
 app.use(
   koaJwtVerification({
-    skip: ['/mercadopago/authorization', '/mercadopago/checkout'],
+    skip: [
+      '/mercadopago/authorization',
+      '/mercadopago/authorization/callback',
+      '/mercadopago/checkout/callback',
+    ],
   }),
 );
 
