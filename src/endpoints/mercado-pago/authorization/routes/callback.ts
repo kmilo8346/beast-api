@@ -9,7 +9,6 @@ const prefix = '[mercadopago auth callback route]';
 export default (router: Router) => {
   router.get('/callback', async (ctx) => {
     try {
-      logger.info({ query: ctx.state.query }, '[auth calback]');
       const { state, code } = ctx.state.query;
       if (!state) {
         throw new Error(
@@ -20,6 +19,10 @@ export default (router: Router) => {
 
       const redirect = new URL(state);
       if (!code) {
+        logger.warn(
+          { query: ctx.state.query },
+          `${prefix} Code is not present in query`,
+        );
         redirect.searchParams.append('status', 'fail');
         redirect.searchParams.append('message', 'code must be defined');
         ctx.redirect(redirect.toString());
