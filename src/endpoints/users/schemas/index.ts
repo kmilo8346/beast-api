@@ -5,8 +5,10 @@ export const CreateUserFactory = () => {
   const schema = Joi.alternatives().try(
     {
       id: Joi.string().required(),
-      current_address: Joi.string().required(),
-      addresses: Joi.array().min(1).items(PlaceFactory()).required(),
+      current_address: Joi.string().optional(),
+      addresses: Joi.array().items(PlaceFactory()).optional(),
+      phone: Joi.string().optional(),
+      phone_verified: Joi.boolean().optional(),
     },
     {
       id: Joi.string().required(),
@@ -16,8 +18,8 @@ export const CreateUserFactory = () => {
       photo_url: Joi.string().required(),
       phone: Joi.string().optional(),
       phone_verified: Joi.boolean().optional(),
-      current_address: Joi.string().required(),
-      addresses: Joi.array().items(PlaceFactory()).required(),
+      current_address: Joi.string().optional(),
+      addresses: Joi.array().items(PlaceFactory()).optional(),
     },
   );
   return schema;
