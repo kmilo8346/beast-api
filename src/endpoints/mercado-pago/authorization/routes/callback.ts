@@ -2,11 +2,14 @@ import Router from 'koa-router';
 import { URL } from 'url';
 import Error from 'verror';
 
+import logger from '../../../../beast/logger';
+
 const prefix = '[mercadopago auth callback route]';
 
 export default (router: Router) => {
   router.get('/callback', async (ctx) => {
     try {
+      logger.info({ query: ctx.state.query }, '[auth calback]');
       const { state, code } = ctx.state.query;
       if (!state) {
         throw new Error(
