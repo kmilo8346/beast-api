@@ -45,6 +45,7 @@ const run = async () => {
   logger.info(`${prefix}`);
 
   logger.info(`${prefix} Creating topics...`);
+  await createTopic('store.updated');
   await createTopic('payment.approved');
   await createTopic('order.created');
   await createTopic('order.confirmed');

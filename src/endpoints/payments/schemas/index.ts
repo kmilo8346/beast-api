@@ -4,10 +4,19 @@ import { PlaceFactory, StoreFactory, ProductFactory } from '../../../schemas';
 import { DispatchProvider } from '../../../types';
 
 export const ItemFactory = () => {
-  const schema = ProductFactory().keys({
+  const schema = Joi.object({
+    id: Joi.string().required(),
+    name: Joi.string().required(),
+    price: Joi.number().required(),
+    enabled: Joi.boolean().required(),
+    reference: Joi.string().required(),
+    description: Joi.string().required(),
+    tags: Joi.array().items(Joi.string()).required(),
+    images: Joi.array().items(Joi.string()).required(),
     qty: Joi.number().required(),
+    created_at: Joi.date().required(),
+    updated_at: Joi.date().required(),
   });
-
   return schema;
 };
 

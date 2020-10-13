@@ -1,4 +1,5 @@
 import Error from 'verror';
+import moment from 'moment-timezone';
 
 import elastic from '../../../beast/clients/elastic';
 import {
@@ -11,6 +12,7 @@ import {
 } from '../../../types';
 import utils from '../../../beast/utils';
 import logger from '../../../beast/logger';
+import storeClient from '../../stores/clients/store-client';
 
 const prefix = '[product client]';
 
@@ -28,16 +30,9 @@ class ProductClient {
     try {
       // filters
       const bool: any = {
-        must: [
-          {
-            match_phrase: {
-              'store.keyword': {
-                query: store,
-              },
-            },
-          },
-        ],
+        must: [],
         filter: [],
+        must_not: [],
       };
       if (params.query) {
         bool.filter.push({
@@ -46,6 +41,15 @@ class ProductClient {
             fields: ['name^3', 'description^3', 'tags^1.5'],
             fuzziness: 'AUTO',
             prefix_length: 2,
+          },
+        });
+      }
+      if (store !== 'all') {
+        bool.must.push({
+          match_phrase: {
+            'store_info.id.keyword': {
+              query: store,
+            },
           },
         });
       }
@@ -65,6 +69,89 @@ class ProductClient {
               'reference.keyword': {
                 query: params.filters.reference,
               },
+            },
+          });
+        }
+        if ('location' in params.filters) {
+          bool.filter.push({
+            geo_shape: {
+              'store_info.delivery_area': {
+                shape: {
+                  type: 'Point',
+                  coordinates: [
+                    params.filters.location.lng,
+                    params.filters.location.lat,
+                  ],
+                },
+                relation: 'intersects',
+              },
+            },
+          });
+        }
+        if ('store_open' in params.filters) {
+          if (params.filters.store_open) {
+            // TODO: add support for other countries
+            const date = moment().tz('America/Santiago');
+            let day = `${date.day()}`;
+            const minutes = date.minutes();
+            const time = parseInt(
+              `${date.hour()}${minutes < 10 ? `0${minutes}` : minutes}`,
+              10,
+            );
+            if (day === '0') {
+              day = '7';
+            }
+
+            bool.must.push({
+              nested: {
+                path: 'store_info.opening_hours',
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          'store_info.opening_hours.day': day,
+                        },
+                      },
+                      {
+                        range: {
+                          'store_info.opening_hours.open': {
+                            lte: time,
+                          },
+                        },
+                      },
+                      {
+                        range: {
+                          'store_info.opening_hours.close': {
+                            gt: time,
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            });
+          }
+        }
+        if ('must_not_id' in params.filters) {
+          bool.must_not.push({
+            match_phrase: {
+              _id: {
+                query: params.filters.must_not_id.split('|')[1],
+              },
+            },
+          });
+        }
+        if ('ids' in params.filters) {
+          bool.must.push({
+            bool: {
+              should: (params.filters.ids as string[]).map((id: string) => ({
+                match_phrase: {
+                  _id: id.split('|')[1],
+                },
+              })),
+              minimum_should_match: 1,
             },
           });
         }
@@ -102,6 +189,8 @@ class ProductClient {
         total: response.body.hits.total.value,
         hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
           ..._source,
+          // TODO: delete when all app client > 1.0.57
+          store: _source.store_info.id,
           id: `${_index}|${_id}`,
         })),
       };
@@ -115,17 +204,17 @@ class ProductClient {
 
   /**
    * Create a product
-   * @param stors string
+   * @param storeId string
    * @param params CreateParams<CreateProduct>
    * @returns Promise<Product>
    */
   async create(
-    store: string,
+    storeId: string,
     params: CreateParams<CreateProduct>,
   ): Promise<Product> {
     try {
       // find already created product
-      const searchResponse = await this.search(store, {
+      const searchResponse = await this.search(storeId, {
         filters: { reference: params.body.reference },
         from: 0,
         size: 1,
@@ -143,15 +232,35 @@ class ProductClient {
       await utils.createIndexIfNotExist(index, {
         mappings: {
           properties: {
+            store_info: {
+              properties: {
+                delivery_area: {
+                  type: 'geo_shape',
+                  strategy: 'recursive',
+                },
+                opening_hours: { type: 'nested' },
+              },
+            },
             created_at: { type: 'date' },
             updated_at: { type: 'date' },
           },
         },
       });
 
+      // TODO: remove in the future
+      let store_info: any = params.body.store_info;
+      if (!store_info) {
+        const store = await storeClient.get(storeId);
+        store_info = {
+          id: store.id,
+          delivery_area: store.delivery_area.geometry,
+          opening_hours: store.opening_hours,
+        };
+      }
+
       const newProduct = {
-        store,
         ...params.body,
+        store_info,
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -194,7 +303,6 @@ class ProductClient {
         id: _id,
         body: {
           doc: {
-            store,
             ...params.body,
             updated_at: new Date(),
           },

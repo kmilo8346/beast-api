@@ -9,7 +9,6 @@ import {
   UpdateParams,
   OrderStatus,
   OwnerDispatchStatus,
-  GetParams,
   ActionParams,
   ConfirmationStatus,
   CancellationReason,
@@ -251,7 +250,7 @@ class OrderClient {
         .publish(Buffer.from(JSON.stringify(updatedOrder)), {
           id,
           time: new Date().toISOString(),
-          source: 'beast-functions',
+          source: 'beast-api',
         });
       logger.info(
         `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,

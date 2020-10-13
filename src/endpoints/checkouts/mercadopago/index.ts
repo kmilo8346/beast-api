@@ -56,8 +56,8 @@ class MercadoPagoCheckout extends ICheckout {
           ),
         };
         const redirect = `${config.get(
-          'BEAST_API_URL',
-        )}/mercadopago/checkout/callback?beast_redirect=${data.redirect_url}`;
+          'MERCADO_PAGO_CHECKOUT_REDIRECT_URI',
+        )}?beast_redirect=${data.redirect_url}`;
         payload.back_urls = {
           success: redirect,
           failure: redirect,

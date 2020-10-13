@@ -1,5 +1,6 @@
 import Error from 'verror';
 import moment from 'moment-timezone';
+import { PubSub } from '@google-cloud/pubsub';
 
 import utils from '../../../beast/utils';
 import elastic from '../../../beast/clients/elastic';
@@ -12,8 +13,10 @@ import {
   UpdateParams,
 } from '../../../types';
 import logger from '../../../beast/logger';
+import config from '../../../beast/config';
 
 const prefix = '[store client]';
+const pubSubClient = new PubSub();
 
 /**
  * @class StoreClient
@@ -256,16 +259,31 @@ class StoreClient {
   public async update(id: string, params: UpdateParams<Store>): Promise<void> {
     try {
       const [_index, _id] = id.split('|');
+      const update = {
+        ...params.body,
+        updated_at: new Date(),
+      };
       await elastic.update({
         index: _index,
         id: _id,
         body: {
-          doc: {
-            ...params.body,
-            updated_at: new Date(),
-          },
+          doc: update,
         },
       });
+
+      // emit event
+      const event = 'store.updated';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient
+        .topic(topic)
+        .publish(Buffer.from(JSON.stringify(update)), {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-api',
+        });
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },

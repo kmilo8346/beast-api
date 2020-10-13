@@ -200,6 +200,20 @@ export const StoreFactory = (optional = false) => {
   );
 };
 
+export const StoreInfoFactory = (optional = false) => {
+  const schema = Joi.object({
+    id: Joi.string().required(),
+    delivery_area: CircleFactory(optional).required(),
+    opening_hours: OpeningHoursFactory(optional).required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['id', 'delivery_area', 'opening_hours'], (mySchema) =>
+    mySchema.optional(),
+  );
+};
+
 export const CreateProductFactory = (optional = false) => {
   const schema = Joi.object({
     name: Joi.string().required(),
@@ -209,12 +223,23 @@ export const CreateProductFactory = (optional = false) => {
     description: Joi.string().required(),
     tags: Joi.array().items(Joi.string()).required(),
     images: Joi.array().items(Joi.string()).required(),
+    // TODO: change to required
+    store_info: StoreInfoFactory(optional).optional(),
   });
   if (!optional) {
     return schema;
   }
   return schema.fork(
-    ['name', 'description', 'images', 'price', 'tags', 'enabled', 'reference'],
+    [
+      'name',
+      'description',
+      'images',
+      'price',
+      'tags',
+      'enabled',
+      'reference',
+      'store_info',
+    ],
     (mySchema) => mySchema.optional(),
   );
 };
@@ -222,7 +247,6 @@ export const CreateProductFactory = (optional = false) => {
 export const ProductFactory = (optional = false) => {
   const schema = CreateProductFactory(optional).keys({
     id: Joi.string().required(),
-    store: Joi.string().required(),
     created_at: Joi.date().required(),
     updated_at: Joi.date().required(),
   });
@@ -230,7 +254,7 @@ export const ProductFactory = (optional = false) => {
   if (!optional) {
     return schema;
   }
-  return schema.fork(['id', 'store', 'created_at', 'updated_at'], (mySchema) =>
+  return schema.fork(['id', 'created_at', 'updated_at'], (mySchema) =>
     mySchema.optional(),
   );
 };
