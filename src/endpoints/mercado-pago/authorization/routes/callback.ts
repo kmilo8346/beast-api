@@ -19,7 +19,7 @@ export default (router: Router) => {
 
       const redirect = new URL(state);
       if (!code) {
-        logger.warn(
+        logger.error(
           { query: ctx.state.query },
           `${prefix} Code is not present in query`,
         );

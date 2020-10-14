@@ -255,7 +255,7 @@ class WidgetClient {
       };
     }
     if (!computedWidget) {
-      logger.warn(`${prefix} Widget type not mapped, type: ${widget.type}`);
+      logger.error(`${prefix} Widget type not mapped, type: ${widget.type}`);
     }
     return computedWidget;
   }
