@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.30](https://github.com/firedevs-team/beast-api/compare/v1.0.29...v1.0.30) (2020-10-14)
+
+
+### Bug Fixes
+
+* **create payment route:** adding support to owner rrss in checking step ([c8a44c9](https://github.com/firedevs-team/beast-api/commit/c8a44c9bfd861013772af9e45f72231f32f1aee4))
+
 ### [1.0.29](https://github.com/firedevs-team/beast-api/compare/v1.0.28...v1.0.29) (2020-10-04)
 
 ### [1.0.28](https://github.com/firedevs-team/beast-api/compare/v1.0.27...v1.0.28) (2020-10-04)
