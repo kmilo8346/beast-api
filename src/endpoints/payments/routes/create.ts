@@ -3,7 +3,13 @@ import moment from 'moment-timezone';
 
 import { CreateParamsFactory } from '../../../schemas';
 import { CreatePaymentFactory } from '../schemas';
-import { CreateParams, CreatePayment, Product, Store } from '../../../types';
+import {
+  CreateParams,
+  CreatePayment,
+  DispatchProvider,
+  Product,
+  Store,
+} from '../../../types';
 import paymentClient from '../clients/payment-client';
 import storeClient from '../../stores/clients/store-client';
 import productClient from '../../products/clients/product-client';
@@ -45,49 +51,51 @@ const isStoreOpen = (store: Store) => {
 };
 
 const checking: IMiddleware = async (ctx, next): Promise<void> => {
-  let store: Store | undefined;
-  let products: Product[] = [];
-  try {
-    const params = ctx.request.body as CreateParams<CreatePayment>;
-    const results = await Promise.all([
-      storeClient.get(params.body.transaction.store.id),
-      productClient.search(params.body.transaction.store.id, {
-        filters: {
-          ids: params.body.transaction.shopping_cart.map((i) => i.id),
-        },
-        from: 0,
-        size: 100,
-      }),
-    ]);
-    store = results[0];
-    products = results[1].hits;
-  } catch (error) {
-    ctx.throw(500, error);
-  }
+  const params = ctx.request.body as CreateParams<CreatePayment>;
+  if (params.body.dispatch_provider_id === DispatchProvider.OWNER) {
+    let store: Store | undefined;
+    let products: Product[] = [];
+    try {
+      const results = await Promise.all([
+        storeClient.get(params.body.transaction.store.id),
+        productClient.search(params.body.transaction.store.id, {
+          filters: {
+            ids: params.body.transaction.shopping_cart.map((i) => i.id),
+          },
+          from: 0,
+          size: 100,
+        }),
+      ]);
+      store = results[0];
+      products = results[1].hits;
+    } catch (error) {
+      ctx.throw(500, error);
+    }
 
-  if (store && !isStoreOpen(store)) {
-    ctx.throw(
-      400,
-      JSON.stringify({ reason: 'SHOP_CLOSED', meta_data: { id: store.id } }),
+    if (store && !isStoreOpen(store)) {
+      ctx.throw(
+        400,
+        JSON.stringify({ reason: 'SHOP_CLOSED', meta_data: { id: store.id } }),
+      );
+    }
+    const productsNotAvailables = products.reduce<Product[]>(
+      (notAvailable, product) => {
+        if (!product.enabled) {
+          return [...notAvailable, product];
+        }
+        return notAvailable;
+      },
+      [],
     );
-  }
-  const productsNotAvailables = products.reduce<Product[]>(
-    (notAvailable, product) => {
-      if (!product.enabled) {
-        return [...notAvailable, product];
-      }
-      return notAvailable;
-    },
-    [],
-  );
-  if (productsNotAvailables.length) {
-    ctx.throw(
-      400,
-      JSON.stringify({
-        reason: 'PRODUCTS_NOT_AVAILABLE',
-        meta_data: { products: productsNotAvailables },
-      }),
-    );
+    if (productsNotAvailables.length) {
+      ctx.throw(
+        400,
+        JSON.stringify({
+          reason: 'PRODUCTS_NOT_AVAILABLE',
+          meta_data: { products: productsNotAvailables },
+        }),
+      );
+    }
   }
   await next();
 };
