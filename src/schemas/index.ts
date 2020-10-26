@@ -3,28 +3,18 @@ import Joi, { ObjectSchema, AlternativesSchema } from '@hapi/joi';
 export const LocationFactory = () =>
   Joi.object({
     lat: Joi.number().required(),
-    lng: Joi.number().required(),
+    lon: Joi.number().required(),
   });
 
 const PlaceGeometryLocationFactory = (optional = false) => {
   const schema = Joi.object({
     lat: Joi.number().required(),
-    lng: Joi.number().required(),
+    lon: Joi.number().required(),
   });
   if (!optional) {
     return schema;
   }
-  return schema.fork(['lat', 'lng'], (mySchema) => mySchema.optional());
-};
-
-const PlaceGeometryFactory = (optional = false) => {
-  const schema = Joi.object({
-    location: PlaceGeometryLocationFactory(optional).required(),
-  });
-  if (!optional) {
-    return schema;
-  }
-  return schema.fork(['location'], (mySchema) => mySchema.optional());
+  return schema.fork(['lat', 'lon'], (mySchema) => mySchema.optional());
 };
 
 const AddressPropFactory = (optional = false) => {
@@ -51,7 +41,7 @@ export const PlaceFactory = (optional = false) => {
     administrative_area_level_2: AddressPropFactory(optional).required(),
     administrative_area_level_1: AddressPropFactory(optional).required(),
     apartment: Joi.string().allow(''),
-    geometry: PlaceGeometryFactory(optional).required(),
+    location: PlaceGeometryLocationFactory(optional).required(),
   });
   if (!optional) {
     return schema;
@@ -67,7 +57,7 @@ export const PlaceFactory = (optional = false) => {
       'administrative_area_level_2',
       'administrative_area_level_1',
       'apartment',
-      'geometry',
+      'location',
     ],
     (mySchema) => mySchema.optional(),
   );
@@ -123,7 +113,7 @@ const OpeningHoursFactory = (optional = false) => {
   return schema;
 };
 
-const SellerCredentialsFactory = (optional = false) => {
+const MercadoPagoCredentialsFactory = (optional = false) => {
   const schema = Joi.object({
     access_token: Joi.string().required(),
     expires_in: Joi.number().required(),
@@ -152,19 +142,29 @@ const SellerCredentialsFactory = (optional = false) => {
   );
 };
 
+const PaymentProviderFactory = (optional = false) => {
+  const schema = Joi.object({
+    credentials: MercadoPagoCredentialsFactory(optional).required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['credentials'], (mySchema) => mySchema.optional());
+};
+
 export const CreateStoreFactory = (optional = false) => {
   const schema = Joi.object().keys({
     user: Joi.string().required(),
     name: Joi.string().required(),
     phone: Joi.string().required(),
+    enabled: Joi.boolean().required(),
     reference: Joi.string().required(),
+    description: Joi.string().allow('').optional(),
     images: Joi.array().items(Joi.string()),
     delivery_time: IntegerRangeFactory(optional).required(),
     delivery_area: DeliveryAreaFactory(optional).required(),
     opening_hours: OpeningHoursFactory(optional).required(),
-    seller_credentials: SellerCredentialsFactory(optional).required(),
-    payment_provider: Joi.string().allow('mercadopago').required(),
-    dispatch_provider: Joi.string().valid('owner', 'owner_rrss').required(),
+    payment_provider: PaymentProviderFactory(optional).optional(),
   });
   if (!optional) {
     return schema;
@@ -174,13 +174,14 @@ export const CreateStoreFactory = (optional = false) => {
       'user',
       'name',
       'phone',
+      'enabled',
+      'reference',
+      'description',
       'images',
       'delivery_time',
       'delivery_area',
       'opening_hours',
-      'seller_credentials',
       'payment_provider',
-      'dispatch_provider',
     ],
     (mySchema) => mySchema.optional(),
   );
@@ -203,14 +204,16 @@ export const StoreFactory = (optional = false) => {
 export const StoreInfoFactory = (optional = false) => {
   const schema = Joi.object({
     id: Joi.string().required(),
+    enabled: Joi.boolean().required(),
     delivery_area: CircleFactory(optional).required(),
     opening_hours: OpeningHoursFactory(optional).required(),
   });
   if (!optional) {
     return schema;
   }
-  return schema.fork(['id', 'delivery_area', 'opening_hours'], (mySchema) =>
-    mySchema.optional(),
+  return schema.fork(
+    ['id', 'enabled', 'delivery_area', 'opening_hours'],
+    (mySchema) => mySchema.optional(),
   );
 };
 
@@ -220,11 +223,10 @@ export const CreateProductFactory = (optional = false) => {
     price: Joi.number().required(),
     enabled: Joi.boolean().required(),
     reference: Joi.string().required(),
-    description: Joi.string().required(),
+    description: Joi.string().allow('').optional(),
     tags: Joi.array().items(Joi.string()).required(),
     images: Joi.array().items(Joi.string()).required(),
-    // TODO: change to required
-    store_info: StoreInfoFactory(optional).optional(),
+    store_info: StoreInfoFactory(optional).required(),
   });
   if (!optional) {
     return schema;
@@ -278,19 +280,15 @@ export const CreateParamsFactory = (body: ObjectSchema | AlternativesSchema) =>
   Joi.object({
     body: body.required(),
     source: Joi.array().items(Joi.string()).optional(),
-    idempotency: Joi.string().optional(),
   });
 
 export const UpdateParamsFactory = (body: ObjectSchema | AlternativesSchema) =>
   Joi.object({
-    idempotency: Joi.string().optional(),
     body: body.required(),
   });
 
 export const ActionParamsFactory = (body?: ObjectSchema) => {
-  const object: { [key: string]: any } = {
-    idempotency: Joi.string().optional(),
-  };
+  const object: { [key: string]: any } = {};
   if (body) {
     object.body = body.required();
   }

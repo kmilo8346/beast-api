@@ -76,7 +76,7 @@ class StoreClient {
                 shape: {
                   type: 'Point',
                   coordinates: [
-                    params.filters.location.lng,
+                    params.filters.location.lon,
                     params.filters.location.lat,
                   ],
                 },
@@ -136,6 +136,15 @@ class StoreClient {
             match_phrase: {
               'reference.keyword': {
                 query: params.filters.reference,
+              },
+            },
+          });
+        }
+        if ('enabled' in params.filters) {
+          bool.must.push({
+            match_phrase: {
+              enabled: {
+                query: params.filters.enabled,
               },
             },
           });
@@ -214,6 +223,13 @@ class StoreClient {
             delivery_time: { type: 'integer_range' },
             delivery_area: {
               properties: {
+                center: {
+                  properties: {
+                    location: {
+                      type: 'geo_point',
+                    },
+                  },
+                },
                 geometry: {
                   type: 'geo_shape',
                   strategy: 'recursive',

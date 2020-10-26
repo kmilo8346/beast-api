@@ -45,6 +45,14 @@ class UserClient {
       await utils.createIndexIfNotExist(index, {
         mappings: {
           properties: {
+            addresses: {
+              type: 'nested',
+              properties: {
+                location: {
+                  type: 'geo_point',
+                },
+              },
+            },
             created_at: { type: 'date' },
             updated_at: { type: 'date' },
           },

@@ -1,6 +1,3 @@
-// eslint-disable-next-line max-len
-// npx ts-node -r dotenv-safe/config src/admin/migrations/add_store_info_to_products.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
-
 import elastic from '../../beast/clients/elastic';
 import logger from '../../beast/logger';
 import { Store } from '../../types';

@@ -121,7 +121,10 @@ class PlacesClient {
         administrative_area_level_1:
           addressComponents.administrative_area_level_1,
         apartment: '',
-        geometry: response.data.result.geometry,
+        location: {
+          lat: response.data.result.geometry.location.lat,
+          lon: response.data.result.geometry.location.lng,
+        },
       };
     } catch (error) {
       throw new Error(

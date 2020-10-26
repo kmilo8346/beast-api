@@ -8,5 +8,6 @@ export const SearchFiltersFactory = () =>
     enabled: Joi.boolean().optional(),
     location: LocationFactory().optional(),
     store_open: Joi.boolean().optional(),
+    store_enabled: Joi.boolean().optional(),
     must_not_id: Joi.string().optional(),
   });

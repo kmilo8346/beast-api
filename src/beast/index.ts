@@ -3,6 +3,7 @@ import koaBody from 'koa-body';
 import koaJson from 'koa-json';
 import koaConditional from 'koa-conditional-get';
 import koaEtag from 'koa-etag';
+import cors from '@koa/cors';
 // import koaPinoLogger from 'koa-pino-logger';
 
 import config from './config';
@@ -21,18 +22,15 @@ import googlePlacesRouter from '../endpoints/google/places/routes';
 // beast
 import devicesRouter from '../endpoints/devices/routes';
 import usersRouter from '../endpoints/users/routes';
-import phonesRouter from '../endpoints/phones/routes';
-import widgetsRouter from '../endpoints/widgets/routes';
 import storesRouter from '../endpoints/stores/routes';
 import productsRouter from '../endpoints/products/routes';
-import paymentsRouter from '../endpoints/payments/routes';
 import ordersRouter from '../endpoints/orders/routes';
-// long polling
-import longPollingRouter from '../endpoints/long-polling/routes';
+import streamsRouter from '../endpoints/streams/routes';
 
 const prefix = '[beast server]';
 const app = new Koa();
 
+app.use(cors());
 app.use(koaQs());
 app.use(koaJson());
 app.use(koaBody());
@@ -57,6 +55,7 @@ app.use(
       '/mercadopago/authorization',
       '/mercadopago/authorization/callback',
       '/mercadopago/checkout/callback',
+      '/streams/orders',
     ],
   }),
 );
@@ -71,17 +70,17 @@ app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
 // beast
 app.use(devicesRouter.routes()).use(devicesRouter.allowedMethods());
 app.use(usersRouter.routes()).use(usersRouter.allowedMethods());
-app.use(phonesRouter.routes()).use(phonesRouter.allowedMethods());
-app.use(widgetsRouter.routes()).use(widgetsRouter.allowedMethods());
 app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
-app.use(paymentsRouter.routes()).use(paymentsRouter.allowedMethods());
 app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
-// long polling
-app.use(longPollingRouter.routes()).use(longPollingRouter.allowedMethods());
+app.use(streamsRouter.routes()).use(streamsRouter.allowedMethods());
 
 app.on('error', (err) => {
-  logger.error({ err });
+  if (err.code === 'ECONNRESET') {
+    logger.warn({ err });
+  } else {
+    logger.error({ err });
+  }
 });
 
 export const liftServer = () => {

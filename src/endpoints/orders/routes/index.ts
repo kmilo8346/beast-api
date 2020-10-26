@@ -1,14 +1,14 @@
 import Router from 'koa-router';
 
-import search from './search';
-import confirm from './confirm';
-import deliver from './deliver';
+import getRoute from './get';
+import searchRoute from './search';
+import createRoute from './create';
 
 const router = new Router({ prefix: '/orders' });
 
 // register routes
-search(router);
-confirm(router);
-deliver(router);
+getRoute(router);
+searchRoute(router);
+createRoute(router);
 
 export default router;

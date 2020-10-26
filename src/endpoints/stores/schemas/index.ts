@@ -5,5 +5,6 @@ import { LocationFactory } from '../../../schemas';
 export const SearchFiltersFactory = () =>
   Joi.object().keys({
     user: Joi.string().optional(),
+    enabled: Joi.boolean().optional(),
     location: LocationFactory().optional(),
   });

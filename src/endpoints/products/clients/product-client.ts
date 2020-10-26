@@ -79,7 +79,7 @@ class ProductClient {
                 shape: {
                   type: 'Point',
                   coordinates: [
-                    params.filters.location.lng,
+                    params.filters.location.lon,
                     params.filters.location.lat,
                   ],
                 },
@@ -133,6 +133,15 @@ class ProductClient {
               },
             });
           }
+        }
+        if ('store_enabled' in params.filters) {
+          bool.must.push({
+            match_phrase: {
+              'store_info.enabled': {
+                query: params.filters.store_enabled,
+              },
+            },
+          });
         }
         if ('must_not_id' in params.filters) {
           bool.must_not.push({
