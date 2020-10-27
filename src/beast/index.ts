@@ -25,7 +25,6 @@ import usersRouter from '../endpoints/users/routes';
 import storesRouter from '../endpoints/stores/routes';
 import productsRouter from '../endpoints/products/routes';
 import ordersRouter from '../endpoints/orders/routes';
-import streamsRouter from '../endpoints/streams/routes';
 
 const prefix = '[beast server]';
 const app = new Koa();
@@ -55,7 +54,6 @@ app.use(
       '/mercadopago/authorization',
       '/mercadopago/authorization/callback',
       '/mercadopago/checkout/callback',
-      '/streams/orders',
     ],
   }),
 );
@@ -73,14 +71,9 @@ app.use(usersRouter.routes()).use(usersRouter.allowedMethods());
 app.use(storesRouter.routes()).use(storesRouter.allowedMethods());
 app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
-app.use(streamsRouter.routes()).use(streamsRouter.allowedMethods());
 
 app.on('error', (err) => {
-  if (err.code === 'ECONNRESET') {
-    logger.warn({ err });
-  } else {
-    logger.error({ err });
-  }
+  logger.error({ err });
 });
 
 export const liftServer = () => {

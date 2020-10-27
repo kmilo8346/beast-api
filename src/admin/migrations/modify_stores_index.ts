@@ -14,7 +14,7 @@ const run = async () => {
   try {
     logger.info('Modifying stores index');
     logger.info('');
-    // await backup('stores', path.join(__dirname, 'tmp/stores.json'));
+    await backup('stores', path.join(__dirname, 'tmp/stores.json'));
     //
     await restore<Store>(
       'stores',
