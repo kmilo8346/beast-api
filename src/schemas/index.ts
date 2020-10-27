@@ -17,7 +17,7 @@ const PlaceGeometryLocationFactory = (optional = false) => {
   return schema.fork(['lat', 'lon'], (mySchema) => mySchema.optional());
 };
 
-const AddressPropFactory = (optional = false) => {
+export const AddressPropFactory = (optional = false) => {
   const schema = Joi.object({
     short_name: Joi.string().required(),
     long_name: Joi.string().required(),
@@ -77,7 +77,7 @@ const CircleFactory = (optional = false) => {
   );
 };
 
-const IntegerRangeFactory = (optional = false) => {
+export const IntegerRangeFactory = (optional = false) => {
   const schema = Joi.object({
     lte: Joi.number(),
     gte: Joi.number(),
@@ -88,7 +88,7 @@ const IntegerRangeFactory = (optional = false) => {
   return schema.fork(['lte', 'gte'], (mySchema) => mySchema.optional());
 };
 
-const DeliveryAreaFactory = (optional = false) => {
+export const DeliveryAreaFactory = (optional = false) => {
   const schema = Joi.object().keys({
     center: PlaceFactory(optional).required(),
     radius: Joi.string().required(),
@@ -102,7 +102,7 @@ const DeliveryAreaFactory = (optional = false) => {
   );
 };
 
-const OpeningHoursFactory = (optional = false) => {
+export const OpeningHoursFactory = (optional = false) => {
   const schema = Joi.array().items(
     Joi.object({
       day: Joi.string().required(), // TODO: 1 - 7
@@ -142,7 +142,7 @@ const MercadoPagoCredentialsFactory = (optional = false) => {
   );
 };
 
-const PaymentProviderFactory = (optional = false) => {
+export const PaymentProviderFactory = (optional = false) => {
   const schema = Joi.object({
     credentials: MercadoPagoCredentialsFactory(optional).required(),
   });

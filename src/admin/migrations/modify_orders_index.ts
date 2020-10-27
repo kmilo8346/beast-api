@@ -15,7 +15,7 @@ const run = async () => {
   try {
     logger.info('Modifying orders index');
     logger.info('');
-    await backup('orders', path.join(__dirname, 'tmp/orders.json'));
+    // await backup('orders', path.join(__dirname, 'tmp/orders.json'));
     //
     await restore<Order>(
       'orders',
@@ -46,6 +46,15 @@ const run = async () => {
             items: shopping_cart,
           };
           result.transaction = transaction;
+          result.stats = result.transaction.shopping_cart.items.reduce(
+            (stats: any, item: any) => {
+              const r = { ...stats };
+              r.amount += item.qty * item.price;
+              r.total += item.qty;
+              return r;
+            },
+            { amount: 0, total: 0 },
+          );
           return [...newCollection, result];
         }, []),
       {

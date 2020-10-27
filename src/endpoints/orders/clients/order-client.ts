@@ -211,6 +211,7 @@ class OrderClient {
       });
       const newOrder = {
         ...params.body,
+        stats: this.getStats(params.body),
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -271,6 +272,18 @@ class OrderClient {
         'Unexpected error updating order',
       );
     }
+  }
+
+  private getStats(order: CreateOrder): { amount: number; total: number } {
+    return order.transaction.shopping_cart.items.reduce(
+      (stats, item) => {
+        const result = { ...stats };
+        result.amount += item.qty * item.price;
+        result.total += item.qty;
+        return result;
+      },
+      { amount: 0, total: 0 },
+    );
   }
 }
 

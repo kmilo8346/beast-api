@@ -25,5 +25,6 @@ module.exports = {
     'no-await-in-loop': 0,
     'operator-linebreak': 0,
     'object-curly-newline': 0,
+    'import/prefer-default-export': 0,
   },
 };

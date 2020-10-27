@@ -48,13 +48,6 @@ const run = async () => {
   await createTopic('store.updated');
   await createTopic('order.created');
 
-  logger.info(`${prefix}`);
-  logger.info(`${prefix} Creating subscriptions...`);
-  await createSubscription(
-    'order.created',
-    'beast-long-polling-order-created-us-central-1',
-  );
-
   logger.info('');
   process.exit(0);
 };

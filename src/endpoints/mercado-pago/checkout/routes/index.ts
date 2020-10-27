@@ -1,10 +1,10 @@
 import Router from 'koa-router';
 
-import callback from './callback';
+import startRoute from './start';
 
 const router = new Router({ prefix: '/mercadopago/checkout' });
 
 // register routes
-callback(router);
+startRoute(router);
 
 export default router;
