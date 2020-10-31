@@ -108,6 +108,12 @@ class PlacesClient {
         },
       );
       delete response.data.result.geometry.viewport;
+      // sometimes locality is not returned
+      // TODO: test in other countries
+      if (!('locality' in addressComponents)) {
+        addressComponents.locality =
+          addressComponents.administrative_area_level_3;
+      }
       return {
         id: response.data.result.place_id,
         url: response.data.result.url,

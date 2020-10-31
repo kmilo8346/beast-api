@@ -25,10 +25,12 @@ const run = async () => {
           const doc = document as any;
           if (
             doc.status !== 'delivered' ||
-            doc.dispatch_provider_id !== 'mercadopago'
+            doc.dispatch_provider_id !== 'owner'
           ) {
+            // console.log('no adding');
             return newCollection;
           }
+          // console.log('adding');
           const {
             status,
             payment_provider_id,
