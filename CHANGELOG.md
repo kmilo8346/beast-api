@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.32](https://github.com/firedevs-team/beast-api/compare/v1.0.31...v1.0.32) (2020-10-31)
+
+
+### Bug Fixes
+
+* **places client:** fallback locality ([51f310b](https://github.com/firedevs-team/beast-api/commit/51f310b7a34f89b251fc652cb10ca66b530d8330))
+
 ### [1.0.31](https://github.com/firedevs-team/beast-api/compare/v1.0.30...v1.0.31) (2020-10-28)
 
 ### [1.0.30](https://github.com/firedevs-team/beast-api/compare/v1.0.29...v1.0.30) (2020-10-14)
