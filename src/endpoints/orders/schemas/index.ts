@@ -50,7 +50,7 @@ export const CreateOrderFactory = () =>
       email: Joi.string().email().optional(),
       first_name: Joi.string().required(),
       last_name: Joi.string().allow('').optional(),
-      photo_url: Joi.string().required(),
+      photo_url: Joi.string().optional(),
       phone: Joi.string().required(),
     }).required(),
     transaction: Joi.object({

@@ -168,7 +168,7 @@ export interface CreateOrder {
     email?: string;
     first_name: string;
     last_name?: string;
-    photo_url: string;
+    photo_url?: string;
     phone: string;
   };
   transaction: {

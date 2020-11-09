@@ -77,7 +77,7 @@ const deleteUser = async (user: string) => {
 
 const run = async () => {
   try {
-    const id = 'oqKhZGyTIxh7ELvgg1u0Bx615SS2';
+    const id = 'eQTBqHUBiYs5oT0dD9Yc';
     const user = await userClient.get(id);
     if (user.current_store) {
       logger.info('User has store, deleting asociated store and products');

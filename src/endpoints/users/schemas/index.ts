@@ -8,11 +8,7 @@ export const CreateUserFactory = (optional = false) => {
     email_verified: Joi.boolean().optional(),
     first_name: Joi.string().optional(),
     last_name: Joi.string().allow('').optional(),
-    photo_url: Joi.string()
-      .default(
-        'https://res.cloudinary.com/firedevs/image/upload/v1601140373/beast/assets/blue-user-logo_wk53b4.png',
-      )
-      .optional(),
+    photo_url: Joi.string().optional(),
     phone: Joi.string().optional(),
     phone_verified: Joi.boolean().optional(),
     current_address: Joi.string().optional(),
