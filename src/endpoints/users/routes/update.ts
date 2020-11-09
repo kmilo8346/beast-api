@@ -6,7 +6,7 @@ import { UpdateParamsFactory } from '../../../schemas';
 import { UserFactory } from '../schemas';
 import productClient from '../clients/user-client';
 
-const schema = UpdateParamsFactory(UserFactory());
+const schema = UpdateParamsFactory(UserFactory(true));
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {

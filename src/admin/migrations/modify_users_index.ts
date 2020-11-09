@@ -14,19 +14,12 @@ const run = async () => {
   try {
     logger.info('Modifying users index');
     logger.info('');
-    await backup('users', path.join(__dirname, 'tmp/users.json'));
+    // await backup('users', path.join(__dirname, 'tmp/users.json'));
     //
     await restore<User>(
       'users',
       path.join(__dirname, 'tmp/users.json'),
-      (collection) =>
-        collection.map((document) => {
-          const result = { ...document };
-          if (Array.isArray(result.addresses)) {
-            result.addresses = result.addresses.map(placeMap);
-          }
-          return result;
-        }),
+      (collection) => collection,
       {
         mappings: {
           properties: {

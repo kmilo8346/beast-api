@@ -1,48 +1,55 @@
 import Joi from '@hapi/joi';
 import { PlaceFactory } from '../../../schemas';
 
-export const CreateUserFactory = () => {
-  const schema = Joi.alternatives().try(
-    {
-      id: Joi.string().required(),
-      current_address: Joi.string().optional(),
-      addresses: Joi.array().items(PlaceFactory()).optional(),
-      phone: Joi.string().optional(),
-      phone_verified: Joi.boolean().optional(),
-    },
-    {
-      id: Joi.string().required(),
-      email: Joi.string().email().required(),
-      first_name: Joi.string().required(),
-      last_name: Joi.string().allow('').optional(),
-      photo_url: Joi.string().required(),
-      phone: Joi.string().optional(),
-      phone_verified: Joi.boolean().optional(),
-      current_address: Joi.string().optional(),
-      addresses: Joi.array().items(PlaceFactory()).optional(),
-    },
+export const CreateUserFactory = (optional = false) => {
+  const schema = Joi.object().keys({
+    id: Joi.string().optional(),
+    email: Joi.string().email().optional(),
+    email_verified: Joi.boolean().optional(),
+    first_name: Joi.string().optional(),
+    last_name: Joi.string().allow('').optional(),
+    photo_url: Joi.string()
+      .default(
+        'https://res.cloudinary.com/firedevs/image/upload/v1601140373/beast/assets/blue-user-logo_wk53b4.png',
+      )
+      .optional(),
+    phone: Joi.string().optional(),
+    phone_verified: Joi.boolean().optional(),
+    current_address: Joi.string().optional(),
+    addresses: Joi.array().items(PlaceFactory()).optional(),
+    current_store: Joi.string().optional(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(
+    [
+      'id',
+      'email',
+      'email_verified',
+      'first_name',
+      'last_name',
+      'photo_url',
+      'phone',
+      'phone_verified',
+      'current_address',
+      'addresses',
+      'current_store',
+    ],
+    (mySchema) => mySchema.optional(),
   );
-  return schema;
 };
 
-export const UserFactory = () => {
-  const schema = Joi.alternatives().try(
-    {
-      current_address: Joi.string().optional(),
-      addresses: Joi.array().min(1).items(PlaceFactory()).optional(),
-    },
-    {
-      email: Joi.string().email().optional(),
-      first_name: Joi.string().optional(),
-      last_name: Joi.string().optional(),
-      photo_url: Joi.string().optional(),
-      phone: Joi.string().optional(),
-      phone_verified: Joi.boolean().optional(),
-      current_address: Joi.string().optional(),
-      addresses: Joi.array().min(1).items(PlaceFactory()).optional(),
-      current_store: Joi.string().optional(),
-    },
+export const UserFactory = (optional = false) => {
+  const schema = CreateUserFactory(optional).keys({
+    id: Joi.string().required(),
+    created_at: Joi.date().required(),
+    updated_at: Joi.date().required(),
+  });
+  if (!optional) {
+    return schema;
+  }
+  return schema.fork(['id', 'created_at', 'updated_at'], (mySchema) =>
+    mySchema.optional(),
   );
-
-  return schema;
 };

@@ -19,7 +19,7 @@ const run = async () => {
     await restore<Product>(
       'products',
       path.join(__dirname, 'tmp/products.json'),
-      (collection) => collection.map(productMap),
+      (collection) => collection,
       {
         mappings: {
           properties: {

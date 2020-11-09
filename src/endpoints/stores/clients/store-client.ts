@@ -307,6 +307,26 @@ class StoreClient {
       );
     }
   }
+
+  /**
+   * Delete a store
+   * @param id
+   */
+  async delete(id: string): Promise<void> {
+    try {
+      const [_index, _id] = id.split('|');
+      await elastic.delete({
+        index: _index,
+        id: _id,
+        refresh: 'true',
+      });
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id } },
+        `${prefix} Unexpected error deleting store`,
+      );
+    }
+  }
 }
 
 export default new StoreClient();

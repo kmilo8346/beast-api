@@ -15,50 +15,12 @@ const run = async () => {
   try {
     logger.info('Modifying orders index');
     logger.info('');
-    // await backup('orders', path.join(__dirname, 'tmp/orders.json'));
+    await backup('orders', path.join(__dirname, 'tmp/orders.json'));
     //
     await restore<Order>(
       'orders',
       path.join(__dirname, 'tmp/orders.json'),
-      (collection) =>
-        collection.reduce<Order[]>((newCollection, document) => {
-          const doc = document as any;
-          if (
-            doc.status !== 'delivered' ||
-            doc.dispatch_provider_id !== 'owner'
-          ) {
-            // console.log('no adding');
-            return newCollection;
-          }
-          // console.log('adding');
-          const {
-            status,
-            payment_provider_id,
-            dispatch_provider_id,
-            payment_provider,
-            dispatch_provider,
-            ...result
-          } = doc;
-          const { shopping_cart, store, ...transaction } = result.transaction;
-          transaction.delivery_address = placeMap(
-            result.transaction.delivery_address,
-          );
-          transaction.shopping_cart = {
-            store: storeMap(store),
-            items: shopping_cart,
-          };
-          result.transaction = transaction;
-          result.stats = result.transaction.shopping_cart.items.reduce(
-            (stats: any, item: any) => {
-              const r = { ...stats };
-              r.amount += item.qty * item.price;
-              r.total += item.qty;
-              return r;
-            },
-            { amount: 0, total: 0 },
-          );
-          return [...newCollection, result];
-        }, []),
+      (collection) => collection,
       {
         mappings: {
           properties: {

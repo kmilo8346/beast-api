@@ -47,7 +47,7 @@ export const CreateOrderFactory = () =>
     idempotency: Joi.string().required(),
     customer: Joi.object({
       id: Joi.string().required(),
-      email: Joi.string().email().required(),
+      email: Joi.string().email().optional(),
       first_name: Joi.string().required(),
       last_name: Joi.string().allow('').optional(),
       photo_url: Joi.string().required(),
