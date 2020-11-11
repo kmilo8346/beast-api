@@ -36,9 +36,11 @@ const deleteProducts = async (store: string) => {
 };
 
 const deleteStore = async (store: string) => {
-  logger.info(`Deleting store ${store}`);
-  await storeClient.delete(store);
-  logger.info('Store deleted');
+  try {
+    logger.info(`Deleting store ${store}`);
+    await storeClient.delete(store);
+    logger.info('Store deleted');
+  } catch (error) {}
 };
 
 const deleteDevices = async (user: string) => {
@@ -77,7 +79,7 @@ const deleteUser = async (user: string) => {
 
 const run = async () => {
   try {
-    const id = 'eQTBqHUBiYs5oT0dD9Yc';
+    const id = 'vAacTDpABfU8huZLyAGUnbpEr0A3';
     const user = await userClient.get(id);
     if (user.current_store) {
       logger.info('User has store, deleting asociated store and products');
