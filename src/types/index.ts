@@ -78,17 +78,18 @@ export interface AddressProp {
 export interface Place {
   id: string;
   url: string;
-  street_number: AddressProp;
-  route: AddressProp;
+  street_number?: AddressProp;
+  route?: AddressProp;
   locality: AddressProp;
   administrative_area_level_3: AddressProp;
   administrative_area_level_2: AddressProp;
   administrative_area_level_1: AddressProp;
-  apartment: string;
+  apartment?: string;
   location: {
     lat: number;
     lon: number;
   };
+  formatted_address?: string;
 }
 
 export interface CreateUser {

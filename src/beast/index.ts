@@ -19,6 +19,7 @@ import mpAuthRouter from '../endpoints/mercado-pago/authorization/routes';
 import mpCheckoutRouter from '../endpoints/mercado-pago/checkout/routes';
 // google
 import googlePlacesRouter from '../endpoints/google/places/routes';
+import googleGeocodeRouter from '../endpoints/google/geocode/routes';
 // beast
 import devicesRouter from '../endpoints/devices/routes';
 import usersRouter from '../endpoints/users/routes';
@@ -66,6 +67,7 @@ app.use(mpAuthRouter.routes()).use(mpAuthRouter.allowedMethods());
 app.use(mpCheckoutRouter.routes()).use(mpCheckoutRouter.allowedMethods());
 // google
 app.use(googlePlacesRouter.routes()).use(googlePlacesRouter.allowedMethods());
+app.use(googleGeocodeRouter.routes()).use(googleGeocodeRouter.allowedMethods());
 // beast
 app.use(devicesRouter.routes()).use(devicesRouter.allowedMethods());
 app.use(usersRouter.routes()).use(usersRouter.allowedMethods());

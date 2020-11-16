@@ -1,8 +1,9 @@
 import Error from 'verror';
 import axios, { AxiosInstance } from 'axios';
 
+import { Place } from '../../../../types';
+import utils from '../../../../beast/utils';
 import config from '../../../../beast/config';
-import { Place, AddressProp } from '../../../../types';
 
 interface Prediction {
   description: string;
@@ -18,8 +19,8 @@ class PlacesClient {
 
   constructor() {
     this.request = axios.create({
-      baseURL: config.get('GOOGLE_PLACES_URL'),
-      timeout: config.getNumber('GOOGLE_PLACES_REQUEST_TIMEOUT'),
+      baseURL: `${config.get('GOOGLE_MAPS_API_URL')}/place`,
+      timeout: config.getNumber('GOOGLE_MAPS_API_REQUEST_TIMEOUT'),
     });
   }
 
@@ -33,9 +34,8 @@ class PlacesClient {
         params: {
           input,
           sessiontoken,
-          key: config.get('GOOGLE_PLACES_API_KEY'),
+          key: config.get('GOOGLE_API_KEY'),
           components: 'country:cl',
-          types: 'address',
           language: 'es',
         },
       });
@@ -68,7 +68,7 @@ class PlacesClient {
         params: {
           place_id,
           sessiontoken,
-          key: config.get('GOOGLE_PLACES_API_KEY'),
+          key: config.get('GOOGLE_API_KEY'),
           language: 'es',
           fields:
             'place_id,url,formatted_address,address_components,geometry,opening_hours',
@@ -80,58 +80,7 @@ class PlacesClient {
           'Google places details invalid status',
         );
       }
-
-      const types = [
-        'street_number',
-        'route',
-        'locality',
-        'administrative_area_level_3',
-        'administrative_area_level_2',
-        'administrative_area_level_1',
-      ];
-      const addressComponents: { [key: string]: AddressProp } = {};
-      response.data.result.address_components.forEach(
-        (component: {
-          short_name: string;
-          long_name: string;
-          types: string[];
-        }) => {
-          component.types.forEach((type) => {
-            const match = types.find((t) => t === type);
-            if (match) {
-              addressComponents[type] = {
-                short_name: component.short_name,
-                long_name: component.long_name,
-              };
-            }
-          });
-        },
-      );
-      delete response.data.result.geometry.viewport;
-      // sometimes locality is not returned
-      // TODO: test in other countries
-      if (!('locality' in addressComponents)) {
-        addressComponents.locality =
-          addressComponents.administrative_area_level_3;
-      }
-      return {
-        id: response.data.result.place_id,
-        url: response.data.result.url,
-        street_number: addressComponents.street_number,
-        route: addressComponents.route,
-        locality: addressComponents.locality,
-        administrative_area_level_3:
-          addressComponents.administrative_area_level_3,
-        administrative_area_level_2:
-          addressComponents.administrative_area_level_2,
-        administrative_area_level_1:
-          addressComponents.administrative_area_level_1,
-        apartment: '',
-        location: {
-          lat: response.data.result.geometry.location.lat,
-          lon: response.data.result.geometry.location.lng,
-        },
-      };
+      return utils.mapPlace(response.data.result);
     } catch (error) {
       throw new Error(
         { cause: error, info: {} },

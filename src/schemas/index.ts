@@ -34,14 +34,15 @@ export const PlaceFactory = (optional = false) => {
   const schema = Joi.object({
     id: Joi.string().required(),
     url: Joi.string().uri().required(),
-    street_number: AddressPropFactory(optional).required(),
-    route: AddressPropFactory(optional).required(),
+    street_number: AddressPropFactory(optional).optional(),
+    route: AddressPropFactory(optional).optional(),
     locality: AddressPropFactory(optional).required(),
     administrative_area_level_3: AddressPropFactory(optional).required(),
     administrative_area_level_2: AddressPropFactory(optional).required(),
     administrative_area_level_1: AddressPropFactory(optional).required(),
-    apartment: Joi.string().allow(''),
+    apartment: Joi.string().allow('').optional(),
     location: PlaceGeometryLocationFactory(optional).required(),
+    formatted_address: Joi.string().optional(),
   });
   if (!optional) {
     return schema;
