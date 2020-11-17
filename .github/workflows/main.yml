@@ -18,7 +18,7 @@ jobs:
       - name: Exporting steps variables and create .env for staging
         if: contains(github.ref, 'refs/tags/') == false && github.ref == 'refs/heads/master'
         run: |
-          echo "APP_YML=app-staging.yaml" >> $GITHUB_ENV
+          echo "{APP_YML}={app-staging.yaml}" >> $GITHUB_ENV
           # echo "::set-env name=APP_YML::app-staging.yaml"
           # echo "::set-env name=GCP_SA_EMAIL::${{ secrets.STAGING_GCP_SA_EMAIL }}"
           # echo "::set-env name=GCP_SA_KEY::${{ secrets.STAGING_GCP_SA_KEY }}"
@@ -28,8 +28,6 @@ jobs:
       - name: Test
         run: |
           echo "$APP_YML"
-  
-
       # - name: Exporting steps variables and create .env for production
       #   if: contains(github.ref, 'refs/tags/')
       #   run: |
@@ -38,14 +36,12 @@ jobs:
       #     echo "::set-env name=GCP_SA_KEY::${{ secrets.PRODUCTION_GCP_SA_KEY }}"
       #     echo "::set-env name=PROJECT_ID::${{ secrets.PRODUCTION_PROJECT_ID }}"
       #     echo "${{ secrets.PRODUCTION_ENV_VARS }}" >> .env
-
       # - name: Adding github variables to .env
       #   run: |
       #     echo ""
       #     echo "# CI CD"
       #     echo "GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER}" >> .env
       #     echo "GITHUB_SHA=${GITHUB_SHA}" >> .env
-
       # - name: Initializing Google Cloud SDK
       #   uses: zxyle/publish-gae-action@master
       #   with:
@@ -53,7 +49,6 @@ jobs:
       #     service_account_key: ${{ env.GCP_SA_KEY }}
       #     project_id: ${{ env.PROJECT_ID }}
       #     gae_config_path: ${{ env.APP_YML}}
-
       # - name: Publishing to GAE
       #   run: |
       #     # This client-secret.json is converted by GCP_SA_KEY.
