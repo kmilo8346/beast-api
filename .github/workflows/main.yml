@@ -19,10 +19,12 @@ jobs:
         if: contains(github.ref, 'refs/tags/') == false && github.ref == 'refs/heads/master'
         run: |
           echo "APP_YML=app-staging.yaml" >> $GITHUB_ENV
+          echo "GCP_SA_EMAIL=${{ secrets.STAGING_GCP_SA_EMAIL }}" >> $GITHUB_ENV
 
       - name: Test
         run: |
           echo "$APP_YML"
+          echo "$GCP_SA_EMAIL"
       # - name: Exporting steps variables and create .env for production
       #   if: contains(github.ref, 'refs/tags/')
       #   run: |
