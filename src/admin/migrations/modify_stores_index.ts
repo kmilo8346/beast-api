@@ -3,11 +3,11 @@ import path from 'path';
 // migration libs
 import backup from './lib/backup';
 import restore from './lib/restore';
-// migration mappers
-import storeMap from './mappers/store';
+
 // types
 import { Store } from '../../types';
 // beast
+import utils from '../../beast/utils';
 import logger from '../../beast/logger';
 
 const run = async () => {
@@ -19,7 +19,11 @@ const run = async () => {
     await restore<Store>(
       'stores',
       path.join(__dirname, 'tmp/stores.json'),
-      (collection) => collection,
+      (collection) =>
+        collection.map((store) => ({
+          ...store,
+          slug: utils.convertNameToSlug(store.name),
+        })),
       {
         mappings: {
           properties: {

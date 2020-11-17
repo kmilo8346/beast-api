@@ -149,6 +149,15 @@ class StoreClient {
             },
           });
         }
+        if ('slug' in params.filters) {
+          bool.must.push({
+            match_phrase: {
+              'slug.keyword': {
+                query: params.filters.slug,
+              },
+            },
+          });
+        }
       }
 
       // sort
@@ -245,6 +254,7 @@ class StoreClient {
 
       const newStore = {
         ...params.body,
+        slug: utils.convertNameToSlug(params.body.name),
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -279,6 +289,9 @@ class StoreClient {
         ...params.body,
         updated_at: new Date(),
       };
+      if (params.body.name) {
+        update.slug = utils.convertNameToSlug(params.body.name);
+      }
       await elastic.update({
         index: _index,
         id: _id,

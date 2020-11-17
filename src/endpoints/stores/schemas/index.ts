@@ -7,4 +7,5 @@ export const SearchFiltersFactory = () =>
     user: Joi.string().optional(),
     enabled: Joi.boolean().optional(),
     location: LocationFactory().optional(),
+    slug: Joi.string().optional(),
   });

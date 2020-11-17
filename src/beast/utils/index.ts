@@ -100,6 +100,16 @@ class Utils {
     };
     return place;
   }
+
+  public convertNameToSlug(name: string) {
+    return name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s]/gi, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .toLowerCase();
+  }
 }
 
 export default new Utils();
