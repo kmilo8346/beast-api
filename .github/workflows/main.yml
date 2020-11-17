@@ -22,7 +22,7 @@ jobs:
           echo "GCP_SA_EMAIL=${{ secrets.STAGING_GCP_SA_EMAIL }}" >> $GITHUB_ENV
           echo "GCP_SA_KEY=${{ secrets.STAGING_GCP_SA_KEY }}" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ secrets.STAGING_PROJECT_ID }}" >> $GITHUB_ENV
-          # echo "${{ secrets.STAGING_ENV_VARS }}" >> .env
+          echo "${{ secrets.STAGING_ENV_VARS }}" >> .env
 
       - name: Exporting steps variables and create .env for production
         if: contains(github.ref, 'refs/tags/')
