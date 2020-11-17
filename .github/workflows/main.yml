@@ -18,12 +18,7 @@ jobs:
       - name: Exporting steps variables and create .env for staging
         if: contains(github.ref, 'refs/tags/') == false && github.ref == 'refs/heads/master'
         run: |
-          echo "{APP_YML}={app-staging.yaml}" >> $GITHUB_ENV
-          # echo "::set-env name=APP_YML::app-staging.yaml"
-          # echo "::set-env name=GCP_SA_EMAIL::${{ secrets.STAGING_GCP_SA_EMAIL }}"
-          # echo "::set-env name=GCP_SA_KEY::${{ secrets.STAGING_GCP_SA_KEY }}"
-          # echo "::set-env name=PROJECT_ID::${{ secrets.STAGING_PROJECT_ID }}"
-          # echo "${{ secrets.STAGING_ENV_VARS }}" >> .env
+          echo "APP_YML=app-staging.yaml" >> $GITHUB_ENV
 
       - name: Test
         run: |
