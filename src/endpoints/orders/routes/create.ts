@@ -1,13 +1,13 @@
 import Router, { IMiddleware } from 'koa-router';
 import moment from 'moment-timezone';
 
-import { CreateParamsFactory } from '../../../schemas';
+import logger from '../../../beast/logger';
 import { CreateOrderFactory } from '../schemas';
-import { CreateOrder, CreateParams, Product, Store } from '../../../types';
 import orderClient from '../clients/order-client';
+import { CreateParamsFactory } from '../../../schemas';
 import storeClient from '../../stores/clients/store-client';
 import productClient from '../../products/clients/product-client';
-import logger from '../../../beast/logger';
+import { CreateOrder, CreateParams, Product, Store } from '../../../types';
 
 const prefix = '[create order route]';
 const schema = CreateParamsFactory(CreateOrderFactory().required());

@@ -1,4 +1,5 @@
 import Error from 'verror';
+import lodash from 'lodash';
 
 // types
 import {
@@ -239,7 +240,7 @@ class UserClient {
    * @param params UpdateParams<User>
    * @returns Promise<void>
    */
-  async update(id: string, params: UpdateParams<User>): Promise<void> {
+  async update(id: string, params: UpdateParams<User>): Promise<Partial<User>> {
     try {
       // TODO: remove when all clients app version > 1.5.9
       if (params.body.phone) {
@@ -256,16 +257,18 @@ class UserClient {
         }
       }
 
+      const update = {
+        ...params.body,
+        updated_at: new Date(),
+      };
       await elastic.update({
         index: 'users',
         id,
         body: {
-          doc: {
-            ...params.body,
-            updated_at: new Date(),
-          },
+          doc: update,
         },
       });
+      return utils.mapObject(update, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },

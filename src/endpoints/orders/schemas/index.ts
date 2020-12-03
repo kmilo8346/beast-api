@@ -8,6 +8,8 @@ export const SearchFiltersFactory = () =>
     seller: Joi.string().optional(),
     customer: Joi.string().optional(),
     water_mark: Joi.string().optional(),
+    should_client: Joi.string().optional(),
+    should_seller: Joi.string().optional(),
   });
 
 const ConfirmationFactory = () =>
@@ -52,6 +54,7 @@ export const CreateOrderFactory = () =>
       last_name: Joi.string().allow('').optional(),
       photo_url: Joi.string().optional(),
       phone: Joi.string().required(),
+      created_at: Joi.date().optional(),
     }).required(),
     transaction: Joi.object({
       country: Joi.string().required(),

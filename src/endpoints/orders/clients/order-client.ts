@@ -1,4 +1,5 @@
 import Error from 'verror';
+import lodash from 'lodash';
 import { PubSub } from '@google-cloud/pubsub';
 
 import {
@@ -8,6 +9,8 @@ import {
   UpdateParams,
   CreateParams,
   CreateOrder,
+  OrderStatus,
+  ActionParams,
 } from '../../../types';
 import elastic from '../../../beast/clients/elastic';
 import logger from '../../../beast/logger';
@@ -103,6 +106,24 @@ class OrderClient {
                 gt: params.filters.water_mark,
                 lte: new Date().toISOString(),
                 format: 'strict_date_optional_time',
+              },
+            },
+          });
+        }
+        if ('should_client' in params.filters) {
+          bool.should.push({
+            match_phrase: {
+              'customer.id.keyword': {
+                query: params.filters.should_client,
+              },
+            },
+          });
+        }
+        if ('should_seller' in params.filters) {
+          bool.should.push({
+            match_phrase: {
+              'transaction.shopping_cart.store.user.keyword': {
+                query: params.filters.should_seller,
               },
             },
           });
@@ -211,6 +232,7 @@ class OrderClient {
       });
       const newOrder = {
         ...params.body,
+        status: OrderStatus.CREATED,
         stats: this.getStats(params.body),
         created_at: new Date(),
         updated_at: new Date(),
@@ -253,23 +275,191 @@ class OrderClient {
    * @param id
    * @param params
    */
-  private async update(id: string, params: UpdateParams<any>): Promise<void> {
+  public async update(
+    id: string,
+    params: UpdateParams<Order>,
+  ): Promise<Partial<Order>> {
     try {
       const [_index, _id] = id.split('|');
+      const update = {
+        ...params.body,
+        updated_at: new Date(),
+      };
       await elastic.update({
         index: _index,
         id: _id,
         body: {
-          doc: {
-            ...params.body,
-            updated_at: new Date(),
-          },
+          doc: update,
         },
       });
+      return utils.mapObject(update, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },
         'Unexpected error updating order',
+      );
+    }
+  }
+
+  /**
+   * Accept order
+   * @param id
+   * @param params
+   */
+  public async confirm(
+    id: string,
+    params: ActionParams<Order>,
+  ): Promise<Partial<Order>> {
+    try {
+      const [_index, _id] = id.split('|');
+      // allow only if
+      // status === created
+      const update = {
+        status: OrderStatus.CONFIRMED,
+        updated_at: new Date(),
+      };
+      const response = await elastic.update({
+        index: _index,
+        id: _id,
+        body: {
+          doc: update,
+          _source: true,
+        },
+      });
+
+      const event = 'order.confirmed';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient.topic(topic).publish(
+        Buffer.from(
+          JSON.stringify({
+            id,
+            ...response.body.get._source,
+          }),
+        ),
+        {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-api',
+        },
+      );
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
+
+      return utils.mapObject(update, params.source);
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, params } },
+        'Unexpected error confirming order',
+      );
+    }
+  }
+
+  /**
+   * Delivery order
+   * @param id
+   * @param params
+   */
+  public async delivery(
+    id: string,
+    params: ActionParams<Order>,
+  ): Promise<Partial<Order>> {
+    try {
+      const [_index, _id] = id.split('|');
+      // allow only if
+      // status === confirmed
+      const update = {
+        status: OrderStatus.DELIVERED,
+        updated_at: new Date(),
+      };
+      const response = await elastic.update({
+        index: _index,
+        id: _id,
+        body: {
+          doc: update,
+          _source: true,
+        },
+      });
+
+      const event = 'order.delivered';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient.topic(topic).publish(
+        Buffer.from(
+          JSON.stringify({
+            id,
+            ...response.body.get._source,
+          }),
+        ),
+        {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-api',
+        },
+      );
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
+
+      return utils.mapObject(update, params.source);
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, params } },
+        'Unexpected error delivering order',
+      );
+    }
+  }
+
+  /**
+   * Cancel order
+   * @param id
+   * @param params
+   */
+  public async cancel(
+    id: string,
+    params: ActionParams<Order>,
+  ): Promise<Partial<Order>> {
+    try {
+      const [_index, _id] = id.split('|');
+      // allow only if
+      // must be status === created || executer === seller and status === confirmed
+      const update = {
+        ...params.body,
+        status: OrderStatus.CANCELLED,
+        updated_at: new Date(),
+      };
+      const response = await elastic.update({
+        index: _index,
+        id: _id,
+        body: {
+          doc: update,
+          _source: true,
+        },
+      });
+
+      const event = 'order.cancelled';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient.topic(topic).publish(
+        Buffer.from(
+          JSON.stringify({
+            id,
+            ...response.body.get._source,
+          }),
+        ),
+        {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-api',
+        },
+      );
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
+
+      return utils.mapObject(update, params.source);
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { id, params } },
+        'Unexpected error cancelling order',
       );
     }
   }

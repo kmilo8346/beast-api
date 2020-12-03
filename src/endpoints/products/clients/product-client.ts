@@ -1,4 +1,5 @@
 import Error from 'verror';
+import lodash from 'lodash';
 import moment from 'moment-timezone';
 
 import elastic from '../../../beast/clients/elastic';
@@ -304,19 +305,21 @@ class ProductClient {
     store: string,
     product: string,
     params: UpdateParams<Product>,
-  ): Promise<void> {
+  ): Promise<Partial<Product>> {
     try {
       const [_index, _id] = product.split('|');
+      const update = {
+        ...params.body,
+        updated_at: new Date(),
+      };
       await elastic.update({
         index: _index,
         id: _id,
         body: {
-          doc: {
-            ...params.body,
-            updated_at: new Date(),
-          },
+          doc: update,
         },
       });
+      return utils.mapObject(update, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { store, product, params } },

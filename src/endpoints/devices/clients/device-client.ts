@@ -1,4 +1,5 @@
 import Error from 'verror';
+import lodash from 'lodash';
 
 import elastic from '../../../beast/clients/elastic';
 import {
@@ -121,19 +122,24 @@ class DeviceClient {
    * Update a device
    * @param params
    */
-  async update(id: string, params: UpdateParams<Device>): Promise<void> {
+  async update(
+    id: string,
+    params: UpdateParams<Device>,
+  ): Promise<Partial<Device>> {
     try {
       const [_index, _id] = id.split('|');
+      const update = {
+        ...params.body,
+        updated_at: new Date(),
+      };
       await elastic.update({
         index: _index,
         id: _id,
         body: {
-          doc: {
-            ...params.body,
-            updated_at: new Date(),
-          },
+          doc: update,
         },
       });
+      return utils.mapObject(update, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },

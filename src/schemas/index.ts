@@ -286,10 +286,13 @@ export const CreateParamsFactory = (body: ObjectSchema | AlternativesSchema) =>
 export const UpdateParamsFactory = (body: ObjectSchema | AlternativesSchema) =>
   Joi.object({
     body: body.required(),
+    source: Joi.array().items(Joi.string()).optional(),
   });
 
 export const ActionParamsFactory = (body?: ObjectSchema) => {
-  const object: { [key: string]: any } = {};
+  const object: { [key: string]: any } = {
+    source: Joi.array().items(Joi.string()).optional(),
+  };
   if (body) {
     object.body = body.required();
   }

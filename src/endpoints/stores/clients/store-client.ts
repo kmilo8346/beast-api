@@ -1,4 +1,5 @@
 import Error from 'verror';
+import lodash from 'lodash';
 import moment from 'moment-timezone';
 import { PubSub } from '@google-cloud/pubsub';
 
@@ -282,7 +283,10 @@ class StoreClient {
    * Update a store
    * @param params
    */
-  public async update(id: string, params: UpdateParams<Store>): Promise<void> {
+  public async update(
+    id: string,
+    params: UpdateParams<Store>,
+  ): Promise<Partial<Store>> {
     try {
       const [_index, _id] = id.split('|');
       const update = {
@@ -292,27 +296,35 @@ class StoreClient {
       if (params.body.name) {
         update.slug = utils.convertNameToSlug(params.body.name);
       }
-      await elastic.update({
+      const response = await elastic.update({
         index: _index,
         id: _id,
         body: {
           doc: update,
+          _source: true, // use true to get entity
         },
       });
-
       // emit event
       const event = 'store.updated';
       const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
-      const messageId = await pubSubClient
-        .topic(topic)
-        .publish(Buffer.from(JSON.stringify(update)), {
+      const messageId = await pubSubClient.topic(topic).publish(
+        Buffer.from(
+          JSON.stringify({
+            id,
+            ...response.body.get._source,
+          }),
+        ),
+        {
           id,
           time: new Date().toISOString(),
           source: 'beast-api',
-        });
+        },
+      );
       logger.info(
         `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
       );
+
+      return utils.mapObject(update, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },
