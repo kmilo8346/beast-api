@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.39](https://github.com/firedevs-team/beast-api/compare/v1.0.38...v1.0.39) (2020-12-07)
+
+
+### Bug Fixes
+
+* **order cancel:** bug ([6666a4a](https://github.com/firedevs-team/beast-api/commit/6666a4a4b1eca6f5573cb87bb88657a18c696095))
+
 ### [1.0.38](https://github.com/firedevs-team/beast-api/compare/v1.0.37...v1.0.38) (2020-12-04)
 
 ### [1.0.37](https://github.com/firedevs-team/beast-api/compare/v1.0.36...v1.0.37) (2020-11-17)
