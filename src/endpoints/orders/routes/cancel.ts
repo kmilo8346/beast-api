@@ -23,6 +23,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
     });
     // set formatted body
     ctx.request.body = body;
+    console.log(ctx.request.body);
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -42,10 +43,13 @@ export default (router: Router) => {
       }
       ctx.throw(500, error);
     }
+
     if (
-      (ctx.request.body.executer === CancellationExecuter.CLIENT &&
+      (ctx.request.body.body.cancellation_information.executer ===
+        CancellationExecuter.CLIENT &&
         (order as Order).status !== OrderStatus.CREATED) ||
-      (ctx.request.body.executer === CancellationExecuter.SELLER &&
+      (ctx.request.body.body.cancellation_information.executer ===
+        CancellationExecuter.SELLER &&
         (order as Order).status !== OrderStatus.CREATED &&
         (order as Order).status !== OrderStatus.CONFIRMED)
     ) {
