@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.40](https://github.com/firedevs-team/beast-api/compare/v1.0.39...v1.0.40) (2020-12-11)
+
+
+### Bug Fixes
+
+* **mercado pago checkout schema:** email optional ([e3533a5](https://github.com/firedevs-team/beast-api/commit/e3533a513e33a9ba91a4103472359fe4458407ab))
+
 ### [1.0.39](https://github.com/firedevs-team/beast-api/compare/v1.0.38...v1.0.39) (2020-12-07)
 
 
