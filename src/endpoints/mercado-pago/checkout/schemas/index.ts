@@ -7,7 +7,7 @@ import {
 export const CreateCheckoutFactory = () =>
   Joi.object({
     customer: Joi.object({
-      email: Joi.string().email().required(),
+      email: Joi.string().email().optional(),
       first_name: Joi.string().required(),
       last_name: Joi.string().allow('').optional(),
       phone: Joi.string().required(),

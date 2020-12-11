@@ -23,7 +23,6 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
     });
     // set formatted body
     ctx.request.body = body;
-    console.log(ctx.request.body);
     await next();
   } catch (error) {
     ctx.throw(400, error);
