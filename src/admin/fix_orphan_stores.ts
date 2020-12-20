@@ -1,5 +1,5 @@
 // eslint-disable-next-line max-len
-// npx ts-node -r dotenv-safe/config src/admin/show_orphan_stores.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
+// npx ts-node -r dotenv-safe/config src/admin/fix_orphan_stores.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
 import Error from 'verror';
 import lodash from 'lodash';
