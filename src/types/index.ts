@@ -105,7 +105,7 @@ export interface CreateUser {
   photo_url?: string;
   current_address?: string;
   addresses?: Place[];
-  current_store?: string;
+  current_store?: string | null;
 }
 
 export interface User extends CreateUser {

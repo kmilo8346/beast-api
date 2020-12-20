@@ -198,6 +198,10 @@ class UserClient {
                 },
               },
             },
+            current_store: {
+              type: 'keyword',
+              null_value: 'NULL',
+            },
             created_at: { type: 'date' },
             updated_at: { type: 'date' },
           },

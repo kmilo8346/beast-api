@@ -13,7 +13,7 @@ export const CreateUserFactory = (optional = false) => {
     phone_verified: Joi.boolean().optional(),
     current_address: Joi.string().optional(),
     addresses: Joi.array().items(PlaceFactory()).optional(),
-    current_store: Joi.string().optional(),
+    current_store: Joi.string().allow(null).optional(),
   });
   if (!optional) {
     return schema;
