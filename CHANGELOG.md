@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.41](https://github.com/firedevs-team/beast-api/compare/v1.0.40...v1.0.41) (2020-12-20)
+
+
+### Bug Fixes
+
+* **fix orphan store:** comment ([472a6df](https://github.com/firedevs-team/beast-api/commit/472a6dfd42c6af84a573ae151e4f86579adfb54d))
+
 ### [1.0.40](https://github.com/firedevs-team/beast-api/compare/v1.0.39...v1.0.40) (2020-12-11)
 
 
