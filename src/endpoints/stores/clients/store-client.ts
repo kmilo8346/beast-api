@@ -303,7 +303,7 @@ class StoreClient {
       if (params.body.name) {
         update.slug = utils.convertNameToSlug(params.body.name);
       }
-      const response = await elastic.update({
+      await elastic.update({
         index: _index,
         id: _id,
         body: {
