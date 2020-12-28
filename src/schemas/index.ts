@@ -109,6 +109,14 @@ export const OpeningHoursFactory = (optional = false) => {
       day: Joi.string().required(), // TODO: 1 - 7
       open: Joi.number().min(0).max(2359).required(),
       close: Joi.number().min(0).max(2359).required(),
+      hours: Joi.array()
+        .items(
+          Joi.object({
+            open: Joi.number().min(0).max(2359).required(),
+            close: Joi.number().min(0).max(2359).required(),
+          }),
+        )
+        .optional(),
     }),
   );
   return schema;
@@ -165,7 +173,7 @@ export const CreateStoreFactory = (optional = false) => {
     delivery_time: IntegerRangeFactory(optional).required(),
     delivery_area: DeliveryAreaFactory(optional).required(),
     opening_hours: OpeningHoursFactory(optional).required(),
-    payment_provider: PaymentProviderFactory(optional).optional(),
+    payment_provider: PaymentProviderFactory(optional).allow(null).optional(),
   });
   if (!optional) {
     return schema;

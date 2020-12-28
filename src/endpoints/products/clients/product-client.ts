@@ -89,52 +89,6 @@ class ProductClient {
             },
           });
         }
-        if ('store_open' in params.filters) {
-          if (params.filters.store_open) {
-            // TODO: add support for other countries
-            const date = moment().tz('America/Santiago');
-            let day = `${date.day()}`;
-            const minutes = date.minutes();
-            const time = parseInt(
-              `${date.hour()}${minutes < 10 ? `0${minutes}` : minutes}`,
-              10,
-            );
-            if (day === '0') {
-              day = '7';
-            }
-
-            bool.must.push({
-              nested: {
-                path: 'store_info.opening_hours',
-                query: {
-                  bool: {
-                    must: [
-                      {
-                        match: {
-                          'store_info.opening_hours.day': day,
-                        },
-                      },
-                      {
-                        range: {
-                          'store_info.opening_hours.open': {
-                            lte: time,
-                          },
-                        },
-                      },
-                      {
-                        range: {
-                          'store_info.opening_hours.close': {
-                            gt: time,
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            });
-          }
-        }
         if ('store_enabled' in params.filters) {
           bool.must.push({
             match_phrase: {

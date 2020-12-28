@@ -19,11 +19,7 @@ const run = async () => {
     await restore<Store>(
       'stores',
       path.join(__dirname, 'tmp/stores.json'),
-      (collection) =>
-        collection.map((store) => ({
-          ...store,
-          slug: utils.convertNameToSlug(store.name),
-        })),
+      (collection) => collection,
       {
         mappings: {
           properties: {
@@ -43,7 +39,14 @@ const run = async () => {
                 },
               },
             },
-            opening_hours: { type: 'nested' },
+            opening_hours: {
+              type: 'nested',
+              properties: {
+                hours: {
+                  type: 'nested',
+                },
+              },
+            },
             created_at: { type: 'date' },
             updated_at: { type: 'date' },
           },

@@ -110,6 +110,10 @@ class Utils {
       .replace(/\s+/g, '-')
       .toLowerCase();
   }
+
+  public sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 }
 
 export default new Utils();

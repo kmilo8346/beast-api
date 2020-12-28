@@ -246,7 +246,14 @@ class StoreClient {
                 },
               },
             },
-            opening_hours: { type: 'nested' },
+            opening_hours: {
+              type: 'nested',
+              properties: {
+                hours: {
+                  type: 'nested',
+                },
+              },
+            },
             created_at: { type: 'date' },
             updated_at: { type: 'date' },
           },
@@ -301,7 +308,6 @@ class StoreClient {
         id: _id,
         body: {
           doc: update,
-          _source: true, // use true to get entity
         },
       });
       // emit event
@@ -311,7 +317,7 @@ class StoreClient {
         Buffer.from(
           JSON.stringify({
             id,
-            ...response.body.get._source,
+            ...update,
           }),
         ),
         {
