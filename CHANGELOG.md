@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.42](https://github.com/firedevs-team/beast-api/compare/v1.0.41...v1.0.42) (2020-12-29)
+
+
+### Bug Fixes
+
+* **store client:** remove unused code ([f607e7b](https://github.com/firedevs-team/beast-api/commit/f607e7b7ccd0d6fe49f8d1f1fb0ef8863c681a12))
+
 ### [1.0.41](https://github.com/firedevs-team/beast-api/compare/v1.0.40...v1.0.41) (2020-12-20)
 
 
