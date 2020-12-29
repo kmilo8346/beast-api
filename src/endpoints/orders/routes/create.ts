@@ -31,17 +31,19 @@ const isStoreOpen = (store: Store) => {
   if (day === '0') {
     day = '7';
   }
-  const match = store.opening_hours.find((oh) => oh.day === day);
-  if (!match) {
-    logger.error({ store, day }, `${prefix} Day not found in opening hours`);
-    return false;
-  }
   const minutes = date.minutes();
   const time = parseInt(
     `${date.hour()}${minutes < 10 ? `0${minutes}` : minutes}`,
     10,
   );
-  return time >= match.open && time < match.close;
+
+  const match = store.opening_hours.find((oh) => oh.day === day);
+  if (!match) {
+    logger.error({ store, day }, `${prefix} Day not found in opening hours`);
+    return false;
+  }
+  const hours = match.hours || [{ open: match.open, close: match.close }];
+  return hours.some((h) => time >= h.open && time < h.close);
 };
 
 const checking: IMiddleware = async (ctx, next): Promise<void> => {

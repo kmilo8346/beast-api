@@ -70,6 +70,7 @@ export type OpeningHours = {
   day: '1' | '2' | '3' | '4' | '5' | '6' | '7';
   open: number;
   close: number;
+  hours?: { open: number; close: number }[];
 }[];
 
 export interface AddressProp {
