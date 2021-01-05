@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.43](https://github.com/firedevs-team/beast-api/compare/v1.0.42...v1.0.43) (2021-01-05)
+
+
+### Bug Fixes
+
+* **CreateUserFactory:** allow empty string at email and photo_url ([2a21eaa](https://github.com/firedevs-team/beast-api/commit/2a21eaa897c063a94538b9ff5a8049a0a2ad9d5e))
+
 ### [1.0.42](https://github.com/firedevs-team/beast-api/compare/v1.0.41...v1.0.42) (2020-12-29)
 
 
