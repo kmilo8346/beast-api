@@ -4,11 +4,11 @@ import { PlaceFactory } from '../../../schemas';
 export const CreateUserFactory = (optional = false) => {
   const schema = Joi.object().keys({
     id: Joi.string().optional(),
-    email: Joi.string().email().optional(),
+    email: Joi.string().email().allow('').optional(),
     email_verified: Joi.boolean().optional(),
     first_name: Joi.string().optional(),
     last_name: Joi.string().allow('').optional(),
-    photo_url: Joi.string().optional(),
+    photo_url: Joi.string().allow('').optional(),
     phone: Joi.string().optional(),
     phone_verified: Joi.boolean().optional(),
     current_address: Joi.string().optional(),
