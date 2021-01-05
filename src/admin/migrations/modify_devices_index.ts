@@ -12,7 +12,7 @@ const run = async () => {
   try {
     logger.info('Modifying devices index');
     logger.info('');
-    // await backup('devices', path.join(__dirname, 'tmp/devices.json'));
+    await backup('devices', path.join(__dirname, 'tmp/devices.json'));
     //
     await restore<User>(
       'devices',
