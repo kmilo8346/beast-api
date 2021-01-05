@@ -8,7 +8,7 @@ export const CreateUserFactory = (optional = false) => {
     email_verified: Joi.boolean().optional(),
     first_name: Joi.string().optional(),
     last_name: Joi.string().allow('').optional(),
-    photo_url: Joi.string().optional(),
+    photo_url: Joi.string().allow('').optional(),
     phone: Joi.string().optional(),
     phone_verified: Joi.boolean().optional(),
     current_address: Joi.string().optional(),
