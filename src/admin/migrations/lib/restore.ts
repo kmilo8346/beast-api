@@ -26,8 +26,12 @@ export default async <T>(
     const mapped = map(data);
     logger.info('Data mapped ✓');
 
-    await elastic.indices.delete({ index });
-    logger.info('Index deleted ✓');
+    try {
+      await elastic.indices.delete({ index });
+      logger.info('Index deleted ✓');
+    } catch (error) {
+      logger.info('Index not found ⚠');
+    }
 
     await utils.createIndexIfNotExist(index, mapping);
     logger.info('Index created ✓');

@@ -1,5 +1,4 @@
 import Error from 'verror';
-import lodash from 'lodash';
 import { PubSub } from '@google-cloud/pubsub';
 
 import {
@@ -12,11 +11,12 @@ import {
   OrderStatus,
   ActionParams,
 } from '../../../types';
-import elastic from '../../../beast/clients/elastic';
-import logger from '../../../beast/logger';
 import utils from '../../../beast/utils';
+import logger from '../../../beast/logger';
 import config from '../../../beast/config';
+import elastic from '../../../beast/clients/elastic';
 
+const index = 'orders';
 const prefix = '[order client]';
 const pubSubClient = new PubSub();
 
@@ -28,15 +28,14 @@ class OrderClient {
    */
   public async get(id: string, source?: string[]): Promise<Order> {
     try {
-      const [_index, _id] = id.split('|');
       const response = await elastic.get({
-        index: _index,
-        id: _id,
+        index,
+        id: utils.parseId(id),
         _source: source,
       });
       return {
         ...response.body._source,
-        id: `${response.body._index}|${response.body._id}`,
+        id: response.body._id,
       };
     } catch (error) {
       throw new Error(
@@ -85,7 +84,7 @@ class OrderClient {
           bool.must.push({
             match_phrase: {
               'transaction.shopping_cart.store.id.keyword': {
-                query: params.filters.store,
+                query: utils.parseId(params.filters.store),
               },
             },
           });
@@ -141,7 +140,7 @@ class OrderClient {
       }
 
       const response = await elastic.search({
-        index: 'orders*',
+        index,
         body: {
           query: {
             bool,
@@ -157,9 +156,9 @@ class OrderClient {
         from: params.from,
         size: params.size,
         total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
+        hits: response.body.hits.hits.map(({ _source, _id }: any) => ({
           ..._source,
-          id: `${_index}|${_id}`,
+          id: _id,
         })),
       };
     } catch (error) {
@@ -181,55 +180,16 @@ class OrderClient {
         filters: { idempotency: params.body.idempotency },
         from: 0,
         size: 1,
+        source: params.source,
       });
       if (searchResponse.hits.length) {
         const alreadyCreated = searchResponse.hits[0] as Order;
         logger.info(
           `${prefix} A order is already created, order id ${alreadyCreated.id}, idempotency ${alreadyCreated.idempotency}`,
         );
-        return utils.mapObject(alreadyCreated, params.source);
+        return alreadyCreated;
       }
 
-      const index = 'orders';
-      // creating index if not exist
-      await utils.createIndexIfNotExist(index, {
-        mappings: {
-          properties: {
-            transaction: {
-              properties: {
-                delivery_address: {
-                  properties: {
-                    location: {
-                      type: 'geo_point',
-                    },
-                  },
-                },
-                shopping_cart: {
-                  properties: {
-                    store: {
-                      properties: {
-                        delivery_area: {
-                          properties: {
-                            center: {
-                              properties: {
-                                location: {
-                                  type: 'geo_point',
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            created_at: { type: 'date' },
-            updated_at: { type: 'date' },
-          },
-        },
-      });
       const newOrder = {
         ...params.body,
         status: OrderStatus.CREATED,
@@ -244,7 +204,7 @@ class OrderClient {
       });
       const order: Order = {
         ...newOrder,
-        id: `${response.body._index}|${response.body._id}`,
+        id: response.body._id,
       };
 
       // emit event
@@ -280,19 +240,19 @@ class OrderClient {
     params: UpdateParams<Order>,
   ): Promise<Partial<Order>> {
     try {
-      const [_index, _id] = id.split('|');
+      const _id = utils.parseId(id);
       const update = {
         ...params.body,
         updated_at: new Date(),
       };
       await elastic.update({
-        index: _index,
+        index,
         id: _id,
         body: {
           doc: update,
         },
       });
-      return utils.mapObject(update, params.source);
+      return utils.mapObject({ ...update, id: _id }, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },
@@ -311,7 +271,7 @@ class OrderClient {
     params: ActionParams<Order>,
   ): Promise<Partial<Order>> {
     try {
-      const [_index, _id] = id.split('|');
+      const _id = utils.parseId(id);
       // allow only if
       // status === created
       const update = {
@@ -319,7 +279,7 @@ class OrderClient {
         updated_at: new Date(),
       };
       const response = await elastic.update({
-        index: _index,
+        index,
         id: _id,
         body: {
           doc: update,
@@ -332,12 +292,12 @@ class OrderClient {
       const messageId = await pubSubClient.topic(topic).publish(
         Buffer.from(
           JSON.stringify({
-            id,
             ...response.body.get._source,
+            id: _id,
           }),
         ),
         {
-          id,
+          id: _id,
           time: new Date().toISOString(),
           source: 'beast-api',
         },
@@ -365,7 +325,7 @@ class OrderClient {
     params: ActionParams<Order>,
   ): Promise<Partial<Order>> {
     try {
-      const [_index, _id] = id.split('|');
+      const _id = utils.parseId(id);
       // allow only if
       // status === confirmed
       const update = {
@@ -373,7 +333,7 @@ class OrderClient {
         updated_at: new Date(),
       };
       const response = await elastic.update({
-        index: _index,
+        index,
         id: _id,
         body: {
           doc: update,
@@ -386,12 +346,12 @@ class OrderClient {
       const messageId = await pubSubClient.topic(topic).publish(
         Buffer.from(
           JSON.stringify({
-            id,
             ...response.body.get._source,
+            id: _id,
           }),
         ),
         {
-          id,
+          id: _id,
           time: new Date().toISOString(),
           source: 'beast-api',
         },
@@ -419,7 +379,7 @@ class OrderClient {
     params: ActionParams<Order>,
   ): Promise<Partial<Order>> {
     try {
-      const [_index, _id] = id.split('|');
+      const _id = utils.parseId(id);
       // allow only if
       // must be status === created || executer === seller and status === confirmed
       const update = {
@@ -428,7 +388,7 @@ class OrderClient {
         updated_at: new Date(),
       };
       const response = await elastic.update({
-        index: _index,
+        index,
         id: _id,
         body: {
           doc: update,
@@ -441,12 +401,12 @@ class OrderClient {
       const messageId = await pubSubClient.topic(topic).publish(
         Buffer.from(
           JSON.stringify({
-            id,
             ...response.body.get._source,
+            id: _id,
           }),
         ),
         {
-          id,
+          id: _id,
           time: new Date().toISOString(),
           source: 'beast-api',
         },

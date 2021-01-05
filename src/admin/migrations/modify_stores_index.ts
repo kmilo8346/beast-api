@@ -3,23 +3,27 @@ import path from 'path';
 // migration libs
 import backup from './lib/backup';
 import restore from './lib/restore';
-
 // types
 import { Store } from '../../types';
 // beast
-import utils from '../../beast/utils';
 import logger from '../../beast/logger';
 
 const run = async () => {
   try {
     logger.info('Modifying stores index');
     logger.info('');
-    await backup('stores', path.join(__dirname, 'tmp/stores.json'));
+    // await backup('stores', path.join(__dirname, 'tmp/stores.json'));
     //
     await restore<Store>(
       'stores',
       path.join(__dirname, 'tmp/stores.json'),
-      (collection) => collection,
+      (collection) =>
+        collection.map((item) => {
+          const result = { ...item };
+          // @ts-ignore
+          delete result.slug;
+          return result;
+        }),
       {
         mappings: {
           properties: {

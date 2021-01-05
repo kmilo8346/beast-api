@@ -1,7 +1,5 @@
 import Error from 'verror';
-import lodash from 'lodash';
 
-import elastic from '../../../beast/clients/elastic';
 import {
   SearchParams,
   SearchResponse,
@@ -11,8 +9,10 @@ import {
   CreateDevice,
 } from '../../../types';
 import utils from '../../../beast/utils';
+import elastic from '../../../beast/clients/elastic';
 
 const prefix = '[device client]';
+const index = 'devices';
 
 class DeviceClient {
   /**
@@ -46,7 +46,7 @@ class DeviceClient {
       }
 
       const response = await elastic.search({
-        index: 'devices*',
+        index,
         body: {
           query: {
             bool: {
@@ -64,9 +64,9 @@ class DeviceClient {
         from: params.from,
         size: params.size,
         total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
+        hits: response.body.hits.hits.map(({ _source, _id }: any) => ({
           ..._source,
-          id: `${_index}|${_id}`,
+          id: _id,
         })),
       };
     } catch (error) {
@@ -83,16 +83,6 @@ class DeviceClient {
    */
   async create(params: CreateParams<CreateDevice>): Promise<Device> {
     try {
-      const index = 'devices';
-      await utils.createIndexIfNotExist(index, {
-        mappings: {
-          properties: {
-            created_at: { type: 'date' },
-            updated_at: { type: 'date' },
-          },
-        },
-      });
-
       const newDevice = {
         ...params.body,
         created_at: new Date(),
@@ -106,7 +96,7 @@ class DeviceClient {
       return utils.mapObject(
         {
           ...newDevice,
-          id: `${response.body._index}|${response.body._id}`,
+          id: response.body._id,
         },
         params.source,
       );
@@ -127,19 +117,19 @@ class DeviceClient {
     params: UpdateParams<Device>,
   ): Promise<Partial<Device>> {
     try {
-      const [_index, _id] = id.split('|');
+      const _id = utils.parseId(id);
       const update = {
         ...params.body,
         updated_at: new Date(),
       };
       await elastic.update({
-        index: _index,
+        index,
         id: _id,
         body: {
           doc: update,
         },
       });
-      return utils.mapObject(update, params.source);
+      return utils.mapObject({ ...update, id: _id }, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },
@@ -154,10 +144,9 @@ class DeviceClient {
    */
   async delete(id: string): Promise<void> {
     try {
-      const [_index, _id] = id.split('|');
       await elastic.delete({
-        index: _index,
-        id: _id,
+        index,
+        id: utils.parseId(id),
         refresh: 'true',
       });
     } catch (error) {

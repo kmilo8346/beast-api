@@ -1,5 +1,4 @@
 import Error from 'verror';
-import lodash from 'lodash';
 
 // types
 import {
@@ -17,6 +16,7 @@ import utils from '../../../beast/utils';
 import logger from '../../../beast/logger';
 
 const prefix = '[user client]';
+const index = 'users';
 
 class UserClient {
   /**
@@ -28,8 +28,8 @@ class UserClient {
   public async get(id: string, source?: string[]): Promise<User> {
     try {
       const response = await elastic.get({
-        index: 'users',
         id,
+        index,
         _source: source,
       });
       return {
@@ -185,29 +185,6 @@ class UserClient {
         }
       }
 
-      // create index if not exist
-      const index = 'users';
-      await utils.createIndexIfNotExist(index, {
-        mappings: {
-          properties: {
-            addresses: {
-              type: 'nested',
-              properties: {
-                location: {
-                  type: 'geo_point',
-                },
-              },
-            },
-            current_store: {
-              type: 'keyword',
-              null_value: 'NULL',
-            },
-            created_at: { type: 'date' },
-            updated_at: { type: 'date' },
-          },
-        },
-      });
-
       const { id, ...data } = params.body;
       const newUser = {
         ...data,
@@ -265,14 +242,17 @@ class UserClient {
         ...params.body,
         updated_at: new Date(),
       };
+      if (update.current_store) {
+        update.current_store = utils.parseId(update.current_store);
+      }
       await elastic.update({
-        index: 'users',
         id,
+        index,
         body: {
           doc: update,
         },
       });
-      return utils.mapObject(update, params.source);
+      return utils.mapObject({ ...update, id }, params.source);
     } catch (error) {
       throw new Error(
         { cause: error, info: { id, params } },
@@ -289,8 +269,8 @@ class UserClient {
   async delete(id: string): Promise<void> {
     try {
       await elastic.delete({
-        index: 'users',
         id,
+        index,
         refresh: 'true',
       });
     } catch (error) {

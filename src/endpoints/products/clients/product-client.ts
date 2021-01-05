@@ -1,6 +1,5 @@
 import Error from 'verror';
-import lodash from 'lodash';
-import moment from 'moment-timezone';
+import { PubSub } from '@google-cloud/pubsub';
 
 import elastic from '../../../beast/clients/elastic';
 import {
@@ -13,9 +12,11 @@ import {
 } from '../../../types';
 import utils from '../../../beast/utils';
 import logger from '../../../beast/logger';
-import storeClient from '../../stores/clients/store-client';
+import config from '../../../beast/config';
 
 const prefix = '[product client]';
+const pubSubClient = new PubSub();
+const index = 'products';
 
 class ProductClient {
   /**
@@ -29,32 +30,37 @@ class ProductClient {
     params: SearchParams,
   ): Promise<SearchResponse<Product>> {
     try {
+      const storeId = utils.parseId(store);
+
       // filters
       const bool: any = {
         must: [],
         filter: [],
         must_not: [],
       };
-      if (params.query) {
-        bool.filter.push({
-          multi_match: {
-            query: params.query,
-            fields: ['name^3', 'description^3', 'tags^1.5'],
-            fuzziness: 'AUTO',
-            prefix_length: 2,
-          },
-        });
-      }
-      if (store !== 'all') {
+      if (storeId !== 'all') {
         bool.must.push({
           match_phrase: {
-            'store_info.id.keyword': {
-              query: store,
+            'store.keyword': {
+              query: storeId,
             },
           },
         });
       }
+
       if (params.filters) {
+        if ('ids' in params.filters) {
+          bool.must.push({
+            bool: {
+              should: (params.filters.ids as string[]).map((id: string) => ({
+                match_phrase: {
+                  _id: utils.parseId(id),
+                },
+              })),
+              minimum_should_match: 1,
+            },
+          });
+        }
         if ('enabled' in params.filters) {
           bool.must.push({
             match_phrase: {
@@ -73,49 +79,12 @@ class ProductClient {
             },
           });
         }
-        if ('location' in params.filters) {
-          bool.filter.push({
-            geo_shape: {
-              'store_info.delivery_area': {
-                shape: {
-                  type: 'Point',
-                  coordinates: [
-                    params.filters.location.lon,
-                    params.filters.location.lat,
-                  ],
-                },
-                relation: 'intersects',
-              },
-            },
-          });
-        }
-        if ('store_enabled' in params.filters) {
-          bool.must.push({
-            match_phrase: {
-              'store_info.enabled': {
-                query: params.filters.store_enabled,
-              },
-            },
-          });
-        }
         if ('must_not_id' in params.filters) {
           bool.must_not.push({
             match_phrase: {
               _id: {
-                query: params.filters.must_not_id.split('|')[1],
+                query: utils.parseId(params.filters.must_not_id),
               },
-            },
-          });
-        }
-        if ('ids' in params.filters) {
-          bool.must.push({
-            bool: {
-              should: (params.filters.ids as string[]).map((id: string) => ({
-                match_phrase: {
-                  _id: id.split('|')[1],
-                },
-              })),
-              minimum_should_match: 1,
             },
           });
         }
@@ -132,7 +101,7 @@ class ProductClient {
       }
 
       const response = await elastic.search({
-        index: 'products*',
+        index,
         body: {
           query: {
             bool,
@@ -145,17 +114,12 @@ class ProductClient {
       });
 
       return {
-        query: params.query,
-        filters: params.filters,
         from: params.from,
         size: params.size,
-        sort: params.sort,
         total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
+        hits: response.body.hits.hits.map(({ _source, _id }: any) => ({
           ..._source,
-          // TODO: delete when all app client > 1.0.57
-          store: _source.store_info.id,
-          id: `${_index}|${_id}`,
+          id: _id,
         })),
       };
     } catch (error) {
@@ -168,63 +132,35 @@ class ProductClient {
 
   /**
    * Create a product
-   * @param storeId string
+   * @param store string
    * @param params CreateParams<CreateProduct>
    * @returns Promise<Product>
    */
   async create(
-    storeId: string,
+    store: string,
     params: CreateParams<CreateProduct>,
   ): Promise<Product> {
     try {
+      const storeId = utils.parseId(store);
+
       // find already created product
       const searchResponse = await this.search(storeId, {
         filters: { reference: params.body.reference },
         from: 0,
         size: 1,
+        source: params.source,
       });
       if (searchResponse.hits.length) {
         const alreadyCreated = searchResponse.hits[0] as Product;
         logger.info(
           `${prefix} A product is already created, product id ${alreadyCreated.id}, reference ${alreadyCreated.reference}`,
         );
-        return utils.mapObject(alreadyCreated, params.source);
+        return alreadyCreated;
       }
 
-      // create index if not exist
-      const index = 'products';
-      await utils.createIndexIfNotExist(index, {
-        mappings: {
-          properties: {
-            store_info: {
-              properties: {
-                delivery_area: {
-                  type: 'geo_shape',
-                  strategy: 'recursive',
-                },
-                opening_hours: { type: 'nested' },
-              },
-            },
-            created_at: { type: 'date' },
-            updated_at: { type: 'date' },
-          },
-        },
-      });
-
-      // TODO: remove in the future
-      let store_info: any = params.body.store_info;
-      if (!store_info) {
-        const store = await storeClient.get(storeId);
-        store_info = {
-          id: store.id,
-          delivery_area: store.delivery_area.geometry,
-          opening_hours: store.opening_hours,
-        };
-      }
-
-      const newProduct = {
+      let newProduct: any = {
         ...params.body,
-        store_info,
+        store: storeId,
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -233,16 +169,28 @@ class ProductClient {
         refresh: 'true',
         body: newProduct,
       });
-      return utils.mapObject(
-        {
-          ...newProduct,
-          id: `${response.body._index}|${response.body._id}`,
-        },
-        params.source,
+      newProduct = {
+        ...newProduct,
+        id: response.body._id,
+      };
+
+      // emit event
+      const event = 'product.created';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient
+        .topic(topic)
+        .publish(Buffer.from(JSON.stringify(newProduct)), {
+          id: newProduct.id,
+          time: new Date().toISOString(),
+          source: 'beast-api',
+        });
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
       );
+      return utils.mapObject(newProduct, params.source);
     } catch (error) {
       throw new Error(
-        { cause: error, info: { params } },
+        { cause: error, info: { store, params } },
         `${prefix} Unexpected error creating product`,
       );
     }
@@ -250,10 +198,10 @@ class ProductClient {
 
   /**
    * Update a product
-   * @param store: string
-   * @param product: string
+   * @param store string
+   * @param product string
    * @param params UpdateParams<Product>
-   * @returns Promise<void>
+   * @returns Promise<Partial<Product>>
    */
   async update(
     store: string,
@@ -261,18 +209,37 @@ class ProductClient {
     params: UpdateParams<Product>,
   ): Promise<Partial<Product>> {
     try {
-      const [_index, _id] = product.split('|');
-      const update = {
+      const id = utils.parseId(product);
+
+      let update = {
         ...params.body,
         updated_at: new Date(),
       };
       await elastic.update({
-        index: _index,
-        id: _id,
+        id,
+        index,
         body: {
           doc: update,
         },
       });
+      update = {
+        ...update,
+        id,
+      };
+
+      // emit event
+      const event = 'product.updated';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient
+        .topic(topic)
+        .publish(Buffer.from(JSON.stringify(update)), {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-api',
+        });
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
       return utils.mapObject(update, params.source);
     } catch (error) {
       throw new Error(
@@ -290,12 +257,27 @@ class ProductClient {
    */
   async delete(store: string, product: string): Promise<void> {
     try {
-      const [_index, _id] = product.split('|');
+      const id = utils.parseId(product);
+
       await elastic.delete({
-        index: _index,
-        id: _id,
+        index,
+        id,
         refresh: 'true',
       });
+
+      // emit event
+      const event = 'product.deleted';
+      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
+      const messageId = await pubSubClient
+        .topic(topic)
+        .publish(Buffer.from(JSON.stringify({ id })), {
+          id,
+          time: new Date().toISOString(),
+          source: 'beast-api',
+        });
+      logger.info(
+        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
+      );
     } catch (error) {
       throw new Error(
         { cause: error, info: { store, product } },

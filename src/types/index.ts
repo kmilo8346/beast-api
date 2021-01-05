@@ -135,7 +135,6 @@ export interface CreateStore {
 
 export interface Store extends CreateStore {
   id: string;
-  slug: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -148,22 +147,46 @@ export interface CreateProduct {
   enabled: boolean;
   reference: string;
   description?: string;
-  store_info: {
-    id: string;
-    enabled: boolean;
-    delivery_area: Circle;
-    opening_hours: OpeningHours;
-  };
 }
 
 export interface Product extends CreateProduct {
   id: string;
+  store: string;
   created_at: Date;
   updated_at: Date;
 }
 
 export interface Item extends Product {
   qty: number;
+}
+
+export interface CreateStoreProduct {
+  id: string;
+  name: string;
+  price: number;
+  tags?: string[];
+  suggest: any;
+  images: string[];
+  enabled: boolean;
+  reference: string;
+  description?: string;
+  created_at: Date;
+  updated_at: Date;
+  store_info: {
+    id: string;
+    name: string;
+    enabled: boolean;
+    images: string[];
+    address: Place;
+    delivery_area: Circle;
+    delivery_time: IntegerRange;
+    opening_hours: OpeningHours;
+  };
+}
+
+export interface StoreProduct extends CreateStoreProduct {
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CreateOrder {
@@ -239,6 +262,7 @@ export interface NotificationFilters {
 export interface NotificationMessage extends Omit<ExpoPushMessage, 'to'> {}
 
 export interface CreateNotification {
+  idempotency: string;
   filters: NotificationFilters;
   message: NotificationMessage;
 }

@@ -23,6 +23,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.put('/:productId', validate, async (ctx) => {
     try {
+      console.log('Calling update product', ctx.params, ctx.request.body);
       const response = await productClient.update(
         ctx.params.storeId,
         ctx.params.productId,

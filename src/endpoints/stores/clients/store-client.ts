@@ -1,5 +1,4 @@
 import Error from 'verror';
-import lodash from 'lodash';
 import moment from 'moment-timezone';
 import { PubSub } from '@google-cloud/pubsub';
 
@@ -18,6 +17,7 @@ import config from '../../../beast/config';
 
 const prefix = '[store client]';
 const pubSubClient = new PubSub();
+const index = 'stores';
 
 /**
  * @class StoreClient
@@ -31,15 +31,14 @@ class StoreClient {
    */
   public async get(id: string, source?: string[]): Promise<Store> {
     try {
-      const [_index, _id] = id.split('|');
       const response = await elastic.get({
-        index: _index,
-        id: _id,
+        index,
+        id: utils.parseId(id),
         _source: source,
       });
       return {
         ...response.body._source,
-        id: `${response.body._index}|${response.body._id}`,
+        id: response.body._id,
       };
     } catch (error) {
       throw new Error(
@@ -86,52 +85,6 @@ class StoreClient {
             },
           });
         }
-        if ('open' in params.filters) {
-          if (params.filters.open) {
-            // TODO: add support for other countries
-            const date = moment().tz('America/Santiago');
-            let day = `${date.day()}`;
-            const minutes = date.minutes();
-            const time = parseInt(
-              `${date.hour()}${minutes < 10 ? `0${minutes}` : minutes}`,
-              10,
-            );
-            if (day === '0') {
-              day = '7';
-            }
-
-            bool.must.push({
-              nested: {
-                path: 'opening_hours',
-                query: {
-                  bool: {
-                    must: [
-                      {
-                        match: {
-                          'opening_hours.day': day,
-                        },
-                      },
-                      {
-                        range: {
-                          'opening_hours.open': {
-                            lte: time,
-                          },
-                        },
-                      },
-                      {
-                        range: {
-                          'opening_hours.close': {
-                            gt: time,
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            });
-          }
-        }
         if ('reference' in params.filters) {
           bool.must.push({
             match_phrase: {
@@ -150,15 +103,6 @@ class StoreClient {
             },
           });
         }
-        if ('slug' in params.filters) {
-          bool.must.push({
-            match_phrase: {
-              'slug.keyword': {
-                query: params.filters.slug,
-              },
-            },
-          });
-        }
       }
 
       // sort
@@ -172,7 +116,7 @@ class StoreClient {
       }
 
       const response = await elastic.search({
-        index: 'stores*',
+        index,
         body: {
           query: {
             bool,
@@ -185,15 +129,13 @@ class StoreClient {
       });
 
       return {
-        query: params.query,
         filters: params.filters,
         from: params.from,
         size: params.size,
-        sort: params.sort,
         total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _source, _id, _index }: any) => ({
+        hits: response.body.hits.hits.map(({ _source, _id }: any) => ({
           ..._source,
-          id: `${_index}|${_id}`,
+          id: _id,
         })),
       };
     } catch (error) {
@@ -216,53 +158,18 @@ class StoreClient {
         filters: { reference: params.body.reference },
         from: 0,
         size: 1,
+        source: params.source,
       });
       if (searchResponse.hits.length) {
         const alreadyCreated = searchResponse.hits[0] as Store;
         logger.info(
           `${prefix} A store is already created, store id ${alreadyCreated.id}, reference ${alreadyCreated.reference}`,
         );
-        return utils.mapObject(alreadyCreated, params.source);
+        return alreadyCreated;
       }
-
-      // create index if not exist
-      const index = 'stores';
-      await utils.createIndexIfNotExist(index, {
-        mappings: {
-          properties: {
-            delivery_time: { type: 'integer_range' },
-            delivery_area: {
-              properties: {
-                center: {
-                  properties: {
-                    location: {
-                      type: 'geo_point',
-                    },
-                  },
-                },
-                geometry: {
-                  type: 'geo_shape',
-                  strategy: 'recursive',
-                },
-              },
-            },
-            opening_hours: {
-              type: 'nested',
-              properties: {
-                hours: {
-                  type: 'nested',
-                },
-              },
-            },
-            created_at: { type: 'date' },
-            updated_at: { type: 'date' },
-          },
-        },
-      });
 
       const newStore = {
         ...params.body,
-        slug: utils.convertNameToSlug(params.body.name),
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -274,7 +181,7 @@ class StoreClient {
       return utils.mapObject(
         {
           ...newStore,
-          id: `${response.body._index}|${response.body._id}`,
+          id: response.body._id,
         },
         params.source,
       );
@@ -295,37 +202,33 @@ class StoreClient {
     params: UpdateParams<Store>,
   ): Promise<Partial<Store>> {
     try {
-      const [_index, _id] = id.split('|');
-      const update = {
+      const _id = utils.parseId(id);
+      let update = {
         ...params.body,
         updated_at: new Date(),
       };
-      if (params.body.name) {
-        update.slug = utils.convertNameToSlug(params.body.name);
-      }
       await elastic.update({
-        index: _index,
+        index,
         id: _id,
         body: {
           doc: update,
         },
       });
+      update = {
+        ...update,
+        id: _id,
+      };
+
       // emit event
       const event = 'store.updated';
       const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
-      const messageId = await pubSubClient.topic(topic).publish(
-        Buffer.from(
-          JSON.stringify({
-            id,
-            ...update,
-          }),
-        ),
-        {
-          id,
+      const messageId = await pubSubClient
+        .topic(topic)
+        .publish(Buffer.from(JSON.stringify(update)), {
+          id: _id,
           time: new Date().toISOString(),
           source: 'beast-api',
-        },
-      );
+        });
       logger.info(
         `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
       );
@@ -345,10 +248,9 @@ class StoreClient {
    */
   async delete(id: string): Promise<void> {
     try {
-      const [_index, _id] = id.split('|');
       await elastic.delete({
-        index: _index,
-        id: _id,
+        index,
+        id: utils.parseId(id),
         refresh: 'true',
       });
     } catch (error) {

@@ -3,24 +3,36 @@ import path from 'path';
 // migration libs
 import backup from './lib/backup';
 import restore from './lib/restore';
-// migration mappers
-import placeMap from './mappers/place';
-import storeMap from './mappers/store';
 // types
 import { Order } from '../../types';
 // beast
+import utils from '../../beast/utils';
 import logger from '../../beast/logger';
 
 const run = async () => {
   try {
     logger.info('Modifying orders index');
     logger.info('');
-    await backup('orders', path.join(__dirname, 'tmp/orders.json'));
+    // await backup('orders', path.join(__dirname, 'tmp/orders.json'));
     //
     await restore<Order>(
       'orders',
       path.join(__dirname, 'tmp/orders.json'),
-      (collection) => collection,
+      (collection) =>
+        collection.map((item) => {
+          const result = { ...item };
+          result.transaction.shopping_cart.store.id = utils.parseId(
+            result.transaction.shopping_cart.store.id,
+          );
+          result.transaction.shopping_cart.items = result.transaction.shopping_cart.items.map(
+            (i) => {
+              const r = { ...i };
+              r.id = utils.parseId(r.id);
+              return r;
+            },
+          );
+          return result;
+        }),
       {
         mappings: {
           properties: {

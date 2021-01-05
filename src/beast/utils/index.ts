@@ -6,9 +6,10 @@ import elastic from '../clients/elastic';
 class Utils {
   public mapObject<T>(data: T, source: string[] | undefined): T {
     if (!source) return data;
+    const s = [...source, 'id'];
 
     const result: { [key: string]: any } = {};
-    source.forEach((key) => {
+    s.forEach((key) => {
       lodash.set(result, key, lodash.get(data, key));
     });
     return result as T;
@@ -113,6 +114,11 @@ class Utils {
 
   public sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  public parseId(id: string) {
+    const parts = id.split('|');
+    return parts.length > 1 ? parts[1] : id;
   }
 }
 

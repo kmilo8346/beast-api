@@ -1,31 +1,21 @@
-execute script
-npx ts-node -r dotenv-safe/config src/admin/migrations/{script} dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
-
+modify_devices_index
+npx ts-node -r dotenv-safe/config src/admin/migrations/modify_devices_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
 modify_users_index
-
-export ENV_PATH=.env.production
-npx ts-node -r dotenv-safe/config src/admin/migrations/modify_users_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
-unset ENV_PATH
 npx ts-node -r dotenv-safe/config src/admin/migrations/modify_users_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
 modify_stores_index
-
-export ENV_PATH=.env.production
-npx ts-node -r dotenv-safe/config src/admin/migrations/modify_stores_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
-unset ENV_PATH
 npx ts-node -r dotenv-safe/config src/admin/migrations/modify_stores_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
 modify_products_index
+npx ts-node -r dotenv-safe/config src/admin/migrations/modify_products_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
-export ENV_PATH=.env.production
-npx ts-node -r dotenv-safe/config src/admin/migrations/modify_products_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
-unset ENV_PATH
-npx ts-node -r dotenv-safe/config src/admin/migrations/modify_products_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
+modify_storeproducts_index
+npx ts-node -r dotenv-safe/config src/admin/migrations/modify_storeproducts_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
 modify_orders_index
+npx ts-node -r dotenv-safe/config src/admin/migrations/modify_orders_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
-export ENV_PATH=.env.production
-npx ts-node -r dotenv-safe/config src/admin/migrations/modify_orders_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
-unset ENV_PATH
-npx ts-node -r dotenv-safe/config src/admin/migrations/modify_orders_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
+modify_notifications_index
+npx ts-node -r dotenv-safe/config src/admin/migrations/modify_notifications_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
+

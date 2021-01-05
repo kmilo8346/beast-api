@@ -235,22 +235,12 @@ export const CreateProductFactory = (optional = false) => {
     description: Joi.string().allow('').optional(),
     tags: Joi.array().items(Joi.string()).required(),
     images: Joi.array().items(Joi.string()).required(),
-    store_info: StoreInfoFactory(optional).required(),
   });
   if (!optional) {
     return schema;
   }
   return schema.fork(
-    [
-      'name',
-      'description',
-      'images',
-      'price',
-      'tags',
-      'enabled',
-      'reference',
-      'store_info',
-    ],
+    ['name', 'price', 'enabled', 'reference', 'description', 'tags', 'images'],
     (mySchema) => mySchema.optional(),
   );
 };
@@ -258,6 +248,7 @@ export const CreateProductFactory = (optional = false) => {
 export const ProductFactory = (optional = false) => {
   const schema = CreateProductFactory(optional).keys({
     id: Joi.string().required(),
+    store: Joi.string().required(),
     created_at: Joi.date().required(),
     updated_at: Joi.date().required(),
   });

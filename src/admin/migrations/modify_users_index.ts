@@ -3,23 +3,28 @@ import path from 'path';
 // migration libs
 import backup from './lib/backup';
 import restore from './lib/restore';
-// migration mappers
-import placeMap from './mappers/place';
 // types
 import { User } from '../../types';
 // beast
 import logger from '../../beast/logger';
+import utils from '../../beast/utils';
 
 const run = async () => {
   try {
     logger.info('Modifying users index');
     logger.info('');
-    await backup('users', path.join(__dirname, 'tmp/users.json'));
+    // await backup('users', path.join(__dirname, 'tmp/users.json'));
     //
     await restore<User>(
       'users',
       path.join(__dirname, 'tmp/users.json'),
-      (collection) => collection,
+      (collection) =>
+        collection.map((item) => ({
+          ...item,
+          current_store: item.current_store
+            ? utils.parseId(item.current_store)
+            : item.current_store,
+        })),
       {
         mappings: {
           properties: {
