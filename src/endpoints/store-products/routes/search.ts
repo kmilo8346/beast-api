@@ -2,7 +2,7 @@ import Router, { IMiddleware } from 'koa-router';
 
 import { SearchParamsFactory } from '../../../schemas';
 import { SearchFiltersFactory } from '../schemas';
-import productClient from '../clients/store-product-client';
+import storeProductClient from '../clients/store-product-client';
 
 const schema = SearchParamsFactory(SearchFiltersFactory());
 
@@ -23,7 +23,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.get('/', validate, async (ctx) => {
     try {
-      const response = await productClient.search(ctx.state.query);
+      const response = await storeProductClient.search(ctx.state.query);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);
