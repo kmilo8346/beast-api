@@ -1,5 +1,5 @@
 import Joi from '@hapi/joi';
-import { PlaceFactory, ProductFactory, StoreFactory } from '../../../schemas';
+import { PlaceFactory, StoreFactory } from '../../../schemas';
 
 export const SearchFiltersFactory = () =>
   Joi.object().keys({
@@ -12,47 +12,15 @@ export const SearchFiltersFactory = () =>
     should_seller: Joi.string().optional(),
   });
 
-const ConfirmationFactory = () =>
-  Joi.object().keys({
-    status: Joi.string()
-      .valid('full_stock', 'partial_stock', 'out_of_stock')
-      .required(),
-    product_confirmations: Joi.array()
-      .items(
-        Joi.alternatives().try(
-          {
-            type: Joi.string().allow('update').required(),
-            id: Joi.string().required(),
-            qty_posible: Joi.number().required(),
-          },
-          {
-            type: Joi.string().allow('delete').required(),
-            id: Joi.string().required(),
-          },
-        ),
-      )
-      .required(),
-  });
-
-const ProviderFactory = () =>
-  Joi.object().keys({
-    confirmation: ConfirmationFactory().required(),
-  });
-
-export const ConfirmDataFactory = () =>
-  Joi.object().keys({
-    dispatch_provider: ProviderFactory().required(),
-  });
-
 export const CreateOrderFactory = () =>
   Joi.object({
     idempotency: Joi.string().required(),
     customer: Joi.object({
       id: Joi.string().required(),
-      email: Joi.string().email().optional(),
+      email: Joi.string().email().allow(null).optional(),
       first_name: Joi.string().required(),
-      last_name: Joi.string().allow('').optional(),
-      photo_url: Joi.string().optional(),
+      last_name: Joi.string().allow('', null).optional(),
+      photo_url: Joi.string().allow(null).optional(),
       phone: Joi.string().required(),
       created_at: Joi.date().optional(),
     }).required(),

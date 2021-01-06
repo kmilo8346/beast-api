@@ -26,5 +26,6 @@ module.exports = {
     'operator-linebreak': 0,
     'object-curly-newline': 0,
     'import/prefer-default-export': 0,
+    'newline-per-chained-call': 0,
   },
 };
