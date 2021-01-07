@@ -60,9 +60,9 @@ const run = async () => {
       });
       let store: Store | undefined;
       for (let i = 0; i < response.hits.length; i++) {
-        const { store: storeId, ...product } = response.hits[i];
-        if (!store || store.id !== storeId) {
-          store = await storeClient.get(storeId);
+        const product = response.hits[i];
+        if (!store || store.id !== product.store) {
+          store = await storeClient.get(product.store);
         }
         await storeProductClient.create({
           body: {

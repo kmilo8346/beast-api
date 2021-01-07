@@ -4,7 +4,7 @@ import path from 'path';
 import backup from './lib/backup';
 import restore from './lib/restore';
 // types
-import { Product } from '../../types';
+import { StoreProduct } from '../../types';
 // beast
 import logger from '../../beast/logger';
 
@@ -12,15 +12,16 @@ const run = async () => {
   try {
     logger.info('Modifying storeproducts index');
     logger.info('');
-    await backup(
-      'storeproducts',
-      path.join(__dirname, 'tmp/storeproducts.json'),
-    );
+    // await backup(
+    //   'storeproducts',
+    //   path.join(__dirname, 'tmp/storeproducts.json'),
+    // );
     //
-    await restore<Product>(
+    await restore<StoreProduct>(
       'storeproducts',
       path.join(__dirname, 'tmp/storeproducts.json'),
-      (collection) => collection,
+      (collection) =>
+        collection.map((item) => ({ ...item, store: item.store_info.id })),
       {
         mappings: {
           properties: {

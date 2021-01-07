@@ -2,7 +2,6 @@ import Error from 'verror';
 
 import {
   CreateParams,
-  CreateStoreProduct,
   SearchParams,
   SearchResponse,
   StoreProduct,
@@ -157,12 +156,10 @@ class StoreProductClient {
 
   /**
    * Create a store product
-   * @param params CreateParams<CreateStoreProduct>
+   * @param params CreateParams<StoreProduct>
    * @returns Promise<StoreProduct>
    */
-  async create(
-    params: CreateParams<CreateStoreProduct>,
-  ): Promise<StoreProduct> {
+  async create(params: CreateParams<StoreProduct>): Promise<StoreProduct> {
     try {
       // find already created store product
       const searchResponse = await this.search({
