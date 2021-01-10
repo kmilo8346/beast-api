@@ -13,25 +13,12 @@ const run = async () => {
   try {
     logger.info('Modifying products index');
     logger.info('');
-    await backup('products', path.join(__dirname, 'tmp/products.json'));
+    // await backup('products', path.join(__dirname, 'tmp/products.json'));
     //
     await restore<Product>(
       'products',
       path.join(__dirname, 'tmp/products.json'),
-      (collection) =>
-        collection.map((item) => {
-          const result = { ...item };
-          // @ts-ignore
-          result.store = utils.parseId(result.store_info.id);
-          // @ts-ignore
-          delete result.suggest;
-          // @ts-ignore
-          delete result.store_info;
-
-          return {
-            ...result,
-          };
-        }),
+      (collection) => collection,
       {
         mappings: {
           properties: {

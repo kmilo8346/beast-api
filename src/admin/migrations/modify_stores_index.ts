@@ -12,18 +12,12 @@ const run = async () => {
   try {
     logger.info('Modifying stores index');
     logger.info('');
-    await backup('stores', path.join(__dirname, 'tmp/stores.json'));
+    // await backup('stores', path.join(__dirname, 'tmp/stores.json'));
     //
     await restore<Store>(
       'stores',
       path.join(__dirname, 'tmp/stores.json'),
-      (collection) =>
-        collection.map((item) => {
-          const result = { ...item };
-          // @ts-ignore
-          delete result.slug;
-          return result;
-        }),
+      (collection) => collection,
       {
         mappings: {
           properties: {

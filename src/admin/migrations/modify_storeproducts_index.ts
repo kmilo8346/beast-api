@@ -16,7 +16,7 @@ const run = async () => {
     //   'storeproducts',
     //   path.join(__dirname, 'tmp/storeproducts.json'),
     // );
-    //
+
     await restore<StoreProduct>(
       'storeproducts',
       path.join(__dirname, 'tmp/storeproducts.json'),

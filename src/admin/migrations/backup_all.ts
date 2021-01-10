@@ -16,10 +16,10 @@ const run = async () => {
     await backup('stores', path.join(__dirname, 'tmp/stores.json'));
     logger.info('');
     await backup('products', path.join(__dirname, 'tmp/products.json'));
-    // await backup(
-    //   'storeproducts',
-    //   path.join(__dirname, 'tmp/storeproducts.json'),
-    // );
+    await backup(
+      'storeproducts',
+      path.join(__dirname, 'tmp/storeproducts.json'),
+    );
     logger.info('');
     await backup('orders', path.join(__dirname, 'tmp/orders.json'));
     logger.info('');

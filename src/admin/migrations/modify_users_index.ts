@@ -13,18 +13,12 @@ const run = async () => {
   try {
     logger.info('Modifying users index');
     logger.info('');
-    await backup('users', path.join(__dirname, 'tmp/users.json'));
+    // await backup('users', path.join(__dirname, 'tmp/users.json'));
     //
     await restore<User>(
       'users',
       path.join(__dirname, 'tmp/users.json'),
-      (collection) =>
-        collection.map((item) => ({
-          ...item,
-          current_store: item.current_store
-            ? utils.parseId(item.current_store)
-            : item.current_store,
-        })),
+      (collection) => collection,
       {
         mappings: {
           properties: {
