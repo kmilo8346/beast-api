@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.45](https://github.com/firedevs-team/beast-api/compare/v1.0.44...v1.0.45) (2021-01-10)
+
+
+### Bug Fixes
+
+* **app:** remove unused code ([9ab37f4](https://github.com/firedevs-team/beast-api/commit/9ab37f4ebeb707604cae5b4ae7682521058f27b2))
+* **migrations:** scripts ([6f587ee](https://github.com/firedevs-team/beast-api/commit/6f587ee09ce268e4a8ff36b41401c4bf858b78be))
+* **migrations scripts:** removing comment ([69e6284](https://github.com/firedevs-team/beast-api/commit/69e62840f47cfd30ab7e04f129f4162b5d2cb4b8))
+* **store products search route:** changing var name ([918fcc6](https://github.com/firedevs-team/beast-api/commit/918fcc6cf06e5064ea12654a766426ac6e07c3eb))
+
 ### [1.0.44](https://github.com/firedevs-team/beast-api/compare/v1.0.43...v1.0.44) (2021-01-06)
 
 ### [1.0.43](https://github.com/firedevs-team/beast-api/compare/v1.0.42...v1.0.43) (2021-01-05)
