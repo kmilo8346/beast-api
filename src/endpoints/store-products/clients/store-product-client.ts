@@ -31,7 +31,7 @@ class StoreProductClient {
         bool.filter.push({
           multi_match: {
             query: params.query,
-            fields: ['name^3', 'description^3', 'tags^1.5'],
+            fields: ['name^10', 'tags^10', 'store_info.name^10', 'description'],
             fuzziness: 'AUTO',
             prefix_length: 2,
           },
@@ -115,9 +115,7 @@ class StoreProductClient {
       }
 
       // sort
-      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] = [
-        { updated_at: { order: 'desc' } },
-      ];
+      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] | undefined;
       if (params.sort) {
         sort = Object.keys(params.sort).map((field) => ({
           [field]: { order: (params.sort as any)[field] },
@@ -130,12 +128,12 @@ class StoreProductClient {
           query: {
             bool,
           },
-          sort,
           from: params.from,
           size: params.size,
           _source: params.source,
         },
       });
+
       return {
         filters: params.filters,
         from: params.from,

@@ -21,21 +21,16 @@ const run = async () => {
       'storeproducts',
       path.join(__dirname, 'tmp/storeproducts.json'),
       (collection) =>
-        collection.map((item) => ({ ...item, store: item.store_info.id })),
+        collection.map((item) => {
+          const result = { ...item };
+          // @ts-ignore
+          delete result.suggest;
+          result.store = item.store_info.id;
+          return result;
+        }),
       {
         mappings: {
           properties: {
-            suggest: {
-              type: 'completion',
-              contexts: [
-                {
-                  name: 'store_location',
-                  type: 'geo',
-                  path: 'store_info.address.location',
-                  precision: 5,
-                },
-              ],
-            },
             created_at: { type: 'date' },
             updated_at: { type: 'date' },
             store_info: {
