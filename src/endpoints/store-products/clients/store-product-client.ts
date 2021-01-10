@@ -131,6 +131,7 @@ class StoreProductClient {
           from: params.from,
           size: params.size,
           _source: params.source,
+          sort,
         },
       });
 
