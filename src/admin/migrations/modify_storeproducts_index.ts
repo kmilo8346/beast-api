@@ -12,10 +12,10 @@ const run = async () => {
   try {
     logger.info('Modifying storeproducts index');
     logger.info('');
-    // await backup(
-    //   'storeproducts',
-    //   path.join(__dirname, 'tmp/storeproducts.json'),
-    // );
+    await backup(
+      'storeproducts',
+      path.join(__dirname, 'tmp/storeproducts.json'),
+    );
 
     await restore<StoreProduct>(
       'storeproducts',

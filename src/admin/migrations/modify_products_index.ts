@@ -13,8 +13,8 @@ const run = async () => {
   try {
     logger.info('Modifying products index');
     logger.info('');
-    // await backup('products', path.join(__dirname, 'tmp/products.json'));
-    //
+    await backup('products', path.join(__dirname, 'tmp/products.json'));
+
     await restore<Product>(
       'products',
       path.join(__dirname, 'tmp/products.json'),

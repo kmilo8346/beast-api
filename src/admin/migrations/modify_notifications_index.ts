@@ -12,11 +12,11 @@ const run = async () => {
   try {
     logger.info('Modifying notifications index');
     logger.info('');
-    // await backup(
-    //   'notifications',
-    //   path.join(__dirname, 'tmp/notifications.json'),
-    // );
-    //
+    await backup(
+      'notifications',
+      path.join(__dirname, 'tmp/notifications.json'),
+    );
+
     await restore<User>(
       'notifications',
       path.join(__dirname, 'tmp/notifications.json'),

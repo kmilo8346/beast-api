@@ -13,8 +13,8 @@ const run = async () => {
   try {
     logger.info('Modifying orders index');
     logger.info('');
-    // await backup('orders', path.join(__dirname, 'tmp/orders.json'));
-    //
+    await backup('orders', path.join(__dirname, 'tmp/orders.json'));
+
     await restore<Order>(
       'orders',
       path.join(__dirname, 'tmp/orders.json'),
