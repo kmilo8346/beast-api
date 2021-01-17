@@ -18,8 +18,6 @@ import config from '../../../beast/config';
 const prefix = '[store client]';
 const pubSubClient = new PubSub();
 const index = 'stores';
-const defaultOpen = 900;
-const defaultClose = 2300;
 
 /**
  * @class StoreClient
@@ -172,50 +170,6 @@ class StoreClient {
 
       const newStore = {
         ...params.body,
-        opening_hours: [
-          {
-            day: '1',
-            open: defaultOpen,
-            close: defaultClose,
-            hours: [{ open: defaultOpen, close: defaultClose }],
-          },
-          {
-            day: '2',
-            open: defaultOpen,
-            close: defaultClose,
-            hours: [{ open: defaultOpen, close: 2300 }],
-          },
-          {
-            day: '3',
-            open: defaultOpen,
-            close: defaultClose,
-            hours: [{ open: defaultOpen, close: defaultClose }],
-          },
-          {
-            day: '4',
-            open: defaultOpen,
-            close: defaultClose,
-            hours: [{ open: defaultOpen, close: defaultClose }],
-          },
-          {
-            day: '5',
-            open: defaultOpen,
-            close: defaultClose,
-            hours: [{ open: defaultOpen, close: defaultClose }],
-          },
-          {
-            day: '6',
-            open: defaultOpen,
-            close: defaultClose,
-            hours: [{ open: defaultOpen, close: defaultClose }],
-          },
-          {
-            day: '7',
-            open: defaultOpen,
-            close: defaultClose,
-            hours: [{ open: defaultOpen, close: defaultClose }],
-          },
-        ] as any,
         created_at: new Date(),
         updated_at: new Date(),
       };
