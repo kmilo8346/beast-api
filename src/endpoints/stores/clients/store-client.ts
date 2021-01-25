@@ -1,5 +1,4 @@
 import Error from 'verror';
-import moment from 'moment-timezone';
 import { PubSub } from '@google-cloud/pubsub';
 
 import utils from '../../../beast/utils';

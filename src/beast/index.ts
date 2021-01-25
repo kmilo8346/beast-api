@@ -28,6 +28,7 @@ import productsRouter from '../endpoints/products/routes';
 import storeProductsRouter from '../endpoints/store-products/routes';
 import ordersRouter from '../endpoints/orders/routes';
 import phonesRouter from '../endpoints/phones/routes';
+import widgetsRouter from '../endpoints/widgets/routes';
 
 const prefix = '[beast server]';
 const app = new Koa();
@@ -77,6 +78,7 @@ app.use(productsRouter.routes()).use(productsRouter.allowedMethods());
 app.use(storeProductsRouter.routes()).use(storeProductsRouter.allowedMethods());
 app.use(ordersRouter.routes()).use(ordersRouter.allowedMethods());
 app.use(phonesRouter.routes()).use(phonesRouter.allowedMethods());
+app.use(widgetsRouter.routes()).use(widgetsRouter.allowedMethods());
 
 app.on('error', (err) => {
   logger.error({ err });

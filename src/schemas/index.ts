@@ -274,6 +274,15 @@ export const SearchParamsFactory = (filters: ObjectSchema) =>
     size: Joi.number().min(0).max(100).default(10),
     sort: Joi.object().optional(),
     source: Joi.array().items(Joi.string()).optional(),
+    collapse: Joi.object({
+      field: Joi.string().required(),
+      inner_hits: Joi.object({
+        name: Joi.string().default('hits').optional(),
+        size: Joi.number().optional(),
+        sort: Joi.array().items(Joi.object()).optional(),
+        _source: Joi.array().items(Joi.string()).optional(),
+      }).optional(),
+    }).optional(),
   });
 
 export const CreateParamsFactory = (body: ObjectSchema | AlternativesSchema) =>

@@ -2,17 +2,16 @@ import Router, { IMiddleware } from 'koa-router';
 import Error from 'verror';
 import lodash from 'lodash';
 
-import { UpdateParamsFactory } from '../../../schemas';
-import { UserFactory } from '../schemas';
-import userClient from '../clients/user-client';
+import { GetParamsFactory } from '../../../schemas';
+import productClient from '../clients/product-client';
 
-const schema = UpdateParamsFactory(UserFactory(true));
+const schema = GetParamsFactory();
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
-    const body = await schema.validateAsync(ctx.request.body, {});
-    // set formatted body
-    ctx.request.body = body;
+    const value = await schema.validateAsync(ctx.state.query);
+    // set formatted params
+    ctx.state.query = value;
     await next();
   } catch (error) {
     ctx.throw(400, error);
@@ -20,11 +19,12 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 };
 
 export default (router: Router) => {
-  router.put('/:userId', validate, async (ctx) => {
+  router.get('/:productId', validate, async (ctx) => {
     try {
-      const response = await userClient.update(
-        ctx.params.userId,
-        ctx.request.body,
+      const response = await productClient.get(
+        ctx.params.storeId,
+        ctx.params.productId,
+        ctx.state.query.source,
       );
       ctx.body = response;
     } catch (error) {
@@ -32,7 +32,6 @@ export default (router: Router) => {
         ctx.throw(404, error);
         return;
       }
-
       ctx.throw(500, error);
     }
   });

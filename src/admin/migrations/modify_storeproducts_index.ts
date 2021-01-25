@@ -20,14 +20,7 @@ const run = async () => {
     await restore<StoreProduct>(
       'storeproducts',
       path.join(__dirname, 'tmp/storeproducts.json'),
-      (collection) =>
-        collection.map((item) => {
-          const result = { ...item };
-          // @ts-ignore
-          delete result.suggest;
-          result.store = item.store_info.id;
-          return result;
-        }),
+      (collection) => collection,
       {
         mappings: {
           properties: {
@@ -48,6 +41,7 @@ const run = async () => {
                   strategy: 'recursive',
                 },
                 opening_hours: { type: 'nested' },
+                created_at: { type: 'date' },
               },
             },
           },

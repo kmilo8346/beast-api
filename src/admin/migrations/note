@@ -19,3 +19,6 @@ npx ts-node -r dotenv-safe/config src/admin/migrations/modify_orders_index.ts do
 modify_notifications_index
 npx ts-node -r dotenv-safe/config src/admin/migrations/modify_notifications_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
 
+modify_widgets_index
+npx ts-node -r dotenv-safe/config src/admin/migrations/modify_widgets_index.ts dotenv_config_path=${ENV_PATH} | npx pino-pretty --messageKey message --ignore pid,hostname,name
+

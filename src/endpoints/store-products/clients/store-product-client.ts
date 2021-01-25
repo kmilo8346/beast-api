@@ -1,4 +1,5 @@
 import Error from 'verror';
+import lodash from 'lodash';
 
 import {
   CreateParams,
@@ -22,13 +23,15 @@ class StoreProductClient {
   async search(params: SearchParams): Promise<SearchResponse<StoreProduct>> {
     try {
       // filters
-      const bool: any = {
-        must: [],
-        filter: [],
-        must_not: [],
+      const query: any = {
+        bool: {
+          must: [],
+          filter: [],
+          must_not: [],
+        },
       };
       if (params.query) {
-        bool.filter.push({
+        query.bool.filter.push({
           multi_match: {
             query: params.query,
             fields: ['name^10', 'tags^10', 'store_info.name^10', 'description'],
@@ -40,7 +43,7 @@ class StoreProductClient {
 
       if (params.filters) {
         if ('ids' in params.filters) {
-          bool.must.push({
+          query.bool.must.push({
             bool: {
               should: (params.filters.ids as string[]).map((id: string) => ({
                 match_phrase: {
@@ -52,7 +55,7 @@ class StoreProductClient {
           });
         }
         if ('store' in params.filters) {
-          bool.must.push({
+          query.bool.must.push({
             match_phrase: {
               'store_info.id.keyword': {
                 query: utils.parseId(params.filters.store),
@@ -61,7 +64,7 @@ class StoreProductClient {
           });
         }
         if ('enabled' in params.filters) {
-          bool.must.push({
+          query.bool.must.push({
             match_phrase: {
               enabled: {
                 query: params.filters.enabled,
@@ -70,7 +73,7 @@ class StoreProductClient {
           });
         }
         if ('location' in params.filters) {
-          bool.filter.push({
+          query.bool.filter.push({
             geo_shape: {
               'store_info.delivery_area': {
                 shape: {
@@ -86,7 +89,7 @@ class StoreProductClient {
           });
         }
         if ('reference' in params.filters) {
-          bool.must.push({
+          query.bool.must.push({
             match_phrase: {
               'reference.keyword': {
                 query: params.filters.reference,
@@ -95,7 +98,7 @@ class StoreProductClient {
           });
         }
         if ('must_not_id' in params.filters) {
-          bool.must_not.push({
+          query.bool.must_not.push({
             match_phrase: {
               _id: {
                 query: utils.parseId(params.filters.must_not_id),
@@ -104,7 +107,7 @@ class StoreProductClient {
           });
         }
         if ('store_enabled' in params.filters) {
-          bool.must.push({
+          query.bool.must.push({
             match_phrase: {
               'store_info.enabled': {
                 query: params.filters.store_enabled,
@@ -112,9 +115,31 @@ class StoreProductClient {
             },
           });
         }
+        if ('store_address' in params.filters) {
+          query.bool.filter.push({
+            nested: {
+              path: 'store_info.address',
+              query: {
+                match_phrase: {
+                  'store_info.address.id.keyword': params.filters.store_address,
+                },
+              },
+            },
+          });
+        }
+        if ('store_created_at_gte' in params.filters) {
+          query.bool.filter.push({
+            range: {
+              'store_info.created_at': {
+                gte: params.filters.store_created_at_gte,
+                format: 'strict_date_optional_time',
+              },
+            },
+          });
+        }
       }
 
-      // sort
+      // mapping sort
       let sort: { [key: string]: { order: 'desc' | 'asc' } }[] | undefined;
       if (params.sort) {
         sort = Object.keys(params.sort).map((field) => ({
@@ -122,28 +147,61 @@ class StoreProductClient {
         }));
       }
 
-      const response = await elastic.search({
+      const payload: any = {
         index,
         body: {
-          query: {
-            bool,
-          },
+          query,
+          sort,
           from: params.from,
           size: params.size,
           _source: params.source,
-          sort,
+          collapse: params.collapse,
         },
-      });
+      };
+      if (params.collapse) {
+        payload.body.aggs = {
+          total: {
+            cardinality: {
+              field: params.collapse.field,
+            },
+          },
+        };
+      }
+      const response = await elastic.search(payload);
 
       return {
-        filters: params.filters,
         from: params.from,
         size: params.size,
-        total: response.body.hits.total.value,
-        hits: response.body.hits.hits.map(({ _source, _id }: any) => ({
-          ..._source,
-          id: _id,
-        })),
+        total: params.collapse
+          ? response.body.aggregations.total.value
+          : response.body.hits.total.value,
+        hits: response.body.hits.hits.map(
+          ({ _source, _id, inner_hits }: any) => {
+            const result = {
+              ..._source,
+              id: _id,
+            };
+            if (inner_hits) {
+              result.inner_hits = lodash
+                .get<any[]>(
+                  inner_hits,
+                  `${params.collapse?.inner_hits?.name}.hits.hits`,
+                  [],
+                )
+                .map((i) => ({
+                  ...i._source,
+                  id: i._id,
+                }));
+            }
+            return result;
+          },
+        ),
+        // to provide automatic pagination
+        sort: params.sort,
+        query: params.query,
+        source: params.source,
+        filters: params.filters,
+        collapse: params.collapse,
       };
     } catch (error) {
       throw new Error(

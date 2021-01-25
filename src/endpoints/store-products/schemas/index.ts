@@ -9,4 +9,5 @@ export const SearchFiltersFactory = () =>
     must_not_id: Joi.string().optional(),
     location: LocationFactory().optional(),
     store_enabled: Joi.boolean().optional(),
+    store_address: Joi.string().optional(),
   });

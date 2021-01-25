@@ -20,6 +20,36 @@ const index = 'products';
 
 class ProductClient {
   /**
+   * Get product
+   * @param store string
+   * @param product string
+   * @param source string[]
+   * @returns Promise<Product>
+   */
+  public async get(
+    store: string,
+    product: string,
+    source?: string[],
+  ): Promise<Product> {
+    try {
+      const response = await elastic.get({
+        index,
+        id: product,
+        _source: source,
+      });
+      return {
+        ...response.body._source,
+        id: response.body._id,
+      };
+    } catch (error) {
+      throw new Error(
+        { cause: error, info: { store, product, source } },
+        `${prefix} Unexpected error getting product`,
+      );
+    }
+  }
+
+  /**
    * Search products
    * @param store string
    * @param params SearchParams

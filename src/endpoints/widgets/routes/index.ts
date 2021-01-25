@@ -1,18 +1,18 @@
 import Router from 'koa-router';
 
-import getRoute from './get';
 import searchRoute from './search';
 import createRoute from './create';
 import updateRoute from './update';
 import deleteRoute from './delete';
+import renderRoute from './render';
 
-const router = new Router({ prefix: '/stores/:storeId/products' });
+const router = new Router({ prefix: '/widgets' });
 
 // register routes
-getRoute(router);
 searchRoute(router);
 createRoute(router);
 updateRoute(router);
 deleteRoute(router);
+renderRoute(router);
 
 export default router;
