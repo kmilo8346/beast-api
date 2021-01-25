@@ -1,42 +1,53 @@
 // clients
 import storeClient from '../../endpoints/stores/clients/store-client';
+import productClient from '../../endpoints/products/clients/product-client';
 // types
-import { Store } from '../../types';
+import { Product, Store } from '../../types';
 // beast
 import logger from '../../beast/logger';
 import elastic from '../../beast/clients/elastic';
 
 const updateStoreProducts = async (store: Store) => {
   logger.info(`Updating store products related to store ${store.name}`);
-  const response = await elastic.updateByQuery({
-    index: 'storeproducts',
-    refresh: true,
-    body: {
-      script: {
-        lang: 'painless',
-        source: `
-          ctx._source.store_info.created_at = params.created_at;
-        `,
-        params: {
-          created_at: store.created_at,
-        },
-      },
-      query: {
-        bool: {
-          must: [
-            {
-              match_phrase: {
-                'store_info.id.keyword': {
-                  query: store.id,
-                },
-              },
-            },
-          ],
-        },
-      },
-    },
+
+  // getting products in store
+  let from = 0;
+  let response;
+  const products: Product[] = [];
+  do {
+    response = await productClient.search(store.id, {
+      from,
+      size: 10,
+      source: ['id'],
+    });
+    products.push(...response.hits);
+    from += response.hits.length;
+  } while (from < response.total);
+
+  // bulk update
+  const payload: any[] = [];
+  products.forEach((product) => {
+    payload.push({
+      update: { _id: product.id, _index: 'storeproducts' },
+    });
+    payload.push({ doc: { store_info: { created_at: store.created_at } } });
   });
-  logger.info(`Store products updated ${response.body.updated}`);
+
+  if (payload.length) {
+    const { body } = await elastic.bulk({
+      refresh: 'true',
+      body: payload,
+    });
+
+    if (body.errors) {
+      logger.warn('Error in bulk updates');
+      logger.info({ body });
+    } else {
+      logger.info('Store products updated');
+    }
+  } else {
+    logger.info('Nothing to update');
+  }
 };
 
 const run = async () => {
