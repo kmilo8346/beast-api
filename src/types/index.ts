@@ -41,7 +41,7 @@ export interface SearchResponse<T> {
   from: number;
   size: number;
   total: number;
-  hits: (T & { inner_hits?: T[] })[];
+  hits: (T & { inner_hits?: T[]; distance?: number })[];
   sort?: { [key: string]: 'asc' | 'desc' };
   query?: string;
   source?: string[];
@@ -180,6 +180,10 @@ export interface Item extends Product {
 }
 
 export interface StoreProduct extends Product {
+  stats: {
+    // number of times a product is found in orders
+    number_of_times_in_orders: number;
+  };
   store_info: {
     id: string;
     name: string;

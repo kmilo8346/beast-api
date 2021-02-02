@@ -137,14 +137,48 @@ class StoreProductClient {
             },
           });
         }
+        if ('must_not_store_address' in params.filters) {
+          query.bool.must_not.push({
+            nested: {
+              path: 'store_info.address',
+              query: {
+                match_phrase: {
+                  'store_info.address.id.keyword':
+                    params.filters.must_not_store_address,
+                },
+              },
+            },
+          });
+        }
       }
 
       // mapping sort
-      let sort: { [key: string]: { order: 'desc' | 'asc' } }[] | undefined;
+      let sort: { [key: string]: any }[] | undefined;
       if (params.sort) {
-        sort = Object.keys(params.sort).map((field) => ({
-          [field]: { order: (params.sort as any)[field] },
-        }));
+        sort = Object.keys(params.sort).map((field) => {
+          if (
+            field === 'store_info.address.location' &&
+            params.filters &&
+            'location' in params.filters
+          ) {
+            return {
+              _geo_distance: {
+                'store_info.address.location': {
+                  lat: params.filters.location.lat,
+                  lon: params.filters.location.lon,
+                },
+                nested: {
+                  path: 'store_info.address',
+                },
+                order: (params.sort as any)[field],
+                unit: 'km',
+              },
+            };
+          }
+          return {
+            [field]: { order: (params.sort as any)[field] },
+          };
+        });
       }
 
       const payload: any = {
@@ -176,11 +210,19 @@ class StoreProductClient {
           ? response.body.aggregations.total.value
           : response.body.hits.total.value,
         hits: response.body.hits.hits.map(
-          ({ _source, _id, inner_hits }: any) => {
+          ({ _source, _id, sort: s, inner_hits }: any) => {
             const result = {
               ..._source,
               id: _id,
             };
+            // return distance(km) if sorted by distance
+            if (sort) {
+              const distIndex = sort.findIndex((i) => '_geo_distance' in i);
+              if (distIndex !== -1) {
+                result.distance = s[distIndex];
+              }
+            }
+
             if (inner_hits) {
               result.inner_hits = lodash
                 .get<any[]>(
@@ -207,51 +249,6 @@ class StoreProductClient {
       throw new Error(
         { cause: error, info: params },
         `${prefix} Unexpected error searching store products`,
-      );
-    }
-  }
-
-  /**
-   * Create a store product
-   * @param params CreateParams<StoreProduct>
-   * @returns Promise<StoreProduct>
-   */
-  async create(params: CreateParams<StoreProduct>): Promise<StoreProduct> {
-    try {
-      // find already created store product
-      const searchResponse = await this.search({
-        filters: { reference: params.body.reference },
-        from: 0,
-        size: 1,
-        source: params.source,
-      });
-      if (searchResponse.hits.length) {
-        const alreadyCreated = searchResponse.hits[0] as StoreProduct;
-        logger.info(
-          `${prefix} A store product is already created, store product id ${alreadyCreated.id}, reference ${alreadyCreated.reference}`,
-        );
-        return alreadyCreated;
-      }
-
-      const { id, ...body } = params.body;
-      const response = await elastic.index({
-        id: utils.parseId(id),
-        index,
-        refresh: 'true',
-        body,
-      });
-
-      return utils.mapObject(
-        {
-          ...body,
-          id: response.body._id,
-        },
-        params.source,
-      );
-    } catch (error) {
-      throw new Error(
-        { cause: error, info: { params } },
-        `${prefix} Unexpected error creating store product`,
       );
     }
   }
