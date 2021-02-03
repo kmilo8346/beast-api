@@ -5,7 +5,11 @@ import { LocationFactory, SearchParamsFactory } from '../../../schemas';
 export const CreateWidgetFactory = (optional = false) => {
   const schema = Joi.object({
     type: Joi.string()
-      .valid('store_horizontal_list', 'store_vertical_list')
+      .valid(
+        'store_horizontal_list',
+        'store_vertical_list',
+        'product_horizontal_list',
+      )
       .required(),
     tags: Joi.array().items(Joi.string()).min(1).required(),
     order: Joi.number().required(),
@@ -23,6 +27,14 @@ export const CreateWidgetFactory = (optional = false) => {
             is: 'store_vertical_list',
             then: Joi.object({
               search: SearchParamsFactory(Joi.object()).required(),
+            }),
+          },
+          {
+            is: 'product_horizontal_list',
+            then: Joi.object({
+              title: Joi.string().required(),
+              search: SearchParamsFactory(Joi.object()).required(),
+              min_allowed: Joi.number().required(),
             }),
           },
         ],

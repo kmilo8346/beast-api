@@ -13,6 +13,7 @@ import {
   WidgetType,
   StoreHorizontalListWidget,
   StoreVerticalListWidget,
+  ProductHorizontalListWidget,
 } from '../../../types';
 import utils from '../../../beast/utils';
 import elastic from '../../../beast/clients/elastic';
@@ -223,15 +224,6 @@ class WidgetClient {
       const storeHorizontalListWidget = widget as StoreHorizontalListWidget;
       const searchParams = {
         ...storeHorizontalListWidget.instructions.search,
-        source: ['store_info.id', 'store_info.name', 'store_info.images'],
-        collapse: {
-          field: 'store.keyword',
-          inner_hits: {
-            name: 'hits',
-            size: 2,
-            _source: ['id', 'images', 'price'],
-          },
-        },
       };
       searchParams.filters = searchParams.filters || {};
       searchParams.filters = this.processFilters(searchParams.filters, context);
@@ -251,15 +243,6 @@ class WidgetClient {
       const storeVerticalListWidget = widget as StoreVerticalListWidget;
       const searchParams = {
         ...storeVerticalListWidget.instructions.search,
-        source: ['store_info.id', 'store_info.name', 'store_info.images'],
-        collapse: {
-          field: 'store.keyword',
-          inner_hits: {
-            name: 'hits',
-            size: 2,
-            _source: ['id', 'images', 'price'],
-          },
-        },
       };
       searchParams.filters = searchParams.filters || {};
       searchParams.filters = this.processFilters(searchParams.filters, context);
@@ -273,6 +256,30 @@ class WidgetClient {
         id: widget.id,
         type: widget.type,
         data: { response },
+      };
+    }
+    if (widget.type === WidgetType.PRODUCT_HORIZONTAL_LIST) {
+      const productHorizontalListWidget = widget as ProductHorizontalListWidget;
+      const searchParams = {
+        ...productHorizontalListWidget.instructions.search,
+      };
+      searchParams.filters = searchParams.filters || {};
+      searchParams.filters = this.processFilters(searchParams.filters, context);
+      const response = await storeProductClient.search(searchParams);
+      // no content
+      if (
+        response.total < productHorizontalListWidget.instructions.min_allowed
+      ) {
+        return null;
+      }
+
+      return {
+        id: widget.id,
+        type: widget.type,
+        data: {
+          title: productHorizontalListWidget.instructions.title,
+          response,
+        },
       };
     }
     throw new Error(`Not mapped widget, type: ${widget.type}`);

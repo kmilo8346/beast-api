@@ -305,6 +305,7 @@ export interface CreateMercadoPagoCheckout {
 export enum WidgetType {
   STORE_HORIZONTAL_LIST = 'store_horizontal_list',
   STORE_VERTICAL_LIST = 'store_vertical_list',
+  PRODUCT_HORIZONTAL_LIST = 'product_horizontal_list',
 }
 
 export interface CreateWidget {
@@ -335,6 +336,15 @@ export interface StoreVerticalListWidget extends Widget {
   };
 }
 
+export interface ProductHorizontalListWidget extends Widget {
+  type: WidgetType.PRODUCT_HORIZONTAL_LIST;
+  instructions: {
+    title: string;
+    search: SearchParams;
+    min_allowed: number;
+  };
+}
+
 export interface RenderedWidget {
   id: string;
   type: WidgetType;
@@ -350,6 +360,13 @@ export interface StoreHorizontalListRenderedWidget extends RenderedWidget {
 
 export interface StoreVerticalListRenderedWidget extends RenderedWidget {
   data: {
+    response: SearchResponse<StoreProduct>;
+  };
+}
+
+export interface ProductHorizontalListRenderedWidget extends RenderedWidget {
+  data: {
+    title: string;
     response: SearchResponse<StoreProduct>;
   };
 }
