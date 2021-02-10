@@ -215,13 +215,6 @@ class StoreProductClient {
               ..._source,
               id: _id,
             };
-            // return distance(km) if sorted by distance
-            if (sort) {
-              const distIndex = sort.findIndex((i) => '_geo_distance' in i);
-              if (distIndex !== -1) {
-                result.distance = s[distIndex];
-              }
-            }
 
             if (inner_hits) {
               result.inner_hits = lodash
