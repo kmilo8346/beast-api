@@ -9,6 +9,7 @@ export const SearchFiltersFactory = () =>
 
 export const CreateDeviceFactory = (optional = false) => {
   const schema = Joi.object({
+    id: Joi.string().optional(),
     platform: Joi.string().required(),
     platform_version: Joi.string().required(),
     app_version: Joi.string().allow(null).optional(),

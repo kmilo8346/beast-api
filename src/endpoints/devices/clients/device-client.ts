@@ -83,16 +83,21 @@ class DeviceClient {
    */
   async create(params: CreateParams<CreateDevice>): Promise<Device> {
     try {
+      const { id, ...data } = params.body;
       const newDevice = {
-        ...params.body,
+        ...data,
         created_at: new Date(),
         updated_at: new Date(),
       };
-      const response = await elastic.index({
+      const payload: any = {
         index,
         refresh: 'true',
         body: newDevice,
-      });
+      };
+      if (id) {
+        payload.id = id;
+      }
+      const response = await elastic.index(payload);
       return utils.mapObject(
         {
           ...newDevice,

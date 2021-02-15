@@ -251,6 +251,7 @@ export interface Order extends CreateOrder {
 }
 
 export interface CreateDevice {
+  id?: string;
   platform: string;
   platform_version: string;
   app_version: string | null;

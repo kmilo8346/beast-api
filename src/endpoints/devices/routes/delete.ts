@@ -1,6 +1,6 @@
-import Router from 'koa-router';
 import Error from 'verror';
 import lodash from 'lodash';
+import Router from 'koa-router';
 
 import deviceClient from '../clients/device-client';
 

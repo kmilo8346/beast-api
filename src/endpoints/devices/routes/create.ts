@@ -1,3 +1,5 @@
+import Error from 'verror';
+import lodash from 'lodash';
 import Router, { IMiddleware } from 'koa-router';
 
 import { CreateDeviceFactory } from '../schemas';
@@ -25,6 +27,10 @@ export default (router: Router) => {
       const response = await deviceClient.create(ctx.request.body);
       ctx.body = response;
     } catch (error) {
+      if (lodash.get(Error.cause(error), 'meta.statusCode') === 404) {
+        ctx.throw(404, error);
+        return;
+      }
       ctx.throw(500, error);
     }
   });
