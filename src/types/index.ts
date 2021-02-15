@@ -251,8 +251,17 @@ export interface Order extends CreateOrder {
 }
 
 export interface CreateDevice {
-  token: string;
-  user_id: string;
+  platform: string;
+  platform_version: string;
+  app_version: string | null;
+  app_build_version: string | null;
+  token: string | null;
+  user_id: string | null;
+  user_location: {
+    lat: number;
+    lon: number;
+  } | null;
+  user_current_store: string | null;
 }
 
 export interface Device extends CreateDevice {

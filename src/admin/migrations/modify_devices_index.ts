@@ -21,6 +21,9 @@ const run = async () => {
       {
         mappings: {
           properties: {
+            user_location: {
+              type: 'geo_point',
+            },
             created_at: { type: 'date' },
             updated_at: { type: 'date' },
           },

@@ -1,5 +1,7 @@
 import Joi from '@hapi/joi';
 
+import { LocationFactory } from '../../../schemas';
+
 export const SearchFiltersFactory = () =>
   Joi.object().keys({
     user: Joi.string().optional(),
@@ -7,13 +9,31 @@ export const SearchFiltersFactory = () =>
 
 export const CreateDeviceFactory = (optional = false) => {
   const schema = Joi.object({
-    token: Joi.string().required(),
-    user_id: Joi.string().required(),
+    platform: Joi.string().required(),
+    platform_version: Joi.string().required(),
+    app_version: Joi.string().allow(null).optional(),
+    app_build_version: Joi.string().allow(null).optional(),
+    token: Joi.string().allow(null).optional(),
+    user_id: Joi.string().allow(null).optional(),
+    user_location: LocationFactory().allow(null).optional(),
+    user_current_store: Joi.string().allow(null).optional(),
   });
   if (!optional) {
     return schema;
   }
-  return schema.fork(['token', 'user_id'], (mySchema) => mySchema.optional());
+  return schema.fork(
+    [
+      'platform',
+      'platform_version',
+      'app_version',
+      'app_build_version',
+      'token',
+      'user_id',
+      'user_location',
+      'user_current_store',
+    ],
+    (mySchema) => mySchema.optional(),
+  );
 };
 
 export const DeviceFactory = (optional = false) => {

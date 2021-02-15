@@ -1,5 +1,4 @@
 import Joi, { ObjectSchema, AlternativesSchema } from '@hapi/joi';
-import { max } from 'lodash';
 
 export const LocationFactory = () =>
   Joi.object({
