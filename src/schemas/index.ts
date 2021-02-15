@@ -1,4 +1,5 @@
 import Joi, { ObjectSchema, AlternativesSchema } from '@hapi/joi';
+import { max } from 'lodash';
 
 export const LocationFactory = () =>
   Joi.object({
@@ -104,21 +105,24 @@ export const DeliveryAreaFactory = (optional = false) => {
 };
 
 export const OpeningHoursFactory = (optional = false) => {
-  const schema = Joi.array().items(
-    Joi.object({
-      day: Joi.string().required(), // TODO: 1 - 7
-      open: Joi.number().min(0).max(2359).required(),
-      close: Joi.number().min(0).max(2359).required(),
-      hours: Joi.array()
-        .items(
-          Joi.object({
-            open: Joi.number().min(0).max(2359).required(),
-            close: Joi.number().min(0).max(2359).required(),
-          }),
-        )
-        .optional(),
-    }),
-  );
+  const schema = Joi.array()
+    .items(
+      Joi.object({
+        day: Joi.string().required(),
+        hours: Joi.array()
+          .items(
+            Joi.object({
+              open: Joi.number().min(0).max(2359).required(),
+              close: Joi.number().min(0).max(2359).required(),
+            }).required(),
+          )
+          .min(1)
+          .required(),
+      }).required(),
+    )
+    .min(7)
+    .max(7)
+    .required();
   return schema;
 };
 

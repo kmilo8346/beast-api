@@ -23,7 +23,23 @@ const run = async () => {
       (collection) =>
         collection.map((item) => ({
           ...item,
-          stats: { number_of_times_in_orders: 0 },
+          // stats: { number_of_times_in_orders: 0 },
+          store_info: {
+            ...item.store_info,
+            opening_hours: item.store_info.opening_hours.map((oh) => {
+              const r: any = oh;
+              if ('hours' in r) {
+                return {
+                  day: oh.day,
+                  hours: oh.hours,
+                };
+              }
+              return {
+                day: oh.day,
+                hours: [{ open: r.open, close: r.close }],
+              };
+            }),
+          },
         })),
       {
         mappings: {
@@ -44,7 +60,14 @@ const run = async () => {
                   type: 'geo_shape',
                   strategy: 'recursive',
                 },
-                opening_hours: { type: 'nested' },
+                opening_hours: {
+                  type: 'nested',
+                  properties: {
+                    hours: {
+                      type: 'nested',
+                    },
+                  },
+                },
                 created_at: { type: 'date' },
               },
             },

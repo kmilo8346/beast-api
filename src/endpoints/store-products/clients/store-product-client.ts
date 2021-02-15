@@ -1,14 +1,9 @@
 import Error from 'verror';
 import lodash from 'lodash';
+import moment from 'moment-timezone';
 
-import {
-  CreateParams,
-  SearchParams,
-  SearchResponse,
-  StoreProduct,
-} from '../../../types';
+import { SearchParams, SearchResponse, StoreProduct } from '../../../types';
 import utils from '../../../beast/utils';
-import logger from '../../../beast/logger';
 import elastic from '../../../beast/clients/elastic';
 
 const prefix = '[store product client]';
@@ -106,6 +101,59 @@ class StoreProductClient {
             },
           });
         }
+        if ('store_open' in params.filters) {
+          const date = moment().tz('America/Santiago');
+          let day = `${date.day()}`;
+          const minutes = date.minutes();
+          const time = parseInt(
+            `${date.hour()}${minutes < 10 ? `0${minutes}` : minutes}`,
+            10,
+          );
+          if (day === '0') {
+            day = '7';
+          }
+          query.bool.must.push({
+            nested: {
+              path: 'store_info.opening_hours',
+              query: {
+                bool: {
+                  must: [
+                    {
+                      match: {
+                        'store_info.opening_hours.day': day,
+                      },
+                    },
+                    {
+                      nested: {
+                        path: 'store_info.opening_hours.hours',
+                        query: {
+                          bool: {
+                            must: [
+                              {
+                                range: {
+                                  'store_info.opening_hours.hours.open': {
+                                    lte: time,
+                                  },
+                                },
+                              },
+                              {
+                                range: {
+                                  'store_info.opening_hours.hours.close': {
+                                    gt: time,
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          });
+        }
         if ('store_enabled' in params.filters) {
           query.bool.must.push({
             match_phrase: {
@@ -146,6 +194,15 @@ class StoreProductClient {
                   'store_info.address.id.keyword':
                     params.filters.must_not_store_address,
                 },
+              },
+            },
+          });
+        }
+        if ('stats_number_of_times_in_order_gte' in params.filters) {
+          query.bool.filter.push({
+            range: {
+              'stats.number_of_times_in_orders': {
+                gte: params.filters.stats_number_of_times_in_order_gte,
               },
             },
           });

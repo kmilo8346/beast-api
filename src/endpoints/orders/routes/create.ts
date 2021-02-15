@@ -42,8 +42,7 @@ const isStoreOpen = (store: Store) => {
     logger.error({ store, day }, `${prefix} Day not found in opening hours`);
     return false;
   }
-  const hours = match.hours || [{ open: match.open, close: match.close }];
-  return hours.some((h) => time >= h.open && time < h.close);
+  return match.hours.some((h) => time >= h.open && time < h.close);
 };
 
 const checking: IMiddleware = async (ctx, next): Promise<void> => {
