@@ -1,7 +1,3 @@
-import path from 'path';
-import fs from 'fs';
-import util from 'util';
-
 import logger from '../beast/logger';
 import elastic from '../beast/clients/elastic';
 import userClient from '../endpoints/users/clients/user-client';
@@ -34,7 +30,7 @@ const deleteProducts = async (store: string) => {
 
     logger.info(`Products deleted ${products.length}`);
   } catch (error) {
-    logger.error({ err: error }, 'Unexpected error deleting products');
+    logger.error({ err: error, store }, 'Unexpected error deleting products');
     throw error;
   }
 };
@@ -44,7 +40,10 @@ const deleteStore = async (store: string) => {
     logger.info(`Deleting store ${store}`);
     await storeClient.delete(store);
     logger.info('Store deleted');
-  } catch (error) {}
+  } catch (error) {
+    logger.error({ err: error, store }, 'Unexpected error deleting store');
+    throw error;
+  }
 };
 
 const deleteDevices = async (user: string) => {
