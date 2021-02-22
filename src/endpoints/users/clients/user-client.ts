@@ -140,7 +140,7 @@ class UserClient {
           const addressIds = (params.body.addresses || []).map(
             (address: Place) => address.id,
           );
-          const addresses = Array.prototype.concat(
+          let addresses = Array.prototype.concat(
             params.body.addresses || [],
             (alreadyCreated.addresses || []).filter(
               (address: Place) => addressIds.indexOf(address.id) === -1,
@@ -148,6 +148,19 @@ class UserClient {
           );
           const current_address =
             params.body.current_address || alreadyCreated.current_address;
+          // move current address to first position and cut to 5
+          for (let i = 0; i < addresses.length; i++) {
+            const a = addresses[i];
+            if (a.id === current_address) {
+              addresses = [
+                a,
+                ...addresses.splice(0, i),
+                ...addresses.splice(i + 1),
+              ];
+              addresses = addresses.slice(0, 5);
+              break;
+            }
+          }
           alreadyCreated = {
             ...alreadyCreated,
             current_address,

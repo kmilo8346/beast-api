@@ -23,7 +23,7 @@ class PhoneClient {
       await twilioClient.messages.create({
         to: data.phone,
         from: config.get('TWILIO_PHONE'),
-        body: `Código de verfificación Shop Shop: ${code}`,
+        body: `Código de verificación Shop Shop: ${code}`,
       });
       return {
         phone: data.phone,
