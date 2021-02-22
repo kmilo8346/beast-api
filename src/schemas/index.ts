@@ -115,7 +115,6 @@ export const OpeningHoursFactory = (optional = false) => {
               close: Joi.number().min(0).max(2359).required(),
             }).required(),
           )
-          .min(1)
           .required(),
       }).required(),
     )
