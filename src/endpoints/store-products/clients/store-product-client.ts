@@ -198,7 +198,8 @@ class StoreProductClient {
             },
           });
         }
-        if ('stats_requests_gte' in params.filters) {
+        // order_messages + product_messages
+        if ('stats_number_of_times_in_order_gte' in params.filters) {
           query.bool.filter.push({
             script: {
               script: {
@@ -208,16 +209,6 @@ class StoreProductClient {
                 params: {
                   stats_requests_gte: params.filters.stats_requests_gte,
                 },
-              },
-            },
-          });
-        }
-        // deprecated
-        if ('stats_number_of_times_in_order_gte' in params.filters) {
-          query.bool.filter.push({
-            range: {
-              'stats.number_of_times_in_orders': {
-                gte: params.filters.stats_number_of_times_in_order_gte,
               },
             },
           });
@@ -249,8 +240,8 @@ class StoreProductClient {
             };
           }
 
-          // sort by most requestes (order_messages + product_messages)
-          if (field === 'stats.requests') {
+          // sort by order_messages + product_messages
+          if (field === 'stats.number_of_times_in_order') {
             return {
               _script: {
                 type: 'number',
