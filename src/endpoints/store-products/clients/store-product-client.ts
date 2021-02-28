@@ -198,6 +198,21 @@ class StoreProductClient {
             },
           });
         }
+        if ('stats_requests_gte' in params.filters) {
+          query.bool.filter.push({
+            script: {
+              script: {
+                source:
+                  "doc['stats.order_messages'].value + doc['stats.product_messages'].value >= params.stats_requests_gte",
+                lang: 'painless',
+                params: {
+                  stats_requests_gte: params.filters.stats_requests_gte,
+                },
+              },
+            },
+          });
+        }
+        // deprecated
         if ('stats_number_of_times_in_order_gte' in params.filters) {
           query.bool.filter.push({
             range: {
@@ -213,6 +228,7 @@ class StoreProductClient {
       let sort: { [key: string]: any }[] | undefined;
       if (params.sort) {
         sort = Object.keys(params.sort).map((field) => {
+          // sort by location
           if (
             field === 'store_info.address.location' &&
             params.filters &&
@@ -229,6 +245,21 @@ class StoreProductClient {
                 },
                 order: (params.sort as any)[field],
                 unit: 'km',
+              },
+            };
+          }
+
+          // sort by most requestes (order_messages + product_messages)
+          if (field === 'stats.requests') {
+            return {
+              _script: {
+                type: 'number',
+                script: {
+                  lang: 'painless',
+                  source:
+                    'params._source.stats.order_messages + params._source.stats.product_messages',
+                },
+                order: (params.sort as any)[field],
               },
             };
           }

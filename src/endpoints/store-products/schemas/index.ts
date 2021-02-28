@@ -12,6 +12,7 @@ export const SearchFiltersFactory = () =>
     store_address: Joi.string().optional(),
     store_enabled: Joi.boolean().optional(),
     must_not_store_address: Joi.string().optional(),
+    stats_requests_gte: Joi.number().optional(),
     // deprecated
     stats_order_messages_gte: Joi.number().optional(),
   });
