@@ -204,10 +204,10 @@ class StoreProductClient {
             script: {
               script: {
                 source:
-                  "doc['stats.order_messages'].value + doc['stats.product_messages'].value >= params.stats_requests_gte",
+                  "doc['stats.order_messages'].value + doc['stats.product_messages'].value >= params.value",
                 lang: 'painless',
                 params: {
-                  stats_requests_gte: params.filters.stats_requests_gte,
+                  value: params.filters.stats_number_of_times_in_order_gte,
                 },
               },
             },
