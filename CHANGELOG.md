@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.49](https://github.com/firedevs-team/beast-api/compare/v1.0.48...v1.0.49) (2021-02-28)
+
+
+### Bug Fixes
+
+* **store product client:** bad filter ([a3b4a44](https://github.com/firedevs-team/beast-api/commit/a3b4a4487063808a084a14327c7f7482129f95c0))
+
 ### [1.0.48](https://github.com/firedevs-team/beast-api/compare/v1.0.47...v1.0.48) (2021-02-22)
 
 ### [1.0.47](https://github.com/firedevs-team/beast-api/compare/v1.0.46...v1.0.47) (2021-01-17)
