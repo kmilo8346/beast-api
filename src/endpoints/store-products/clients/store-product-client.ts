@@ -207,7 +207,7 @@ class StoreProductClient {
                   "doc['stats.order_messages'].value + doc['stats.product_messages'].value >= params.value",
                 lang: 'painless',
                 params: {
-                  value: params.filters.stats_number_of_times_in_order_gte,
+                  value: params.filters.stats_number_of_times_in_orders_gte,
                 },
               },
             },
@@ -259,8 +259,6 @@ class StoreProductClient {
           };
         });
       }
-
-      console.log(JSON.stringify({ sort }));
 
       const payload: any = {
         index,
