@@ -199,7 +199,7 @@ class StoreProductClient {
           });
         }
         // order_messages + product_messages
-        if ('stats_number_of_times_in_order_gte' in params.filters) {
+        if ('stats_number_of_times_in_orders_gte' in params.filters) {
           query.bool.filter.push({
             script: {
               script: {

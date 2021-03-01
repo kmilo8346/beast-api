@@ -12,5 +12,5 @@ export const SearchFiltersFactory = () =>
     store_address: Joi.string().optional(),
     store_enabled: Joi.boolean().optional(),
     must_not_store_address: Joi.string().optional(),
-    stats_number_of_times_in_order_gte: Joi.number().optional(),
+    stats_number_of_times_in_orders_gte: Joi.number().optional(),
   });
