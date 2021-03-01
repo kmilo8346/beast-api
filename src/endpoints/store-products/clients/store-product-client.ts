@@ -248,7 +248,7 @@ class StoreProductClient {
                 script: {
                   lang: 'painless',
                   source:
-                    'params._source.stats.order_messages + params._source.stats.product_messages',
+                    "doc['stats.order_messages'].value + doc['stats.product_messages'].value",
                 },
                 order: (params.sort as any)[field],
               },
