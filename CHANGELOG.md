@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.53](https://github.com/firedevs-team/beast-api/compare/v1.0.52...v1.0.53) (2021-03-01)
+
+
+### Bug Fixes
+
+* **schema:** changing filters ([adfbfd4](https://github.com/firedevs-team/beast-api/commit/adfbfd45002e2f5d468db6b212e0a291b0fae36d))
+
 ### [1.0.52](https://github.com/firedevs-team/beast-api/compare/v1.0.51...v1.0.52) (2021-03-01)
 
 
