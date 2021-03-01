@@ -17,23 +17,7 @@ const run = async () => {
     await restore<Store>(
       'stores',
       path.join(__dirname, 'tmp/stores.json'),
-      (collection) =>
-        collection.map((item) => ({
-          ...item,
-          opening_hours: item.opening_hours.map((oh) => {
-            const r: any = oh;
-            if ('hours' in r) {
-              return {
-                day: oh.day,
-                hours: oh.hours,
-              };
-            }
-            return {
-              day: oh.day,
-              hours: [{ open: r.open, close: r.close }],
-            };
-          }),
-        })),
+      (collection) => collection,
       {
         mappings: {
           properties: {
