@@ -1,6 +1,6 @@
 {
   "name": "beast-api",
-  "version": "1.0.49",
+  "version": "1.0.50",
   "description": "Beast api",
   "main": "src/index.ts",
   "scripts": {
