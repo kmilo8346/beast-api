@@ -34,11 +34,6 @@ const run = async () => {
   await createTopic('product.updated');
   await createTopic('product.deleted');
 
-  await createTopic('order.created');
-  await createTopic('order.confirmed');
-  await createTopic('order.delivered');
-  await createTopic('order.cancelled');
-
   logger.info('');
   process.exit(0);
 };

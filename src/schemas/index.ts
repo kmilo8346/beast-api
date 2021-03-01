@@ -124,45 +124,6 @@ export const OpeningHoursFactory = (optional = false) => {
   return schema;
 };
 
-const MercadoPagoCredentialsFactory = (optional = false) => {
-  const schema = Joi.object({
-    access_token: Joi.string().required(),
-    expires_in: Joi.number().required(),
-    live_mode: Joi.boolean().required(),
-    public_key: Joi.string().required(),
-    refresh_token: Joi.string().required(),
-    scope: Joi.string().required(),
-    token_type: Joi.string().required(),
-    user_id: Joi.number().required(),
-  });
-  if (!optional) {
-    return schema;
-  }
-  return schema.fork(
-    [
-      'access_token',
-      'expires_in',
-      'live_mode',
-      'public_key',
-      'refresh_token',
-      'scope',
-      'token_type',
-      'user_id',
-    ],
-    (mySchema) => mySchema.optional(),
-  );
-};
-
-export const PaymentProviderFactory = (optional = false) => {
-  const schema = Joi.object({
-    credentials: MercadoPagoCredentialsFactory(optional).required(),
-  });
-  if (!optional) {
-    return schema;
-  }
-  return schema.fork(['credentials'], (mySchema) => mySchema.optional());
-};
-
 export const CreateStoreFactory = (optional = false) => {
   const schema = Joi.object().keys({
     user: Joi.string().required(),
@@ -175,7 +136,6 @@ export const CreateStoreFactory = (optional = false) => {
     delivery_time: IntegerRangeFactory(optional).required(),
     delivery_area: DeliveryAreaFactory(optional).required(),
     opening_hours: OpeningHoursFactory(optional).required(),
-    payment_provider: PaymentProviderFactory(optional).allow(null).optional(),
   });
   if (!optional) {
     return schema;
@@ -192,7 +152,6 @@ export const CreateStoreFactory = (optional = false) => {
       'delivery_time',
       'delivery_area',
       'opening_hours',
-      'payment_provider',
     ],
     (mySchema) => mySchema.optional(),
   );
