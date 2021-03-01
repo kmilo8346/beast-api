@@ -241,7 +241,7 @@ class StoreProductClient {
           }
 
           // sort by order_messages + product_messages
-          if (field === 'stats.number_of_times_in_order') {
+          if (field === 'stats.number_of_times_in_orders') {
             return {
               _script: {
                 type: 'number',
@@ -259,6 +259,8 @@ class StoreProductClient {
           };
         });
       }
+
+      console.log(JSON.stringify({ sort }));
 
       const payload: any = {
         index,
