@@ -1,4 +1,4 @@
-import { ExpoPushMessage } from 'expo-server-sdk';
+import { ExpoPushMessage, ExpoPushTicket } from 'expo-server-sdk';
 
 export interface CreateParams<T> {
   body: T;
@@ -200,20 +200,42 @@ export interface Device extends CreateDevice {
   updated_at: Date;
 }
 
-export interface NotificationFilters {
-  user: string;
-}
-
 export interface NotificationMessage extends Omit<ExpoPushMessage, 'to'> {}
 
 export interface CreateNotification {
-  idempotency: string;
-  filters: NotificationFilters;
+  reference?: string;
+  filters?: {
+    user?: string;
+    area?: Circle;
+    // TODO: add more filters
+  };
   message: NotificationMessage;
+  attribution?: {
+    utm_source: string;
+    utm_medium: string;
+    utm_campaign: string;
+    utm_term?: string;
+    utm_content?: string;
+  };
+}
+
+export enum NotificationStatus {
+  CREATED = 'created',
+  EXECUTED = 'executed',
 }
 
 export interface Notification extends CreateNotification {
   id: string;
+  status: NotificationStatus;
+  stats: {
+    devices_ok: number;
+    devices_error: number;
+    notification_open: number;
+    send_product_message: number;
+    send_order_message: number;
+    send_question_message: number;
+  };
+  expo_push_tickets: ExpoPushTicket[];
   created_at: Date;
   updated_at: Date;
 }

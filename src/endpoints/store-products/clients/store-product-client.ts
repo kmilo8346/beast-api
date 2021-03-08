@@ -218,45 +218,56 @@ class StoreProductClient {
       // mapping sort
       let sort: { [key: string]: any }[] | undefined;
       if (params.sort) {
-        sort = Object.keys(params.sort).map((field) => {
+        sort = lodash.flatMap(Object.keys(params.sort), (field): {
+          [key: string]: any;
+        }[] => {
           // sort by location
           if (
             field === 'store_info.address.location' &&
             params.filters &&
             'location' in params.filters
           ) {
-            return {
-              _geo_distance: {
-                'store_info.address.location': {
-                  lat: params.filters.location.lat,
-                  lon: params.filters.location.lon,
+            return [
+              {
+                _geo_distance: {
+                  'store_info.address.location': {
+                    lat: params.filters.location.lat,
+                    lon: params.filters.location.lon,
+                  },
+                  nested: {
+                    path: 'store_info.address',
+                  },
+                  order: (params.sort as any)[field],
+                  unit: 'km',
                 },
-                nested: {
-                  path: 'store_info.address',
-                },
-                order: (params.sort as any)[field],
-                unit: 'km',
               },
-            };
+            ];
           }
 
           // sort by order_messages + product_messages
           if (field === 'stats.number_of_times_in_orders') {
-            return {
-              _script: {
-                type: 'number',
-                script: {
-                  lang: 'painless',
-                  source:
-                    "doc['stats.order_messages'].value + doc['stats.product_messages'].value",
+            return [
+              {
+                _script: {
+                  type: 'number',
+                  script: {
+                    lang: 'painless',
+                    source:
+                      "doc['stats.order_messages'].value + doc['stats.product_messages'].value",
+                  },
+                  order: (params.sort as any)[field],
                 },
-                order: (params.sort as any)[field],
               },
-            };
+              {
+                updated_at: { order: 'desc' },
+              },
+            ];
           }
-          return {
-            [field]: { order: (params.sort as any)[field] },
-          };
+          return [
+            {
+              [field]: { order: (params.sort as any)[field] },
+            },
+          ];
         });
       }
 

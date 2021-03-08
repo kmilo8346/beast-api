@@ -5,6 +5,12 @@ import { LocationFactory } from '../../../schemas';
 export const SearchFiltersFactory = () =>
   Joi.object().keys({
     user: Joi.string().optional(),
+    area: Joi.object({
+      type: Joi.string().valid('circle').default('circle'),
+      radius: Joi.string().required(),
+      coordinates: Joi.array().items(Joi.number()).required(),
+    }).optional(),
+    token_exists: Joi.boolean().optional(),
   });
 
 export const CreateDeviceFactory = (optional = false) => {

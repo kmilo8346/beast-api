@@ -221,7 +221,7 @@ class ProductClient {
     } catch (error) {
       throw new Error(
         { cause: error, info: { store, params } },
-        `${prefix} Unexpected error creating product lala`,
+        `${prefix} Unexpected error creating product`,
       );
     }
   }

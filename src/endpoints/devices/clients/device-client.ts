@@ -22,14 +22,35 @@ class DeviceClient {
   async search(params: SearchParams): Promise<SearchResponse<Device>> {
     try {
       // filters
-      const must: any[] = [];
+      const query: any = {
+        bool: {
+          must: [],
+          filter: [],
+          must_not: [],
+        },
+      };
       if (params.filters) {
-        if (params.filters.user) {
-          must.push({
+        if ('user' in params.filters) {
+          query.bool.must.push({
             match_phrase: {
               'user_id.keyword': {
                 query: params.filters.user,
               },
+            },
+          });
+        }
+        if ('area' in params.filters) {
+          query.bool.filter.push({
+            geo_distance: {
+              distance: params.filters.area.radius,
+              user_location: params.filters.area.coordinates,
+            },
+          });
+        }
+        if ('token_exists' in params.filters) {
+          query.bool.must.push({
+            exists: {
+              field: 'token.keyword',
             },
           });
         }
@@ -48,11 +69,7 @@ class DeviceClient {
       const response = await elastic.search({
         index,
         body: {
-          query: {
-            bool: {
-              must,
-            },
-          },
+          query,
           sort,
           from: params.from,
           size: params.size,

@@ -2,14 +2,13 @@ import Router, { IMiddleware } from 'koa-router';
 
 import { SearchFiltersFactory } from '../schemas';
 import { SearchParamsFactory } from '../../../schemas';
-import storeProductClient from '../clients/store-product-client';
+import notificationClient from '../clients/notification-client';
 
 const schema = SearchParamsFactory(SearchFiltersFactory());
 
 const validate: IMiddleware = async (ctx, next): Promise<void> => {
   try {
     const query = await schema.validateAsync(ctx.state.query, {
-      convert: true,
       stripUnknown: true,
     });
     // set formatted query
@@ -23,7 +22,7 @@ const validate: IMiddleware = async (ctx, next): Promise<void> => {
 export default (router: Router) => {
   router.get('/', validate, async (ctx) => {
     try {
-      const response = await storeProductClient.search(ctx.state.query);
+      const response = await notificationClient.search(ctx.state.query);
       ctx.body = response;
     } catch (error) {
       ctx.throw(500, error);
