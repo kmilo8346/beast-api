@@ -54,6 +54,15 @@ class DeviceClient {
             },
           });
         }
+        if ('app_version_gte' in params.filters) {
+          query.bool.must.push({
+            range: {
+              app_version_num: {
+                gte: utils.convertVersionToInt(params.filters.app_version_gte),
+              },
+            },
+          });
+        }
       }
 
       // sort
@@ -101,7 +110,7 @@ class DeviceClient {
   async create(params: CreateParams<CreateDevice>): Promise<Device> {
     try {
       const { id, ...data } = params.body;
-      const newDevice = {
+      const newDevice: any = {
         ...data,
         created_at: new Date(),
         updated_at: new Date(),

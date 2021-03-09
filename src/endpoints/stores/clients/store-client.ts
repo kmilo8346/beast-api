@@ -1,8 +1,5 @@
 import Error from 'verror';
-import { PubSub } from '@google-cloud/pubsub';
 
-import utils from '../../../beast/utils';
-import elastic from '../../../beast/clients/elastic';
 import {
   SearchParams,
   SearchResponse,
@@ -11,11 +8,13 @@ import {
   CreateParams,
   UpdateParams,
 } from '../../../types';
+import utils from '../../../beast/utils';
 import logger from '../../../beast/logger';
 import config from '../../../beast/config';
+import pubsub from '../../../beast/clients/pubsub';
+import elastic from '../../../beast/clients/elastic';
 
 const prefix = '[store client]';
-const pubSubClient = new PubSub();
 const index = 'stores';
 
 /**
@@ -219,18 +218,7 @@ class StoreClient {
       };
 
       // emit event
-      const event = 'store.updated';
-      const topic = `${config.get('GOOGLE_PUB_SUB_TOPIC_PREFIX')}/${event}`;
-      const messageId = await pubSubClient
-        .topic(topic)
-        .publish(Buffer.from(JSON.stringify(update)), {
-          id: _id,
-          time: new Date().toISOString(),
-          source: 'beast-api',
-        });
-      logger.info(
-        `${prefix} Event ${event} was emitted correctly, message id: ${messageId}`,
-      );
+      await pubsub.publish('store.updated', _id, update);
 
       return utils.mapObject(update, params.source);
     } catch (error) {

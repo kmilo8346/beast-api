@@ -196,6 +196,7 @@ export interface CreateDevice {
 
 export interface Device extends CreateDevice {
   id: string;
+  app_version_num?: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -207,7 +208,7 @@ export interface CreateNotification {
   filters?: {
     user?: string;
     area?: Circle;
-    // TODO: add more filters
+    app_version_gte?: string;
   };
   message: NotificationMessage;
   attribution?: {
@@ -233,7 +234,7 @@ export interface Notification extends CreateNotification {
     notification_open: number;
     send_product_message: number;
     send_order_message: number;
-    send_question_message: number;
+    send_store_question_message: number;
   };
   expo_push_tickets: ExpoPushTicket[];
   created_at: Date;

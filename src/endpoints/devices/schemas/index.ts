@@ -11,6 +11,7 @@ export const SearchFiltersFactory = () =>
       coordinates: Joi.array().items(Joi.number()).required(),
     }).optional(),
     token_exists: Joi.boolean().optional(),
+    app_version_gte: Joi.string().optional(),
   });
 
 export const CreateDeviceFactory = (optional = false) => {

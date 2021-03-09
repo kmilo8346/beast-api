@@ -120,6 +120,11 @@ class Utils {
     const parts = id.split('|');
     return parts.length > 1 ? parts[1] : id;
   }
+
+  public convertVersionToInt(version: string): number {
+    const parts = version.split('.').map((i) => lodash.padEnd(i, 4, '0'));
+    return parseInt(parts.join(''), 10);
+  }
 }
 
 export default new Utils();

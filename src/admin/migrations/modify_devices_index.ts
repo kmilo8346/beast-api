@@ -4,9 +4,10 @@ import path from 'path';
 import backup from './lib/backup';
 import restore from './lib/restore';
 // types
-import { User } from '../../types';
+import { Device, User } from '../../types';
 // beast
 import logger from '../../beast/logger';
+import utils from '../../beast/utils';
 
 const run = async () => {
   try {
@@ -14,10 +15,19 @@ const run = async () => {
     logger.info('');
     await backup('devices', path.join(__dirname, 'tmp/devices.json'));
     //
-    await restore<User>(
+    await restore<Device>(
       'devices',
       path.join(__dirname, 'tmp/devices.json'),
-      (collection) => collection,
+      (collection) =>
+        collection.map((item) => {
+          const r = {
+            ...item,
+          };
+          if (item.app_version) {
+            r.app_version_num = utils.convertVersionToInt(item.app_version);
+          }
+          return r;
+        }),
       {
         mappings: {
           properties: {

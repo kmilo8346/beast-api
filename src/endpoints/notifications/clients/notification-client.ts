@@ -10,7 +10,6 @@ import {
 } from '../../../types';
 import utils from '../../../beast/utils';
 import logger from '../../../beast/logger';
-import config from '../../../beast/config';
 import pubsub from '../../../beast/clients/pubsub';
 import elastic from '../../../beast/clients/elastic';
 
@@ -143,7 +142,7 @@ class NotificationClient {
           notification_open: 0,
           send_product_message: 0,
           send_order_message: 0,
-          send_question_message: 0,
+          send_store_question_message: 0,
         },
         created_at: new Date(),
         updated_at: new Date(),

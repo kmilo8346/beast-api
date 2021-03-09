@@ -10,24 +10,25 @@ export const CreateNotificationFactory = () =>
         radius: Joi.string().required(),
         coordinates: Joi.array().items(Joi.number()).required(),
       }).optional(),
+      app_version_gte: Joi.string().optional(),
     }).optional(),
     message: Joi.object({
       title: Joi.string().required(),
       body: Joi.string().required(),
       data: Joi.object({
         navigate: Joi.object({
-          name: Joi.string().valid('product', 'store').required(),
+          name: Joi.string().valid('Product', 'Store').required(),
           params: Joi.alternatives()
             .conditional('name', {
               switch: [
                 {
-                  is: 'product',
+                  is: 'Product',
                   then: Joi.object({
                     product: Joi.string().required(),
                   }),
                 },
                 {
-                  is: 'store',
+                  is: 'Store',
                   then: Joi.object({
                     store: Joi.string().required(),
                   }),
