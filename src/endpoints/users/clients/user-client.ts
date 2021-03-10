@@ -264,6 +264,7 @@ class UserClient {
         body: {
           doc: update,
         },
+        refresh: 'true',
       });
       return utils.mapObject({ ...update, id }, params.source);
     } catch (error) {

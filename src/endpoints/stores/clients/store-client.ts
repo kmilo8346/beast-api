@@ -211,6 +211,7 @@ class StoreClient {
         body: {
           doc: update,
         },
+        refresh: 'true',
       });
       update = {
         ...update,

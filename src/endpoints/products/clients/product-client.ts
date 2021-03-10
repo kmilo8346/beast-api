@@ -239,6 +239,7 @@ class ProductClient {
         body: {
           doc: update,
         },
+        refresh: 'true',
       });
       update = {
         ...update,

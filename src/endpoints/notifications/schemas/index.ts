@@ -10,7 +10,9 @@ export const CreateNotificationFactory = () =>
         radius: Joi.string().required(),
         coordinates: Joi.array().items(Joi.number()).required(),
       }).optional(),
+      address: Joi.string().optional(),
       app_version_gte: Joi.string().optional(),
+      must_not_address: Joi.string().optional(),
     }).optional(),
     message: Joi.object({
       title: Joi.string().required(),

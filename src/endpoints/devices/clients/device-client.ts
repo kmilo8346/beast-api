@@ -47,6 +47,15 @@ class DeviceClient {
             },
           });
         }
+        if ('address' in params.filters) {
+          query.bool.must.push({
+            match_phrase: {
+              'user_current_address.keyword': {
+                query: params.filters.address,
+              },
+            },
+          });
+        }
         if ('token_exists' in params.filters) {
           query.bool.must.push({
             exists: {
@@ -59,6 +68,15 @@ class DeviceClient {
             range: {
               app_version_num: {
                 gte: utils.convertVersionToInt(params.filters.app_version_gte),
+              },
+            },
+          });
+        }
+        if ('must_not_address' in params.filters) {
+          query.bool.must_not.push({
+            match_phrase: {
+              'user_current_address.keyword': {
+                query: params.filters.must_not_address,
               },
             },
           });
@@ -159,6 +177,7 @@ class DeviceClient {
         body: {
           doc: update,
         },
+        refresh: 'true',
       });
       return utils.mapObject({ ...update, id: _id }, params.source);
     } catch (error) {

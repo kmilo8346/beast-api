@@ -148,6 +148,7 @@ class WidgetClient {
         body: {
           doc: update,
         },
+        refresh: 'true',
       });
 
       return utils.mapObject(
